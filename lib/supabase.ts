@@ -1,7 +1,9 @@
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// Supabase now issues "publishable" keys (sb_publishable_…); older projects use the anon JWT.
+// Both are safe for the browser. Next inlines NEXT_PUBLIC_* only when referenced literally.
+const anonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 /**
  * Browser Supabase client, or `null` when the project isn't configured yet.
