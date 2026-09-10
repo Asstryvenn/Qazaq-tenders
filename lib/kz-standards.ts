@@ -27,9 +27,19 @@ export const KZ = {
    * regionally. Verify against the current Tax Code before relying on it.
    */
   simplifiedRate: 0.04,
+  /**
+   * ҚҚС / НДС. 16% under the Tax Code in force from 2026 (was 12%).
+   * Verify against the current code before relying on it.
+   */
+  vatRate: 0.16,
 } as const;
 
-export type TaxRegime = "general" | "simplified";
+/**
+ * general    — ОУР, not registered for VAT: CIT 20% on profit
+ * simplified — упрощённая декларация: % of revenue, no VAT
+ * vat        — ОУР + VAT payer: output VAT minus input VAT, then CIT 20%
+ */
+export type TaxRegime = "general" | "simplified" | "vat";
 
 /** Fee for keeping a bank guarantee open for `days`. */
 export function bankGuaranteeFee(amount: number, days: number): number {
@@ -42,8 +52,14 @@ export function statutoryPenalty(contractAmount: number, rate: number, lateDays:
   return Math.min(contractAmount * rate * Math.max(0, lateDays), contractAmount * KZ.penaltyCap);
 }
 
-/** Tax for a contract under the chosen regime. */
-export function contractTax(regime: TaxRegime, revenue: number, profitBeforeTax: number): number {
+/**
+ * Tax for a contract under the chosen regime.
+ * Contract and supplier prices are VAT-inclusive; a VAT payer remits VAT only on the
+ * value it adds (revenue minus costs bought from VAT-registered suppliers).
+ */
+export function contractTax(regime: TaxRegime, revenue: number, profitBeforeTax: number, vatDeductibleCosts = 0): number {
   if (regime === "simplified") return revenue * KZ.simplifiedRate;
-  return profitBeforeTax > 0 ? profitBeforeTax * KZ.citRate : 0;
+  const vat = regime === "vat" ? (Math.max(0, revenue - vatDeductibleCosts) * KZ.vatRate) / (1 + KZ.vatRate) : 0;
+  const taxable = profitBeforeTax - vat;
+  return vat + (taxable > 0 ? taxable * KZ.citRate : 0);
 }

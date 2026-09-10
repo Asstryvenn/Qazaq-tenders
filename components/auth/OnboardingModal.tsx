@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
 import { useProfile } from "@/lib/profile";
@@ -10,11 +10,15 @@ import type { CompanyProfile, TaxRegime } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/Button";
 import { Field, inputCls, Modal } from "./Modal";
+import { formatPhone, isValidBin, isValidTelegram, normalizePhone, normalizeTelegram } from "@/lib/validation";
 
 type Draft = {
   name: string;
   bin: string;
   directorName: string;
+  phone: string;
+  telegramUsername: string;
+  legalAddress: string;
   workingCapital: string;
   monthlyOpex: string;
   baseCityId: string;
@@ -29,6 +33,9 @@ const toDraft = (c: CompanyProfile): Draft => ({
   name: c.name,
   bin: c.bin,
   directorName: c.directorName,
+  phone: c.phone ? formatPhone(c.phone) : "",
+  telegramUsername: c.telegramUsername,
+  legalAddress: c.legalAddress,
   workingCapital: String(c.workingCapital),
   monthlyOpex: String(c.monthlyOpex),
   baseCityId: c.baseCityId,
@@ -45,7 +52,7 @@ const num = (v: string) => Number(v.replace(/\s/g, ""));
 const STEP_FIELDS: (keyof Draft)[][] = [
   ["name", "bin", "directorName", "workingCapital", "monthlyOpex"],
   ["baseCityId", "maxDistanceKm"],
-  ["staffSize", "experienceYears"],
+  ["staffSize", "experienceYears", "phone", "telegramUsername"],
   ["taxRegime"],
 ];
 
@@ -75,7 +82,9 @@ export function OnboardingModal() {
     const e: Partial<Record<keyof Draft, boolean>> = {};
     for (const k of STEP_FIELDS[s]) {
       const v = draft[k];
-      if (k === "bin") e[k] = !/^\d{12}$/.test(String(v).trim());
+      if (k === "bin") e[k] = !isValidBin(String(v));
+      else if (k === "phone") e[k] = !!String(v).trim() && !normalizePhone(String(v));
+      else if (k === "telegramUsername") e[k] = !!String(v).trim() && !isValidTelegram(String(v));
       else if (k === "name" || k === "directorName" || k === "baseCityId" || k === "taxRegime") e[k] = !String(v).trim();
       else if (k === "experienceYears" || k === "monthlyOpex") e[k] = !(num(v) >= 0) || v.trim() === "";
       else e[k] = !(num(v) > 0);
@@ -93,6 +102,9 @@ export function OnboardingModal() {
       name: draft.name.trim(),
       bin: draft.bin.trim(),
       directorName: draft.directorName.trim(),
+      phone: normalizePhone(draft.phone) ?? "",
+      telegramUsername: normalizeTelegram(draft.telegramUsername),
+      legalAddress: draft.legalAddress.trim(),
       workingCapital: num(draft.workingCapital),
       monthlyOpex: num(draft.monthlyOpex),
       baseCityId: draft.baseCityId,
@@ -124,13 +136,11 @@ export function OnboardingModal() {
         ))}
       </ol>
 
-      <AnimatePresence mode="wait">
-        <motion.div
+              <motion.div
           key={step}
           initial={{ opacity: 0, x: 16 }}
           animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -16 }}
-          transition={{ duration: 0.2 }}
+                    transition={{ duration: 0.2 }}
           className="space-y-4"
         >
           {step === 0 && (
@@ -139,7 +149,7 @@ export function OnboardingModal() {
                 <input className={inputCls} value={draft.name} onChange={(e) => set("name", e.target.value)} />
               </Field>
               <div className="grid grid-cols-2 gap-4">
-                <Field label={lang === "kz" ? "БСН (12 цифр)" : "БИН (12 цифр)"} error={errors.bin ? (lang === "kz" ? "12 цифр болуы керек" : "Должно быть 12 цифр") : undefined}>
+                <Field label={lang === "kz" ? "БСН (12 цифр)" : "БИН (12 цифр)"} error={errors.bin ? (lang === "kz" ? "12 цифр, бақылау саны дұрыс болуы керек" : "12 цифр с верной контрольной цифрой") : undefined}>
                   <input className={inputCls} inputMode="numeric" maxLength={12} value={draft.bin} onChange={(e) => set("bin", e.target.value.replace(/\D/g, ""))} />
                 </Field>
                 <Field label={lang === "kz" ? "Басшының аты-жөні" : "ФИО руководителя"} error={err("directorName")}>
@@ -180,6 +190,17 @@ export function OnboardingModal() {
                   <input className={inputCls} inputMode="numeric" value={draft.experienceYears} onChange={(e) => set("experienceYears", e.target.value)} />
                 </Field>
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <Field label={lang === "kz" ? "Телефон" : "Телефон"} error={errors.phone ? "+7 (7XX) XXX-XX-XX" : undefined}>
+                  <input className={inputCls} type="tel" value={draft.phone} onChange={(e) => set("phone", formatPhone(e.target.value))} />
+                </Field>
+                <Field label="Telegram" error={errors.telegramUsername ? "@username" : undefined}>
+                  <input className={inputCls} placeholder="@username" value={draft.telegramUsername} onChange={(e) => set("telegramUsername", e.target.value)} />
+                </Field>
+              </div>
+              <Field label={lang === "kz" ? "Заңды мекенжай" : "Юридический адрес"}>
+                <input className={inputCls} value={draft.legalAddress} onChange={(e) => set("legalAddress", e.target.value)} />
+              </Field>
               <Field label={t.onb.certs} hint={t.onb.certsHint}>
                 <input className={inputCls} value={draft.certificates} onChange={(e) => set("certificates", e.target.value)} />
               </Field>
@@ -188,7 +209,7 @@ export function OnboardingModal() {
           {step === 3 && (
             <fieldset className="space-y-3">
               <legend className="mb-1 text-sm font-medium text-slate-200">{t.onb.regime}</legend>
-              {(["general", "simplified"] as TaxRegime[]).map((r) => (
+              {((company.taxRegime === "general" ? ["simplified", "vat", "general"] : ["simplified", "vat"]) as TaxRegime[]).map((r) => (
                 <button
                   key={r}
                   type="button"
@@ -211,7 +232,6 @@ export function OnboardingModal() {
             </fieldset>
           )}
         </motion.div>
-      </AnimatePresence>
 
       {saveError && <p className="mt-4 rounded-lg border border-rose-400/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-200">{saveError}</p>}
 

@@ -7,14 +7,18 @@ export const DEMO_COMPANY: CompanyProfile = {
   maxDistanceKm: 900,
   staffSize: 24,
   baseCityId: "almaty",
-  taxRegime: "general",
+  taxRegime: "vat",
   monthlyOpex: 4_200_000,
   opexAllocation: 0.35,
   creditRate: 0.24,
   experienceYears: 4,
   certificates: ["ISO 9001", "СТ РК"],
-  bin: "180540012345",
+  // Valid check digit; fictitious company.
+  bin: "180540012343",
   directorName: "Ахметов Арман Болатұлы",
+  phone: "+77010000000",
+  telegramUsername: "",
+  legalAddress: "Алматы, Бостандық ауданы",
 };
 
 /**

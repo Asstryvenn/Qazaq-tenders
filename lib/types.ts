@@ -88,6 +88,12 @@ export interface CompanyProfile {
   bin: string;
   /** Head of the company, signs letters */
   directorName: string;
+  /** +7XXXXXXXXXX */
+  phone: string;
+  /** @username — the bot still needs a /start to get a chat id */
+  telegramUsername: string;
+  /** e.g. "Астана, Есіл ауданы, ..." */
+  legalAddress: string;
 }
 
 /** Levers of the What-If sensitivity simulator (and of the chatbot's run_scenario tool). */

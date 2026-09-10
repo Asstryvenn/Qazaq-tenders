@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 
 export default function DashboardPage() {
   const { t, kzt, city, tr, lotTitle, lang } = useI18n();
-  const { company, isDemo, openModal } = useProfile();
+  const { company, isDemo, openModal, pendingEmail, session } = useProfile();
   const { feed, results, simulate, toast } = useNotifications();
   const { settings } = useNotificationSettings();
   const [filter, setFilter] = useState<TenderSource | "all">("all");
@@ -95,6 +95,15 @@ export default function DashboardPage() {
             {t.feed.setup}
           </Button>
         </div>
+      )}
+
+      {pendingEmail && !session && (
+        <p className="mb-6 rounded-2xl border border-sky-400/25 bg-sky-400/[0.06] px-5 py-3 text-sm text-sky-100">
+          {tr({
+            kz: `Профиль осы құрылғыда жұмыс істеп тұр. ${pendingEmail} растағаннан кейін кіріңіз — профиль бұлтқа өзі сақталады.`,
+            ru: `Профиль уже работает на этом устройстве. Подтвердите ${pendingEmail} и войдите — профиль сам сохранится в облаке.`,
+          })}
+        </p>
       )}
 
       {/* Platform filter */}

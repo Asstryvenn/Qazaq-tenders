@@ -30,7 +30,7 @@ function Toggle({ on, onChange, label }: { on: boolean; onChange: (v: boolean) =
 }
 
 export default function ProfilePage() {
-  const { tr, kzt, city } = useI18n();
+  const { t, tr, kzt, city } = useI18n();
   const { company, openModal, isDemo, session } = useProfile();
   const { settings, save, loading } = useNotificationSettings();
   const { feed, results, toast } = useNotifications();
@@ -115,6 +115,10 @@ export default function ProfilePage() {
   const rows: [string, string][] = [
     [tr({ kz: "БСН", ru: "БИН" }), company.bin || "—"],
     [tr({ kz: "Басшы", ru: "Руководитель" }), company.directorName || "—"],
+    [tr({ kz: "Мекенжай", ru: "Адрес" }), company.legalAddress || "—"],
+    [tr({ kz: "Телефон", ru: "Телефон" }), company.phone || "—"],
+    ["Telegram", company.telegramUsername || "—"],
+    [tr({ kz: "Салық режимі", ru: "Налоговый режим" }), t.onb.regimes[company.taxRegime].title],
     [tr({ kz: "Айналым капиталы", ru: "Оборотный капитал" }), kzt(company.workingCapital)],
     [tr({ kz: "База", ru: "База" }), `${city(company.baseCityId)} · ${company.maxDistanceKm} km`],
     [tr({ kz: "Сертификаттар", ru: "Сертификаты" }), company.certificates.join(", ") || "—"],

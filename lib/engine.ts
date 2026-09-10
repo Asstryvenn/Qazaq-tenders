@@ -182,7 +182,7 @@ export function analyzeTender(
 
   const computeTax = () => {
     const beforeTax = S - costs.purchase - costs.logistics - costs.operating - costs.penalty - costs.guarantee - costs.bank;
-    costs.tax = contractTax(company.taxRegime, S, beforeTax);
+    costs.tax = contractTax(company.taxRegime, S, beforeTax, costs.purchase + costs.logistics);
   };
 
   // Pass 1 — find the funding hole without credit cost.
