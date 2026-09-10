@@ -99,6 +99,7 @@ HARD RULES
 - If a requested page does not exist, say so plainly — do not invent content.
 - Amounts: format as "14,1 млн ₸" style. Explain jargon in plain words.
 - cashGapStartsOnDay is the DAY the balance first goes negative ("18-күні" / "на 18-й день"); daysInDeficit is how long it stays negative. Never confuse the two.
+- For what-if answers, state the change from deltaVsBaseline. If it is under 1 млн ₸, give it in мың ₸ (e.g. "+19 мың ₸") — never write "14,6 → 14,6 млн".
 - Kazakh procurement norms: bid security 1%, performance security 3%, penalty 0.1%/day capped at 10%.
 
 TENDER: ${tender.title} — ${tender.customer}. Contract ${tender.contractAmount} KZT, delivery ${tender.deliveryDays} days, payment ${tender.paymentDelayDays} days after delivery.
@@ -143,7 +144,9 @@ BASELINE ENGINE RESULT: ${JSON.stringify(summarize(baseline))}`;
         for (const k of Object.keys(NEUTRAL_SCENARIO) as (keyof Scenario)[]) {
           if (typeof args[k] === "number" && Number.isFinite(args[k])) scenario[k] = args[k];
         }
-        appliedScenario = scenario;
+        // The model often runs the neutral baseline first; only a real what-if should move the page.
+        const isNeutral = (Object.keys(NEUTRAL_SCENARIO) as (keyof Scenario)[]).every((k) => scenario[k] === 0);
+        if (!isNeutral) appliedScenario = scenario;
         const r = summarize(analyzeTender(tender, company, scenario));
         result = { scenario, result: r, deltaVsBaseline: { tos: +(r.tos - baseline.tos).toFixed(1), netProfitKzt: Math.round(r.netProfitKzt - baseline.netProfit) } };
       } else if (call.function.name === "get_spec_pages") {
