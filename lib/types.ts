@@ -2,10 +2,21 @@
  * Strict JSON contract between the AI (parsing) layer and the Economic (math) layer.
  * The AI layer ONLY fills `TenderSpec`. It never computes anything.
  */
+import type { TaxRegime } from "./kz-standards";
+
+export type { TaxRegime };
+
+/** One page of the technical specification — what the chatbot quotes from. */
+export interface SpecPage {
+  page: number;
+  text: string;
+}
 
 /** Output of Layer 1 — pure extraction from the tender PDF/Docx. */
 export interface TenderSpec {
   id: string;
+  /** Where the lot came from: the official API or the bundled demo set. */
+  source: "goszakup" | "demo";
   title: string;
   customer: string;
   /** S — contract amount, KZT */
@@ -14,24 +25,26 @@ export interface TenderSpec {
   deliveryDays: number;
   /** P_delay — deferred payment, days after delivery */
   paymentDelayDays: number;
-  /** K_delay — daily penalty rate as a fraction of S (e.g. 0.001 = 0.1%/day) */
+  /** K_delay — daily penalty rate as a fraction of S (statutory default 0.001) */
   penaltyRate: number;
-  /** Guarantee deposit as a fraction of S, locked at bid time */
-  guaranteeRate: number;
-  /** Estimated cost of goods, KZT (from spec quantities × market price) */
+  /** Estimated cost of goods, KZT (spec quantities × market price) */
   purchaseCost: number;
-  city: string;
-  /** Distance from company base to delivery point, km */
-  distanceKm: number;
+  /** Delivery point */
+  cityId: string;
+  /** Cargo weight, tonnes — drives the number of trucks */
+  cargoTonnes: number;
   requiredExperienceYears: number;
   requiredCertificates: string[];
   /** Suspicious / competition-restricting clauses found by the RAG sieve */
   hiddenRequirements: HiddenRequirement[];
+  /** Bid submission deadline, ISO date */
   deadline: string;
+  specPages: SpecPage[];
 }
 
 export interface HiddenRequirement {
   clause: string;
+  page: number;
   severity: "low" | "medium" | "high";
   reason: string;
 }
@@ -44,9 +57,8 @@ export interface CompanyProfile {
   /** Dist_max — max logistics radius, km */
   maxDistanceKm: number;
   staffSize: number;
-  baseCity: string;
-  /** Corporate income tax rate, fraction */
-  taxRate: number;
+  baseCityId: string;
+  taxRegime: TaxRegime;
   /** Monthly operating expenses, KZT */
   monthlyOpex: number;
   /**
@@ -57,16 +69,16 @@ export interface CompanyProfile {
   opexAllocation: number;
   /** Annual rate on the credit line used to cover cash gaps, fraction */
   creditRate: number;
-  /** Logistics cost per km per trip, KZT */
-  logisticsCostPerKm: number;
   experienceYears: number;
   certificates: string[];
 }
 
-/** Levers of the What-If sensitivity simulator. */
+/** Levers of the What-If sensitivity simulator (and of the chatbot's run_scenario tool). */
 export interface Scenario {
-  /** +% to fuel → scales logistics cost */
+  /** +% to fuel → moves only the fuel share of the freight tariff */
   fuelDeltaPct: number;
+  /** +% to the whole transport tariff (carrier negotiation, own fleet…) */
+  transportDeltaPct: number;
   /** +% to supplier price → scales purchase cost */
   supplierDeltaPct: number;
   /** +days added to P_delay */
@@ -77,6 +89,7 @@ export interface Scenario {
 
 export const NEUTRAL_SCENARIO: Scenario = {
   fuelDeltaPct: 0,
+  transportDeltaPct: 0,
   supplierDeltaPct: 0,
   paymentDelayDelta: 0,
   lateDays: 0,
@@ -84,11 +97,12 @@ export const NEUTRAL_SCENARIO: Scenario = {
 
 /** Codes for cash movements — the UI translates them, the engine stays language-free. */
 export type MovementCode =
-  | "guarantee"
+  | "bidSecurity"
+  | "bidSecurityBack"
+  | "guaranteeFee"
   | "prepay"
   | "balancePay"
   | "logistics"
-  | "guaranteeBack"
   | "penalty"
   | "payment"
   | "tax"
@@ -112,15 +126,18 @@ export type Reason =
   | { code: "penalty"; ratePct: number; slip: number; pct: number }
   | { code: "experience"; have: number; need: number }
   | { code: "certs"; missing: string[] }
-  | { code: "hidden"; reason: string }
-  | { code: "lateScenario"; days: number; penalty: number }
+  | { code: "hidden"; reason: string; page: number }
+  | { code: "lateScenario"; days: number; penalty: number; capped: boolean }
   | { code: "safe"; min: number };
 
 export interface CostBreakdown {
   purchase: number;
   logistics: number;
   tax: number;
+  /** Interest on the credit line covering the cash gap */
   bank: number;
+  /** Fee for the 3% performance-security bank guarantee */
+  guarantee: number;
   operating: number;
   penalty: number;
 }
@@ -147,6 +164,12 @@ export interface AnalysisResult {
   maxDeficit: number;
   /** First day the balance goes below zero, null if never */
   gapDay: number | null;
+  /** Day the customer pays */
+  payDay: number;
+  /** Day the goods are delivered (incl. scenario delay) */
+  deliveryDay: number;
+  distanceKm: number;
+  trucks: number;
   timeline: CashFlowPoint[];
   verdict: "go" | "caution" | "no-go";
   reasons: Reason[];

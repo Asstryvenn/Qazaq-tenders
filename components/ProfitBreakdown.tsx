@@ -8,6 +8,7 @@ const ROWS = [
   { key: "purchase", color: "#3b82f6" },
   { key: "logistics", color: "#818cf8" },
   { key: "operating", color: "#a78bfa" },
+  { key: "guarantee", color: "#38bdf8" },
   { key: "bank", color: "#f43f5e" },
   { key: "penalty", color: "#fb7185" },
   { key: "tax", color: "#f59e0b" },

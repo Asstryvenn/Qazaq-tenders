@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { MovementCode, Reason } from "./types";
 import type { Verdict } from "./engine";
+import { CITIES } from "./logistics";
 
 export type Lang = "kz" | "ru";
 
@@ -11,7 +12,7 @@ export type Lang = "kz" | "ru";
 /* ------------------------------------------------------------------ */
 
 const kz = {
-  nav: { how: "Қалай жұмыс істейді", engine: "Қозғалтқыш", dashboard: "Дашборд", open: "Симуляторды ашу" },
+  nav: { how: "Қалай жұмыс істейді", engine: "Қозғалтқыш", dashboard: "Дашборд", open: "Симуляторды ашу", login: "Кіру", register: "Тіркелу", logout: "Шығу", profile: "Профиль" },
   verdict: { go: "Қатысу", caution: "Абай болыңыз", "no-go": "Қатыспау" } as Record<Verdict, string>,
   units: { mln: "млн ₸", th: "мың ₸", day: "күн", days: "күн", km: "км", people: "адам", yr: "жыл" },
   hero: {
@@ -81,6 +82,7 @@ const kz = {
       logistics: "Логистика",
       operating: "Операциялық шығындар",
       bank: "Несие желісі",
+      guarantee: "Банк кепілдігі",
       penalty: "Өсімпұл",
       tax: "Салықтар",
     },
@@ -103,7 +105,9 @@ const kz = {
     whatIfSub: "Слайдерлер графикті және TOS-ты бірден қайта есептейді",
     reset: "Қалпына келтіру",
     fuel: "Отын бағасы",
-    fuelHint: "Логистика құнын өзгертеді",
+    fuelHint: "Тарифтің отын үлесін (40%) өзгертеді",
+    transport: "Көлік тарифі",
+    transportHint: "Тасымалдаушымен келісім, өз паркі",
     supplier: "Жеткізуші бағасы",
     supplierHint: "Маржаның басты тетігі",
     payDelay: "Төлемнің кешігуі",
@@ -119,7 +123,7 @@ const kz = {
     checks: {
       certs: "Қажетті сертификаттар бар",
       experience: "Тәжірибе талабы орындалады",
-      guarantee: "Кепілдік қамтамасыз етуге қаражат жеткілікті",
+      guarantee: "Өтінімді қамтамасыз етуге (1%) қаражат бар",
       radius: "Жеткізу нүктесі радиус ішінде",
       noGap: "Кассалық алшақтық жоқ",
       quote: "Жеткізушіден коммерциялық ұсыныс алынды",
@@ -128,12 +132,91 @@ const kz = {
       carrier: "Тасымалдаушы брондалды",
     },
   },
+  auth: {
+    loginTitle: "Жүйеге кіру",
+    registerTitle: "Тіркелу",
+    email: "Электрондық пошта",
+    password: "Құпиясөз",
+    passwordHint: "Кемінде 6 таңба",
+    submitLogin: "Кіру",
+    submitRegister: "Тіркелу",
+    toRegister: "Аккаунт жоқ па? Тіркелу",
+    toLogin: "Аккаунт бар ма? Кіру",
+    notConfigured: "Supabase әлі қосылмаған (.env.local). Профиль осы браузерде сақталады.",
+    confirmEmail: "Поштаңызды тексеріңіз — растау сілтемесі жіберілді.",
+    continueLocal: "Тіркелмей жалғастыру",
+  },
+  onb: {
+    title: "Бизнес профилі",
+    subtitle: "Компанияңыздың цифрлық егізі — TOS дәл сіз үшін есептеледі",
+    step: "Қадам",
+    next: "Келесі",
+    back: "Артқа",
+    finish: "Сақтау",
+    saving: "Сақталуда…",
+    steps: ["Қаржы", "Логистика", "Команда", "Салық"],
+    name: "Компания атауы",
+    capital: "Айналым капиталы (CF₀), ₸",
+    capitalHint: "Келісімшартқа бірден жұмсай алатын ақша",
+    opex: "Айлық операциялық шығындар, ₸",
+    opexHint: "Жалақы, жалға алу, коммуналдық",
+    city: "Базалық қала",
+    radius: "Максималды жеткізу қашықтығы (Dist_max), км",
+    radiusHint: "Бұдан алыс лоттар логистика ұпайын жоғалтады",
+    staff: "Қызметкерлер саны",
+    experience: "Нарықтағы тәжірибе, жыл",
+    certs: "Сертификаттар",
+    certsHint: "Үтір арқылы: ISO 9001, СТ РК",
+    regime: "Салық режимі",
+    regimes: {
+      general: { title: "Жалпыға бірдей режим", desc: "КТС 20% пайдадан" },
+      simplified: { title: "Оңайлатылған декларация", desc: "4% кірістен (мәслихат өзгерте алады)" },
+    },
+    required: "Толтыру міндетті",
+  },
+  plain: { title: "Түсінікті тілмен", sub: "Терминсіз түсіндірме" },
+  chat: {
+    title: "AI Консультант",
+    sub: "Сандарды қозғалтқыш есептейді, AI түсіндіреді",
+    open: "AI-дан сұрау",
+    placeholder: "Сұрағыңызды жазыңыз…",
+    send: "Жіберу",
+    empty: "Техникалық ерекшелік туралы сұраңыз немесе сценарийді іске қосыңыз.",
+    suggestions: [
+      "12-беттегі жасырын тәуекелдер қандай?",
+      "Көлік шығынын 10%-ға азайтсам не болады?",
+      "Кассалық алшақтықты қалай жабуға болады?",
+    ],
+    noKey: "OpenAI кілті қосылмаған. .env.local файлына OPENAI_API_KEY қосыңыз.",
+    error: "Жауап алу мүмкін болмады. Қайталап көріңіз.",
+    applied: "Сценарий графикке қолданылды",
+    thinking: "Есептеп жатыр…",
+    close: "Жабу",
+  },
+  feed: {
+    live: "goszakup.gov.kz · тікелей",
+    demo: "Демо деректер",
+    demoHint: "GOSZAKUP_TOKEN қосылғанда ресми лоттар көрсетіледі",
+    estimated: "шарттар бағаланған",
+    budget: "Бюджет",
+    location: "Орны",
+    expires: "Өтінім мерзімі",
+    analyze: "Талдау",
+    back: "Барлық лоттар",
+    demoProfile: "Демо профиль қолданылуда — нәтиже сіздің компанияңызға сәйкес келмейді.",
+    setup: "Профильді толтыру",
+    loading: "Жүктелуде…",
+    notFound: "Лот табылмады",
+    sortedBy: "TOS бойынша сұрыпталған",
+  },
+  logi: { trucks: "жүк көлігі", route: "Маршрут" },
   movements: {
-    guarantee: "Кепілдік қамтамасыз ету",
+    bidSecurity: "Өтінімді қамтамасыз ету (1%)",
+    bidSecurityBack: "Өтінім кепілін қайтару",
+    guaranteeFee: "Банк кепілдігі үшін комиссия (3%)",
     prepay: "Жеткізушіге алдын ала төлем (60%)",
     balancePay: "Жеткізушіге қосымша төлем (40%)",
     logistics: "Логистика және жеткізу",
-    guaranteeBack: "Кепілдікті қайтару",
     penalty: "Кешіктіру үшін өсімпұл",
     payment: "Шарт бойынша төлем",
     tax: "Табыс салығы",
@@ -144,7 +227,7 @@ const kz = {
 type Dict = typeof kz;
 
 const ru: Dict = {
-  nav: { how: "Как работает", engine: "Движок", dashboard: "Дашборд", open: "Открыть симулятор" },
+  nav: { how: "Как работает", engine: "Движок", dashboard: "Дашборд", open: "Открыть симулятор", login: "Кіру", register: "Тіркелу", logout: "Выйти", profile: "Профиль" },
   verdict: { go: "Участвовать", caution: "Осторожно", "no-go": "Не участвовать" },
   units: { mln: "млн ₸", th: "тыс ₸", day: "день", days: "дн", km: "км", people: "чел.", yr: "г." },
   hero: {
@@ -214,6 +297,7 @@ const ru: Dict = {
       logistics: "Логистика",
       operating: "Операционные",
       bank: "Кредитная линия",
+      guarantee: "Банковская гарантия",
       penalty: "Пеня",
       tax: "Налоги",
     },
@@ -236,7 +320,9 @@ const ru: Dict = {
     whatIfSub: "Слайдеры мгновенно пересчитывают график и TOS",
     reset: "Сброс",
     fuel: "Цена топлива",
-    fuelHint: "Масштабирует стоимость логистики",
+    fuelHint: "Меняет топливную долю тарифа (40%)",
+    transport: "Тариф перевозки",
+    transportHint: "Договорённость с перевозчиком, свой парк",
     supplier: "Цена поставщика",
     supplierHint: "Главный рычаг маржи",
     payDelay: "Задержка оплаты",
@@ -252,7 +338,7 @@ const ru: Dict = {
     checks: {
       certs: "Все требуемые сертификаты есть",
       experience: "Требование к опыту выполнено",
-      guarantee: "Хватает средств на гарантийное обеспечение",
+      guarantee: "Есть средства на обеспечение заявки (1%)",
       radius: "Точка поставки в пределах радиуса",
       noGap: "Нет кассового разрыва",
       quote: "Получено КП от поставщика",
@@ -261,12 +347,91 @@ const ru: Dict = {
       carrier: "Забронирован перевозчик",
     },
   },
+  auth: {
+    loginTitle: "Вход",
+    registerTitle: "Регистрация",
+    email: "Электронная почта",
+    password: "Пароль",
+    passwordHint: "Минимум 6 символов",
+    submitLogin: "Войти",
+    submitRegister: "Зарегистрироваться",
+    toRegister: "Нет аккаунта? Регистрация",
+    toLogin: "Уже есть аккаунт? Войти",
+    notConfigured: "Supabase ещё не подключён (.env.local). Профиль сохранится в этом браузере.",
+    confirmEmail: "Проверьте почту — мы отправили ссылку для подтверждения.",
+    continueLocal: "Продолжить без регистрации",
+  },
+  onb: {
+    title: "Профиль бизнеса",
+    subtitle: "Цифровой двойник компании — TOS считается именно под вас",
+    step: "Шаг",
+    next: "Далее",
+    back: "Назад",
+    finish: "Сохранить",
+    saving: "Сохраняем…",
+    steps: ["Финансы", "Логистика", "Команда", "Налоги"],
+    name: "Название компании",
+    capital: "Оборотный капитал (CF₀), ₸",
+    capitalHint: "Деньги, которые можно сразу вложить в контракт",
+    opex: "Ежемесячные операционные расходы, ₸",
+    opexHint: "Зарплата, аренда, коммунальные",
+    city: "Базовый город",
+    radius: "Макс. дальность доставки (Dist_max), км",
+    radiusHint: "Лоты дальше теряют баллы логистики",
+    staff: "Численность сотрудников",
+    experience: "Опыт на рынке, лет",
+    certs: "Сертификаты",
+    certsHint: "Через запятую: ISO 9001, СТ РК",
+    regime: "Налоговый режим",
+    regimes: {
+      general: { title: "Общеустановленный режим", desc: "КПН 20% от прибыли" },
+      simplified: { title: "Упрощённая декларация", desc: "4% от дохода (маслихат может менять)" },
+    },
+    required: "Обязательное поле",
+  },
+  plain: { title: "Простыми словами", sub: "Объяснение без терминов" },
+  chat: {
+    title: "AI Консультант",
+    sub: "Цифры считает движок, AI объясняет",
+    open: "Спросить AI",
+    placeholder: "Напишите вопрос…",
+    send: "Отправить",
+    empty: "Спросите о техническом задании или запустите сценарий.",
+    suggestions: [
+      "Какие скрытые риски на 12-й странице?",
+      "Что будет, если снизить транспортные расходы на 10%?",
+      "Как закрыть кассовый разрыв?",
+    ],
+    noKey: "Ключ OpenAI не подключён. Добавьте OPENAI_API_KEY в .env.local.",
+    error: "Не удалось получить ответ. Попробуйте ещё раз.",
+    applied: "Сценарий применён к графику",
+    thinking: "Считаем…",
+    close: "Закрыть",
+  },
+  feed: {
+    live: "goszakup.gov.kz · онлайн",
+    demo: "Демо-данные",
+    demoHint: "С GOSZAKUP_TOKEN здесь будут официальные лоты",
+    estimated: "условия оценены",
+    budget: "Бюджет",
+    location: "Место",
+    expires: "Срок подачи",
+    analyze: "Анализ",
+    back: "Все лоты",
+    demoProfile: "Используется демо-профиль — результат не про вашу компанию.",
+    setup: "Заполнить профиль",
+    loading: "Загрузка…",
+    notFound: "Лот не найден",
+    sortedBy: "Отсортировано по TOS",
+  },
+  logi: { trucks: "фур", route: "Маршрут" },
   movements: {
-    guarantee: "Гарантийное обеспечение",
+    bidSecurity: "Обеспечение заявки (1%)",
+    bidSecurityBack: "Возврат обеспечения заявки",
+    guaranteeFee: "Комиссия за банковскую гарантию (3%)",
     prepay: "Предоплата поставщику (60%)",
     balancePay: "Доплата поставщику (40%)",
     logistics: "Логистика и доставка",
-    guaranteeBack: "Возврат обеспечения",
     penalty: "Пеня за просрочку",
     payment: "Оплата по контракту",
     tax: "Налог на прибыль",
@@ -325,16 +490,22 @@ export function formatReason(r: Reason, lang: Lang): string {
     case "certs":
       return kzLang ? `Сертификаттар жоқ: ${r.missing.join(", ")}` : `Нет сертификатов: ${r.missing.join(", ")}`;
     case "hidden":
-      return kzLang ? `Бейімделген ТЕ: ${r.reason}` : `Заточка ТЗ: ${r.reason}`;
+      return kzLang ? `Бейімделген ТЕ (бет ${r.page}): ${r.reason}` : `Заточка ТЗ (стр. ${r.page}): ${r.reason}`;
     case "lateScenario":
       return kzLang
-        ? `Сценарий: ${r.days} күн кешігу → өсімпұл ${k(r.penalty)}`
-        : `Сценарий: просрочка ${r.days} дн. → пеня ${k(r.penalty)}`;
+        ? `Сценарий: ${r.days} күн кешігу → өсімпұл ${k(r.penalty)}${r.capped ? " (10% шегі)" : ""}`
+        : `Сценарий: просрочка ${r.days} дн. → пеня ${k(r.penalty)}${r.capped ? " (упёрлась в лимит 10%)" : ""}`;
     case "safe":
       return kzLang
         ? `Беріктік қоры бар: ең төменгі қалдық ${k(r.min)}`
         : `Запас прочности есть: минимальный остаток ${k(r.min)}`;
   }
+}
+
+/** City name in the active language. */
+export function cityName(id: string, lang: Lang): string {
+  const c = CITIES.find((x) => x.id === id);
+  return c ? c[lang] : id;
 }
 
 /* ------------------------------------------------------------------ */
@@ -347,6 +518,7 @@ interface I18nValue {
   t: Dict;
   kzt: (v: number) => string;
   reason: (r: Reason) => string;
+  city: (id: string) => string;
 }
 
 const I18nContext = createContext<I18nValue | null>(null);
@@ -380,6 +552,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
       t: DICTS[lang],
       kzt: (v) => formatKzt(v, lang),
       reason: (r) => formatReason(r, lang),
+      city: (id) => cityName(id, lang),
     }),
     [lang, setLang]
   );

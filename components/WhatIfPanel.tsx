@@ -80,6 +80,7 @@ export function WhatIfPanel({
 
       <div className="mt-6 space-y-6">
         <Slider label={t.dash.fuel} value={scenario.fuelDeltaPct} min={-20} max={80} suffix="%" hint={t.dash.fuelHint} onChange={(v) => set({ fuelDeltaPct: v })} />
+        <Slider label={t.dash.transport} value={scenario.transportDeltaPct} min={-30} max={50} suffix="%" hint={t.dash.transportHint} onChange={(v) => set({ transportDeltaPct: v })} />
         <Slider label={t.dash.supplier} value={scenario.supplierDeltaPct} min={-10} max={40} suffix="%" hint={t.dash.supplierHint} onChange={(v) => set({ supplierDeltaPct: v })} />
         <Slider label={t.dash.payDelay} value={scenario.paymentDelayDelta} min={0} max={90} suffix={` ${t.units.days}`} hint={t.dash.payDelayHint} onChange={(v) => set({ paymentDelayDelta: v })} />
         <Slider label={t.dash.late} value={scenario.lateDays} min={0} max={30} suffix={` ${t.units.days}`} hint={t.dash.lateHint} onChange={(v) => set({ lateDays: v })} />

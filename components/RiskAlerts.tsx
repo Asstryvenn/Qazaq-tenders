@@ -60,7 +60,10 @@ export function RiskAlerts({ result, tender }: { result: AnalysisResult; tender:
                   {t.dash.severity[hr.severity]}
                 </Badge>
               </div>
-              <p className="text-xs leading-relaxed text-slate-400">{hr.reason}</p>
+              <p className="text-xs leading-relaxed text-slate-400">
+                <span className="mr-1.5 font-mono text-amber-300">p.{hr.page}</span>
+                {hr.reason}
+              </p>
             </div>
           ))
         ) : (

@@ -1,60 +1,31 @@
 /**
  * LAYER 2 — Deterministic Economic Engine.
  * No LLM, no randomness: same input always yields the same AnalysisResult.
+ * The chatbot calls this same function through a tool — it never does the math itself.
  */
 import {
   AnalysisResult,
   CashFlowPoint,
   CompanyProfile,
   CostBreakdown,
-  NEUTRAL_SCENARIO,
   MovementCode,
+  NEUTRAL_SCENARIO,
   Reason,
   Scenario,
   TenderSpec,
 } from "./types";
+import { bankGuaranteeFee, contractTax, KZ, statutoryPenalty } from "./kz-standards";
+import { DistanceProvider, freightCost, haversineProvider } from "./logistics";
 
 export const TOS_WEIGHTS = { w1: 0.35, w2: 0.3, w3: 0.15, w4: 0.2 } as const;
 
 /** Margin considered "excellent" — maps to a margin score of 100. */
 export const TARGET_MARGIN_PCT = 20;
 
+/** Bid security is returned once the contract is signed. */
+const SIGNING_DAY = 5;
+
 const clamp = (v: number, lo = 0, hi = 100) => Math.min(hi, Math.max(lo, v));
-
-/* ------------------------------------------------------------------ */
-/* 1. Costs, net profit Π and relative margin M_rel                     */
-/* ------------------------------------------------------------------ */
-
-function buildCosts(
-  tender: TenderSpec,
-  company: CompanyProfile,
-  scenario: Scenario,
-  contractDays: number
-): CostBreakdown {
-  const purchase = tender.purchaseCost * (1 + scenario.supplierDeltaPct / 100);
-
-  // Round trip to the delivery point, price per km scaled by the fuel lever.
-  const logistics =
-    tender.distanceKm * 2 * company.logisticsCostPerKm * (1 + scenario.fuelDeltaPct / 100);
-
-  const operating = (company.monthlyOpex / 30) * company.opexAllocation * contractDays;
-
-  // Penalty = S · K_delay · d_late
-  const penalty = tender.contractAmount * tender.penaltyRate * scenario.lateDays;
-
-  const grossBeforeTax =
-    tender.contractAmount - purchase - logistics - operating - penalty;
-  const tax = grossBeforeTax > 0 ? grossBeforeTax * company.taxRate : 0;
-
-  return { purchase, logistics, tax, bank: 0, operating, penalty };
-}
-
-const sumCosts = (c: CostBreakdown) =>
-  c.purchase + c.logistics + c.tax + c.bank + c.operating + c.penalty;
-
-/* ------------------------------------------------------------------ */
-/* 2. Dynamic cash-flow simulation: CF_t = CF_0 + Σ in − Σ out          */
-/* ------------------------------------------------------------------ */
 
 interface Movement {
   day: number;
@@ -62,37 +33,11 @@ interface Movement {
   code: MovementCode;
 }
 
-function buildMovements(
-  tender: TenderSpec,
-  company: CompanyProfile,
-  scenario: Scenario,
-  costs: CostBreakdown,
-  deliveryDay: number,
-  payDay: number
-): Movement[] {
-  const guarantee = tender.contractAmount * tender.guaranteeRate;
-  const prepayDay = Math.max(1, Math.round(deliveryDay * 0.15));
-  const balanceDay = Math.max(prepayDay + 1, Math.round(deliveryDay * 0.6));
+/* ------------------------------------------------------------------ */
+/* Cash-flow simulation: CF_t = CF_0 + Σ in − Σ out                    */
+/* ------------------------------------------------------------------ */
 
-  const list: Movement[] = [
-    { day: 0, amount: -guarantee, code: "guarantee" },
-    { day: prepayDay, amount: -costs.purchase * 0.6, code: "prepay" },
-    { day: balanceDay, amount: -costs.purchase * 0.4, code: "balancePay" },
-    { day: deliveryDay, amount: -costs.logistics, code: "logistics" },
-    { day: deliveryDay, amount: guarantee, code: "guaranteeBack" },
-    // deliveryDay already includes scenario.lateDays — the penalty is settled on actual delivery.
-    ...(costs.penalty > 0 ? [{ day: deliveryDay, amount: -costs.penalty, code: "penalty" } as Movement] : []),
-    { day: payDay, amount: tender.contractAmount, code: "payment" },
-    { day: payDay + 1, amount: -costs.tax, code: "tax" },
-  ];
-  return list;
-}
-
-function simulate(
-  company: CompanyProfile,
-  movements: Movement[],
-  horizon: number
-): CashFlowPoint[] {
+function simulate(company: CompanyProfile, movements: Movement[], horizon: number): CashFlowPoint[] {
   const dailyOpex = (company.monthlyOpex / 30) * company.opexAllocation;
   const timeline: CashFlowPoint[] = [];
   let balance = company.workingCapital;
@@ -100,10 +45,7 @@ function simulate(
   for (let t = 0; t <= horizon; t++) {
     const today = movements.filter((m) => m.day === t);
     const inflow = today.filter((m) => m.amount > 0).reduce((s, m) => s + m.amount, 0);
-    const opex = t === 0 ? 0 : dailyOpex;
-    const outflow =
-      opex + today.filter((m) => m.amount < 0).reduce((s, m) => s - m.amount, 0);
-
+    const outflow = (t === 0 ? 0 : dailyOpex) + today.filter((m) => m.amount < 0).reduce((s, m) => s - m.amount, 0);
     balance += inflow - outflow;
     timeline.push({
       day: t,
@@ -116,36 +58,28 @@ function simulate(
   return timeline;
 }
 
-/** Cost of covering every negative day with a credit line. */
-function bankCost(timeline: CashFlowPoint[], creditRate: number): number {
+/** Interest on the credit line for every day the balance is negative. */
+function creditCost(timeline: CashFlowPoint[], creditRate: number): number {
   const daily = creditRate / 365;
   return timeline.reduce((s, p) => (p.balance < 0 ? s + -p.balance * daily : s), 0);
 }
 
 /* ------------------------------------------------------------------ */
-/* 3. Risk components                                                  */
+/* Risk components                                                     */
 /* ------------------------------------------------------------------ */
 
 /** CF_risk 0..100 — depth of the hole relative to own capital + how long it lasts. */
-function cashFlowRiskScore(
-  timeline: CashFlowPoint[],
-  company: CompanyProfile
-): { risk: number; maxDeficit: number; gapDay: number | null; negativeDays: number } {
+function cashFlowRiskScore(timeline: CashFlowPoint[], company: CompanyProfile) {
   const negatives = timeline.filter((p) => p.balance < 0);
-  const maxDeficit = negatives.length ? Math.max(...negatives.map((p) => -p.balance)) : 0;
-  const gapDay = negatives.length ? negatives[0].day : null;
-  const negativeDays = negatives.length;
-
   if (!negatives.length) {
-    // No gap: risk is how thin the cushion got at the lowest point.
     const trough = Math.min(...timeline.map((p) => p.balance));
     const cushion = trough / Math.max(1, company.workingCapital);
-    return { risk: clamp((1 - cushion) * 45), maxDeficit: 0, gapDay: null, negativeDays: 0 };
+    return { risk: clamp((1 - cushion) * 45), maxDeficit: 0, gapDay: null as number | null };
   }
-
-  const depth = clamp((maxDeficit / Math.max(1, company.workingCapital)) * 100, 0, 100);
-  const duration = clamp((negativeDays / Math.max(1, timeline.length)) * 100, 0, 100);
-  return { risk: clamp(50 + depth * 0.35 + duration * 0.15), maxDeficit, gapDay, negativeDays };
+  const maxDeficit = Math.max(...negatives.map((p) => -p.balance));
+  const depth = clamp((maxDeficit / Math.max(1, company.workingCapital)) * 100);
+  const duration = clamp((negatives.length / Math.max(1, timeline.length)) * 100);
+  return { risk: clamp(50 + depth * 0.35 + duration * 0.15), maxDeficit, gapDay: negatives[0].day };
 }
 
 /** L_score = max(0, 100 − (Dist / Dist_max) · 100) */
@@ -158,10 +92,9 @@ function legalRiskScore(tender: TenderSpec, company: CompanyProfile, scenario: S
   const reasons: Reason[] = [];
   let risk = 0;
 
-  // Penalty exposure if delivery slips by 10% of the deadline.
+  // Exposure if delivery slips by 10% of the deadline (statutory cap applies).
   const slip = Math.max(1, Math.round(tender.deliveryDays * 0.1));
-  const exposure =
-    (tender.contractAmount * tender.penaltyRate * slip) / Math.max(1, tender.contractAmount);
+  const exposure = statutoryPenalty(tender.contractAmount, tender.penaltyRate, slip) / Math.max(1, tender.contractAmount);
   const exposureScore = clamp(exposure * 100 * 12);
   risk += exposureScore * 0.35;
   if (exposureScore > 45)
@@ -181,44 +114,87 @@ function legalRiskScore(tender: TenderSpec, company: CompanyProfile, scenario: S
   const weight = { low: 5, medium: 12, high: 22 } as const;
   for (const hr of tender.hiddenRequirements) {
     risk += weight[hr.severity];
-    if (hr.severity !== "low") reasons.push({ code: "hidden", reason: hr.reason });
+    if (hr.severity !== "low") reasons.push({ code: "hidden", reason: hr.reason, page: hr.page });
   }
 
-  if (scenario.lateDays > 0)
-    reasons.push({ code: "lateScenario", days: scenario.lateDays, penalty: tender.contractAmount * tender.penaltyRate * scenario.lateDays });
+  if (scenario.lateDays > 0) {
+    const raw = tender.contractAmount * tender.penaltyRate * scenario.lateDays;
+    const penalty = statutoryPenalty(tender.contractAmount, tender.penaltyRate, scenario.lateDays);
+    reasons.push({ code: "lateScenario", days: scenario.lateDays, penalty, capped: penalty < raw });
+  }
 
   return { risk: clamp(risk), reasons };
 }
 
 /* ------------------------------------------------------------------ */
-/* 4. Main entry point                                                 */
+/* Main entry point                                                    */
 /* ------------------------------------------------------------------ */
 
 export function analyzeTender(
   tender: TenderSpec,
   company: CompanyProfile,
-  scenario: Scenario = NEUTRAL_SCENARIO
+  scenario: Scenario = NEUTRAL_SCENARIO,
+  distances: DistanceProvider = haversineProvider
 ): AnalysisResult {
   const deliveryDay = tender.deliveryDays + scenario.lateDays;
   const payDay = deliveryDay + tender.paymentDelayDays + scenario.paymentDelayDelta;
   const horizon = payDay + 5;
 
-  const costs = buildCosts(tender, company, scenario, horizon);
+  const distanceKm = distances.distanceKm(company.baseCityId, tender.cityId);
+  const freight = freightCost(distanceKm, tender.cargoTonnes, scenario.fuelDeltaPct, scenario.transportDeltaPct);
 
-  // Pass 1 — simulate without bank cost to discover the funding hole.
-  const draft = simulate(company, buildMovements(tender, company, scenario, costs, deliveryDay, payDay), horizon);
-  costs.bank = bankCost(draft, company.creditRate);
+  const S = tender.contractAmount;
+  const bidSecurity = S * KZ.bidSecurityRate;
+  const performanceSecurity = S * KZ.performanceSecurityRate;
 
-  // Pass 2 — final timeline, with the credit-line cost settled on payment.
-  const movements = buildMovements(tender, company, scenario, costs, deliveryDay, payDay);
-  if (costs.bank > 0) movements.push({ day: payDay + 1, amount: -costs.bank, code: "credit" });
-  const timeline = simulate(company, movements, horizon);
+  const costs: CostBreakdown = {
+    purchase: tender.purchaseCost * (1 + scenario.supplierDeltaPct / 100),
+    logistics: freight.cost,
+    operating: (company.monthlyOpex / 30) * company.opexAllocation * horizon,
+    penalty: statutoryPenalty(S, tender.penaltyRate, scenario.lateDays),
+    // Guarantee must stay open until the customer has paid.
+    guarantee: bankGuaranteeFee(performanceSecurity, payDay - SIGNING_DAY),
+    bank: 0,
+    tax: 0,
+  };
 
-  const netProfit = tender.contractAmount - sumCosts(costs);
-  const marginPct = (netProfit / tender.contractAmount) * 100;
+  const buildMovements = (): Movement[] => {
+    const prepayDay = Math.max(SIGNING_DAY + 1, Math.round(deliveryDay * 0.15));
+    const balanceDay = Math.max(prepayDay + 1, Math.round(deliveryDay * 0.6));
+    const list: Movement[] = [
+      { day: 0, amount: -bidSecurity, code: "bidSecurity" },
+      { day: SIGNING_DAY, amount: bidSecurity, code: "bidSecurityBack" },
+      { day: SIGNING_DAY, amount: -costs.guarantee, code: "guaranteeFee" },
+      { day: prepayDay, amount: -costs.purchase * 0.6, code: "prepay" },
+      { day: balanceDay, amount: -costs.purchase * 0.4, code: "balancePay" },
+      { day: deliveryDay, amount: -costs.logistics, code: "logistics" },
+      { day: payDay, amount: S, code: "payment" },
+      { day: payDay + 1, amount: -costs.tax, code: "tax" },
+    ];
+    // Penalty is withheld on actual delivery (deliveryDay already includes lateDays).
+    if (costs.penalty > 0) list.push({ day: deliveryDay, amount: -costs.penalty, code: "penalty" });
+    if (costs.bank > 0) list.push({ day: payDay + 1, amount: -costs.bank, code: "credit" });
+    return list;
+  };
+
+  const computeTax = () => {
+    const beforeTax = S - costs.purchase - costs.logistics - costs.operating - costs.penalty - costs.guarantee - costs.bank;
+    costs.tax = contractTax(company.taxRegime, S, beforeTax);
+  };
+
+  // Pass 1 — find the funding hole without credit cost.
+  computeTax();
+  costs.bank = creditCost(simulate(company, buildMovements(), horizon), company.creditRate);
+  // Pass 2 — credit interest is deductible, so tax is recomputed before the final run.
+  computeTax();
+  const timeline = simulate(company, buildMovements(), horizon);
+
+  const totalCost = Object.values(costs).reduce((s, v) => s + v, 0);
+  const netProfit = S - totalCost;
+  const marginPct = (netProfit / S) * 100;
 
   const cf = cashFlowRiskScore(timeline, company);
-  const lScore = logisticsScore(tender.distanceKm, company.maxDistanceKm);
+  const lScore = logisticsScore(distanceKm, company.maxDistanceKm);
   const legal = legalRiskScore(tender, company, scenario);
 
   const components = {
@@ -234,23 +210,17 @@ export function analyzeTender(
     TOS_WEIGHTS.w3 * components.logisticsScore +
     TOS_WEIGHTS.w4 * components.legalScore;
 
-  /* Structured "why is this tender risky?" — translated by the UI */
   const reasons: Reason[] = [];
-  if (cf.gapDay !== null)
-    reasons.push({ code: "gap", day: cf.gapDay, deficit: cf.maxDeficit, payDay });
+  if (cf.gapDay !== null) reasons.push({ code: "gap", day: cf.gapDay, deficit: cf.maxDeficit, payDay });
   if (marginPct < 5) reasons.push({ code: "lowMargin", margin: marginPct });
   else if (marginPct < 10) reasons.push({ code: "thinMargin", margin: marginPct });
-  if (tender.distanceKm > company.maxDistanceKm)
-    reasons.push({ code: "overRadius", dist: tender.distanceKm, max: company.maxDistanceKm });
+  if (distanceKm > company.maxDistanceKm) reasons.push({ code: "overRadius", dist: distanceKm, max: company.maxDistanceKm });
   if (costs.bank > 0 && costs.bank > netProfit * 0.25)
     reasons.push({ code: "bankHeavy", bank: costs.bank, pct: (costs.bank / Math.max(1, netProfit)) * 100 });
   reasons.push(...legal.reasons);
+  if (!reasons.length) reasons.push({ code: "safe", min: Math.min(...timeline.map((p) => p.balance)) });
 
-  const verdict: AnalysisResult["verdict"] =
-    tos >= 70 && !cf.gapDay ? "go" : tos >= 45 ? "caution" : "no-go";
-
-  if (!reasons.length)
-    reasons.push({ code: "safe", min: Math.min(...timeline.map((p) => p.balance)) });
+  const verdict: AnalysisResult["verdict"] = tos >= 70 && cf.gapDay === null ? "go" : tos >= 45 ? "caution" : "no-go";
 
   return {
     tenderId: tender.id,
@@ -265,6 +235,10 @@ export function analyzeTender(
     cashFlowGap: cf.gapDay !== null,
     maxDeficit: cf.maxDeficit,
     gapDay: cf.gapDay,
+    payDay,
+    deliveryDay,
+    distanceKm,
+    trucks: freight.trucks,
     timeline,
     verdict,
     reasons,
@@ -284,10 +258,7 @@ export const TONES = {
   "no-go": { key: "no-go" as const, color: "#f43f5e", text: "#fda4af" },
 };
 
-/**
- * Colour of a lot. Always driven by the verdict when one is available,
- * so a cash-flow gap can never show up as a green "go" badge.
- */
+/** Always driven by the verdict when available, so a cash gap never shows as green. */
 export function tosTone(input: number | Verdict) {
   if (typeof input !== "number") return TONES[input];
   if (input >= 70) return TONES.go;

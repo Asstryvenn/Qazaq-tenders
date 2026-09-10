@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { AnalysisResult, CompanyProfile, TenderSpec } from "@/lib/types";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { KZ } from "@/lib/kz-standards";
 
 type ManualKey = "quote" | "bankGuarantee" | "lawyer" | "carrier";
 const MANUAL: ManualKey[] = ["quote", "bankGuarantee", "lawyer", "carrier"];
@@ -51,8 +52,8 @@ export function Checklist({
   const auto = [
     { key: "certs", ok: tender.requiredCertificates.every((c) => company.certificates.includes(c)) },
     { key: "experience", ok: company.experienceYears >= tender.requiredExperienceYears },
-    { key: "guarantee", ok: tender.contractAmount * tender.guaranteeRate <= company.workingCapital },
-    { key: "radius", ok: tender.distanceKm <= company.maxDistanceKm },
+    { key: "guarantee", ok: tender.contractAmount * KZ.bidSecurityRate <= company.workingCapital },
+    { key: "radius", ok: result.distanceKm <= company.maxDistanceKm },
     { key: "noGap", ok: !result.cashFlowGap },
   ] as const;
 
