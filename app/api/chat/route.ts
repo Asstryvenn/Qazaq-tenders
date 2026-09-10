@@ -57,8 +57,10 @@ function summarize(r: ReturnType<typeof analyzeTender>) {
     netProfitKzt: Math.round(r.netProfit),
     marginPct: +r.marginPct.toFixed(2),
     cashFlowGap: r.cashFlowGap,
-    gapDay: r.gapDay,
-    maxDeficitKzt: Math.round(r.maxDeficit),
+    // Explicit names: the model read a bare "gapDay: 18" as "an 18-day gap".
+    cashGapStartsOnDay: r.gapDay,
+    daysInDeficit: r.timeline.filter((p) => p.balance < 0).length,
+    deepestDeficitKzt: Math.round(r.maxDeficit),
     deliveryDay: r.deliveryDay,
     payDay: r.payDay,
     distanceKm: r.distanceKm,
@@ -96,6 +98,7 @@ HARD RULES
 - Before quoting or assessing any clause, call get_spec_pages. Always cite the page ("бет 12" / "стр. 12").
 - If a requested page does not exist, say so plainly — do not invent content.
 - Amounts: format as "14,1 млн ₸" style. Explain jargon in plain words.
+- cashGapStartsOnDay is the DAY the balance first goes negative ("18-күні" / "на 18-й день"); daysInDeficit is how long it stays negative. Never confuse the two.
 - Kazakh procurement norms: bid security 1%, performance security 3%, penalty 0.1%/day capped at 10%.
 
 TENDER: ${tender.title} — ${tender.customer}. Contract ${tender.contractAmount} KZT, delivery ${tender.deliveryDays} days, payment ${tender.paymentDelayDays} days after delivery.
