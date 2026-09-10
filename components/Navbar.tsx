@@ -8,6 +8,7 @@ import { Lang, useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { useProfile } from "@/lib/profile";
 import { LogOut, UserRound } from "lucide-react";
+import { NotificationBell } from "./NotificationBell";
 
 function LangToggle() {
   const { lang, setLang } = useI18n();
@@ -44,18 +45,19 @@ function LangToggle() {
 function AuthButtons() {
   const { t } = useI18n();
   const { session, isDemo, company, openModal, signOut } = useProfile();
+  void openModal;
 
   if (session || !isDemo) {
     return (
       <div className="flex items-center gap-1.5">
-        <button
-          onClick={() => openModal("onboarding")}
-          className="flex max-w-[180px] items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-200 transition-colors hover:bg-white/10"
+        <Link
+          href="/profile"
+          className="flex max-w-[180px] items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-200 transition-colors hover:bg-white/10"
           title={t.nav.profile}
         >
           <UserRound className="h-3.5 w-3.5 shrink-0 text-blue-300" />
           <span className="truncate">{company.name}</span>
-        </button>
+        </Link>
         {session && (
           <button onClick={signOut} title={t.nav.logout} aria-label={t.nav.logout} className="rounded-lg p-2 text-slate-400 hover:bg-white/10 hover:text-white">
             <LogOut className="h-4 w-4" />
@@ -110,6 +112,7 @@ export function Navbar() {
 
         <div className="flex items-center gap-3">
           <LangToggle />
+          <NotificationBell />
           <AuthButtons />
         </div>
       </nav>

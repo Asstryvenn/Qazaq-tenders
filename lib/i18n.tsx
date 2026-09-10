@@ -212,6 +212,7 @@ const kz = {
   logi: { trucks: "жүк көлігі", route: "Маршрут" },
   movements: {
     bidSecurity: "Өтінімді қамтамасыз ету (1%)",
+    advance: "Тапсырыс берушіден аванс",
     bidSecurityBack: "Өтінім кепілін қайтару",
     guaranteeFee: "Банк кепілдігі үшін комиссия (3%)",
     prepay: "Жеткізушіге алдын ала төлем (60%)",
@@ -427,6 +428,7 @@ const ru: Dict = {
   logi: { trucks: "фур", route: "Маршрут" },
   movements: {
     bidSecurity: "Обеспечение заявки (1%)",
+    advance: "Аванс от заказчика",
     bidSecurityBack: "Возврат обеспечения заявки",
     guaranteeFee: "Комиссия за банковскую гарантию (3%)",
     prepay: "Предоплата поставщику (60%)",
@@ -519,6 +521,10 @@ interface I18nValue {
   kzt: (v: number) => string;
   reason: (r: Reason) => string;
   city: (id: string) => string;
+  /** Inline bilingual string: tr({ kz: "…", ru: "…" }) */
+  tr: (m: { kz: string; ru: string }) => string;
+  /** Lot title in the active language */
+  lotTitle: (t: { title: string; titleKz?: string }) => string;
 }
 
 const I18nContext = createContext<I18nValue | null>(null);
@@ -553,6 +559,8 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
       kzt: (v) => formatKzt(v, lang),
       reason: (r) => formatReason(r, lang),
       city: (id) => cityName(id, lang),
+      tr: (m) => m[lang],
+      lotTitle: (x) => (lang === "kz" && x.titleKz ? x.titleKz : x.title),
     }),
     [lang, setLang]
   );

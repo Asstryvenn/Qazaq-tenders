@@ -1,37 +1,75 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Building2, Coins, Radio, Users, Wallet } from "lucide-react";
+import { BellRing, Building2, Coins, Users, Wallet } from "lucide-react";
 import { TenderCard } from "@/components/TenderCard";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { analyzeTender } from "@/lib/engine";
 import { useI18n } from "@/lib/i18n";
 import { useProfile } from "@/lib/profile";
+import { useNotifications } from "@/lib/notifications";
+import { useNotificationSettings } from "@/lib/settings";
+import { SOURCES, TenderSource } from "@/lib/tenders/unified";
 import type { TenderSpec } from "@/lib/types";
-import type { TenderFeed } from "@/lib/tenders/source";
+import { cn } from "@/lib/utils";
 
 export default function DashboardPage() {
-  const { t, kzt, city } = useI18n();
+  const { t, kzt, city, tr, lotTitle, lang } = useI18n();
   const { company, isDemo, openModal } = useProfile();
-  const [feed, setFeed] = useState<TenderFeed | null>(null);
+  const { feed, results, simulate, toast } = useNotifications();
+  const { settings } = useNotificationSettings();
+  const [filter, setFilter] = useState<TenderSource | "all">("all");
 
-  useEffect(() => {
-    fetch("/api/tenders")
-      .then((r) => r.json())
-      .then(setFeed)
-      .catch(() => setFeed({ live: false, tenders: [], note: "fetch-failed" }));
-  }, []);
-
-  // Every lot is scored against the active digital twin, best first.
+  // Lots scored against the active digital twin (shared with the notification centre).
   const rows = useMemo(
     () =>
       (feed?.tenders ?? [])
-        .map((tender: TenderSpec) => ({ tender, result: analyzeTender(tender, company) }))
+        .filter((x) => filter === "all" || x.source === filter)
+        .map((tender) => ({ tender, result: results.get(tender.id)! }))
+        .filter((r) => r.result)
         .sort((a, b) => b.result.tos - a.result.tos),
-    [feed, company]
+    [feed, results, filter]
   );
+
+  const sendTelegram = async (tender: TenderSpec) => {
+    if (!settings.telegramChatId) {
+      toast({
+        kind: "info",
+        title: tr({ kz: "Telegram қосылмаған", ru: "Telegram не подключён" }),
+        body: tr({ kz: "Профиль → Telegram-ды қосу", ru: "Профиль → Подключить Telegram" }),
+        href: "/profile",
+      });
+      return;
+    }
+    const r = results.get(tender.id)!;
+    const res = await fetch("/api/telegram/send-alert", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: settings.telegramChatId,
+        lang,
+        tenderData: {
+          id: tender.id,
+          title: lotTitle(tender),
+          tos: r.tos,
+          verdict: r.verdict,
+          budgetKzt: tender.contractAmount,
+          deadline: tender.deadline,
+          source: SOURCES[tender.source].name,
+          note: r.cashFlowGap ? tr({ kz: `${r.gapDay}-күні кассалық алшақтық`, ru: `Кассовый разрыв на ${r.gapDay}-й день` }) : undefined,
+        },
+      }),
+    });
+    const d = await res.json();
+    toast(
+      res.ok
+        ? { kind: "success", title: tr({ kz: "Telegram-ға жіберілді", ru: "Отправлено в Telegram" }), body: lotTitle(tender) }
+        : { kind: "error", title: tr({ kz: "Жіберілмеді", ru: "Не отправлено" }), body: d.error }
+    );
+  };
+
+  const countBy = (s: TenderSource) => feed?.sources.find((x) => x.id === s)?.count ?? 0;
 
   return (
     <div className="mx-auto max-w-7xl px-5 pb-16 pt-8 sm:px-6">
@@ -59,35 +97,85 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <h2 className="text-sm font-semibold text-white">{t.dash.monitoring}</h2>
-          <Badge tone="blue">{rows.length}</Badge>
-          <span className="text-xs text-slate-500">· {t.feed.sortedBy}</span>
-        </div>
-        {feed && (
-          <span title={feed.live ? undefined : t.feed.demoHint}>
-            <Badge tone={feed.live ? "emerald" : "neutral"} pulse={feed.live}>
-              <Radio className="h-3 w-3" /> {feed.live ? t.feed.live : t.feed.demo}
-            </Badge>
-          </span>
-        )}
+      {/* Platform filter */}
+      <div className="mb-5 flex flex-wrap items-center gap-2">
+        <Chip active={filter === "all"} onClick={() => setFilter("all")} label={tr({ kz: "Барлық алаңдар", ru: "Все площадки" })} count={feed?.tenders.length ?? 0} color="#e2e8f0" />
+        {(Object.keys(SOURCES) as TenderSource[]).map((s) => {
+          const status = feed?.sources.find((x) => x.id === s);
+          return (
+            <Chip
+              key={s}
+              active={filter === s}
+              onClick={() => setFilter(s)}
+              label={SOURCES[s].name}
+              count={countBy(s)}
+              color={SOURCES[s].color}
+              live={status?.live}
+              title={`${SOURCES[s].host} — ${tr(SOURCES[s])}${status && !status.live ? ` · ${tr({ kz: "демо деректер", ru: "демо-данные" })}` : ""}`}
+            />
+          );
+        })}
+        <Button variant="outline" onClick={simulate} className="ml-auto px-3.5 py-2 text-xs">
+          <BellRing className="h-3.5 w-3.5" /> {tr({ kz: "Тест хабарлама", ru: "Тест уведомления" })}
+        </Button>
+      </div>
+
+      <div className="mb-4 flex items-center gap-2.5">
+        <h2 className="text-sm font-semibold text-white">{t.dash.monitoring}</h2>
+        <Badge tone="blue">{rows.length}</Badge>
+        <span className="text-xs text-slate-500">· {t.feed.sortedBy}</span>
+        {feed && !feed.live && <span className="text-xs text-slate-500">· {t.feed.demo}</span>}
       </div>
 
       {!feed ? (
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="glass h-[230px] animate-pulse" />
+            <div key={i} className="glass h-[240px] animate-pulse" />
           ))}
         </div>
       ) : (
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {rows.map((row, i) => (
-            <TenderCard key={row.tender.id} tender={row.tender} result={row.result} index={i} />
+            <TenderCard key={row.tender.id} tender={row.tender} result={row.result} index={i} onTelegram={() => sendTelegram(row.tender)} />
           ))}
         </div>
       )}
     </div>
+  );
+}
+
+function Chip({
+  active,
+  onClick,
+  label,
+  count,
+  color,
+  live,
+  title,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+  count: number;
+  color: string;
+  live?: boolean;
+  title?: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      title={title}
+      aria-pressed={active}
+      className={cn(
+        "flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors",
+        active ? "text-white" : "border-white/10 bg-white/[0.03] text-slate-300 hover:border-white/20"
+      )}
+      style={active ? { borderColor: `${color}99`, background: `${color}22` } : undefined}
+    >
+      <span className="h-2 w-2 rounded-full" style={{ background: color, boxShadow: live ? `0 0 8px ${color}` : undefined }} />
+      {label}
+      <span className="font-mono text-slate-400">{count}</span>
+    </button>
   );
 }
 

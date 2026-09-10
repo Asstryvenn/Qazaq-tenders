@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, MapPin, Truck } from "lucide-react";
+import { ArrowLeft, ExternalLink, MapPin, Truck } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Badge } from "@/components/ui/Badge";
 import { TosGauge, ScoreBar } from "@/components/TosGauge";
@@ -14,13 +14,15 @@ import { WhatIfPanel } from "@/components/WhatIfPanel";
 import { Checklist } from "@/components/Checklist";
 import { PlainSummaryCard } from "@/components/PlainSummaryCard";
 import { ChatWidget } from "@/components/ChatWidget";
+import { ActionGuide } from "@/components/ActionGuide";
+import { SOURCES } from "@/lib/tenders/unified";
 import { analyzeTender, tosTone, TOS_WEIGHTS } from "@/lib/engine";
 import { useI18n } from "@/lib/i18n";
 import { useProfile } from "@/lib/profile";
 import { NEUTRAL_SCENARIO, Scenario, TenderSpec } from "@/lib/types";
 
 export default function TenderPage({ params }: { params: { id: string } }) {
-  const { t, kzt, city } = useI18n();
+  const { t, kzt, city, lotTitle } = useI18n();
   const { company } = useProfile();
   const [tender, setTender] = useState<TenderSpec | null | undefined>(undefined);
   const [scenario, setScenario] = useState<Scenario>(NEUTRAL_SCENARIO);
@@ -60,8 +62,16 @@ export default function TenderPage({ params }: { params: { id: string } }) {
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="mb-7 mt-4 flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
-          <p className="font-mono text-xs text-slate-500">{tender.id}</p>
-          <h1 className="mt-1.5 text-2xl font-semibold leading-tight tracking-tight text-white">{tender.title}</h1>
+          <a
+            href={tender.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 font-mono text-xs hover:underline"
+            style={{ color: SOURCES[tender.source].color }}
+          >
+            {SOURCES[tender.source].name} · № {tender.externalId} <ExternalLink className="h-3 w-3" />
+          </a>
+          <h1 className="mt-1.5 text-2xl font-semibold leading-tight tracking-tight text-white">{lotTitle(tender)}</h1>
           <p className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-400">
             <span>{tender.customer}</span>
             <span className="flex items-center gap-1.5">
@@ -77,7 +87,8 @@ export default function TenderPage({ params }: { params: { id: string } }) {
           <Badge tone="neutral">
             {t.dash.deferral} {tender.paymentDelayDays} {t.units.days}
           </Badge>
-          {tender.source === "goszakup" && <Badge tone="neutral">{t.feed.estimated}</Badge>}
+          {tender.advancePercentage > 0 && <Badge tone="blue">аванс {tender.advancePercentage}%</Badge>}
+          {tender.estimated && <Badge tone="neutral">{t.feed.estimated}</Badge>}
           <Badge tone={badgeTone}>{t.verdict[tone.key]}</Badge>
         </div>
       </motion.div>
@@ -144,6 +155,11 @@ export default function TenderPage({ params }: { params: { id: string } }) {
           <Checklist tender={tender} company={company} result={result} />
         </GlassCard>
       </div>
+
+      {/* Row 4 — documents, where to get them, letter, preparation timeline */}
+      <GlassCard glow="blue" interactive={false} className="mt-6 p-7">
+        <ActionGuide tender={tender} />
+      </GlassCard>
 
       <ChatWidget tenderId={tender.id} scenario={scenario} onScenario={setScenario} />
     </div>

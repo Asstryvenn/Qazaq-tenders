@@ -3,6 +3,7 @@
  * The AI layer ONLY fills `TenderSpec`. It never computes anything.
  */
 import type { TaxRegime } from "./kz-standards";
+import type { TenderSource } from "./tenders/unified";
 
 export type { TaxRegime };
 
@@ -14,13 +15,25 @@ export interface SpecPage {
 
 /** Output of Layer 1 — pure extraction from the tender PDF/Docx. */
 export interface TenderSpec {
+  /** `${source}-${externalId}` — unique across platforms */
   id: string;
-  /** Where the lot came from: the official API or the bundled demo set. */
-  source: "goszakup" | "demo";
+  /** Lot number on the source platform */
+  externalId: string;
+  source: TenderSource;
+  /** Link to the lot on its platform (portal home for demo lots) */
+  sourceUrl: string;
+  /** Bundled demonstration lot, not fetched from the platform */
+  isDemo: boolean;
+  /** Economic terms estimated from the announcement, not parsed from documents */
+  estimated: boolean;
+  /** Title in Russian (as published) */
   title: string;
+  titleKz: string;
   customer: string;
   /** S — contract amount, KZT */
   contractAmount: number;
+  /** Advance paid by the customer at signing, % of S */
+  advancePercentage: number;
   /** D — delivery deadline, days from contract start */
   deliveryDays: number;
   /** P_delay — deferred payment, days after delivery */
@@ -71,6 +84,10 @@ export interface CompanyProfile {
   creditRate: number;
   experienceYears: number;
   certificates: string[];
+  /** БСН / ИИН — 12 digits */
+  bin: string;
+  /** Head of the company, signs letters */
+  directorName: string;
 }
 
 /** Levers of the What-If sensitivity simulator (and of the chatbot's run_scenario tool). */
@@ -98,6 +115,7 @@ export const NEUTRAL_SCENARIO: Scenario = {
 /** Codes for cash movements — the UI translates them, the engine stays language-free. */
 export type MovementCode =
   | "bidSecurity"
+  | "advance"
   | "bidSecurityBack"
   | "guaranteeFee"
   | "prepay"

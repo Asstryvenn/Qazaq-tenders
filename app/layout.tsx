@@ -6,6 +6,8 @@ import { I18nProvider } from "@/lib/i18n";
 import { ProfileProvider } from "@/lib/profile";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { OnboardingModal } from "@/components/auth/OnboardingModal";
+import { NotificationsProvider } from "@/lib/notifications";
+import { Toaster } from "@/components/Toaster";
 
 export const metadata: Metadata = {
   title: "Qazaq Tenders — Intelligent Economic Simulator for SME Procurement",
@@ -19,11 +21,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="flex min-h-screen flex-col">
         <I18nProvider>
           <ProfileProvider>
-            <AnimatedBackground />
-            <Navbar />
-            <main className="relative z-10 flex-1">{children}</main>
-            <AuthModal />
-            <OnboardingModal />
+            <NotificationsProvider>
+              <AnimatedBackground />
+              <Navbar />
+              <main className="relative z-10 flex-1">{children}</main>
+              <AuthModal />
+              <OnboardingModal />
+              <Toaster />
+            </NotificationsProvider>
           </ProfileProvider>
         </I18nProvider>
       </body>

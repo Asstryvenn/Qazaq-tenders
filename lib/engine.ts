@@ -146,6 +146,7 @@ export function analyzeTender(
   const S = tender.contractAmount;
   const bidSecurity = S * KZ.bidSecurityRate;
   const performanceSecurity = S * KZ.performanceSecurityRate;
+  const advance = S * (tender.advancePercentage / 100);
 
   const costs: CostBreakdown = {
     purchase: tender.purchaseCost * (1 + scenario.supplierDeltaPct / 100),
@@ -168,7 +169,9 @@ export function analyzeTender(
       { day: prepayDay, amount: -costs.purchase * 0.6, code: "prepay" },
       { day: balanceDay, amount: -costs.purchase * 0.4, code: "balancePay" },
       { day: deliveryDay, amount: -costs.logistics, code: "logistics" },
-      { day: payDay, amount: S, code: "payment" },
+      // Advance arrives at signing; the rest after delivery + deferral.
+      ...(advance > 0 ? [{ day: SIGNING_DAY, amount: advance, code: "advance" } as Movement] : []),
+      { day: payDay, amount: S - advance, code: "payment" },
       { day: payDay + 1, amount: -costs.tax, code: "tax" },
     ];
     // Penalty is withheld on actual delivery (deliveryDay already includes lateDays).

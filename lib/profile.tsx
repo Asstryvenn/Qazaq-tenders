@@ -37,6 +37,8 @@ type Row = {
   monthly_opex: number;
   experience_years: number;
   certificates: string[];
+  bin?: string;
+  director_name?: string;
 };
 
 const fromRow = (r: Row): CompanyProfile => ({
@@ -50,6 +52,8 @@ const fromRow = (r: Row): CompanyProfile => ({
   monthlyOpex: Number(r.monthly_opex),
   experienceYears: r.experience_years,
   certificates: r.certificates ?? [],
+  bin: r.bin ?? "",
+  directorName: r.director_name ?? "",
 });
 
 const toRow = (p: CompanyProfile): Row => ({
@@ -62,6 +66,8 @@ const toRow = (p: CompanyProfile): Row => ({
   monthly_opex: Math.round(p.monthlyOpex),
   experience_years: Math.round(p.experienceYears),
   certificates: p.certificates,
+  bin: p.bin,
+  director_name: p.directorName,
 });
 
 export function ProfileProvider({ children }: { children: React.ReactNode }) {
@@ -113,7 +119,12 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
   const saveProfile = useCallback(
     async (p: CompanyProfile) => {
       if (supabase && session) {
-        const { error } = await supabase.from("companies").upsert({ user_id: session.user.id, ...toRow(p) });
+        let { error } = await supabase.from("companies").upsert({ user_id: session.user.id, ...toRow(p) });
+        // Migration 0002 not applied yet → save everything except the new columns.
+        if (error && /bin|director_name/.test(error.message)) {
+          const { bin, director_name, ...legacy } = toRow(p);
+          ({ error } = await supabase.from("companies").upsert({ user_id: session.user.id, ...legacy }));
+        }
         if (error) return { error: error.message };
       } else {
         try {
