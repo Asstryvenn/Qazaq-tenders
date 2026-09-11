@@ -17,6 +17,9 @@ import { getRequestUser } from "@/lib/server/auth";
 import { checkQuota, consume, resolvePlan, usageOf, type Subject } from "@/lib/server/billing";
 
 export const dynamic = "force-dynamic";
+// Streaming answers with several engine/tool rounds can outlive the default
+// serverless timeout on Vercel; 60 s is the Hobby-plan maximum.
+export const maxDuration = 60;
 
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 const MAX_TOOL_ROUNDS = 4;
