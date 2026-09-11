@@ -205,9 +205,18 @@ function TenderActions({ tenderId }: { tenderId: string }) {
         <Sparkles className="h-3.5 w-3.5" /> AI Studio
       </Link>
       {tg.connected ? (
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1.5 text-xs text-emerald-100">
-          ✈️ {tr({ kz: "Telegram қосулы", ru: "Telegram подключён" })}
-        </span>
+        <>
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1.5 text-xs text-emerald-100">
+            ✈️ {tr({ kz: "Telegram қосулы", ru: "Telegram подключён" })}
+          </span>
+          <button
+            onClick={() => tg.sendTest(tenderId)}
+            disabled={tg.testing}
+            className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-slate-100 transition-colors hover:bg-white/10 disabled:opacity-60"
+          >
+            {tg.testing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "🔔"} {tr({ kz: "Тесттік ескерту жіберу", ru: "Тестовое уведомление" })}
+          </button>
+        </>
       ) : (
         <button
           onClick={tg.connect}

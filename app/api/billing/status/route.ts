@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { clientIp, getRequestUser } from "@/lib/server/auth";
 import { checkQuota, paymentsMode, resolvePlan, usageOf, type Subject } from "@/lib/server/billing";
+import { botToken, botUsernameFromEnv } from "@/lib/telegram";
 
 export const dynamic = "force-dynamic";
 
@@ -19,5 +20,6 @@ export async function GET(req: Request) {
     remaining: q.remaining,
     paymentsMode: paymentsMode(),
     signedIn: !!user,
+    telegram: { configured: !!botToken(), username: botUsernameFromEnv() || null },
   });
 }

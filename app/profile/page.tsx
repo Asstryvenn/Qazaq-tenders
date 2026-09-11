@@ -48,6 +48,14 @@ export default function ProfilePage() {
   };
 
   const sendTest = async () => {
+    setSending(true);
+    await tg.sendTest();
+    setSending(false);
+  };
+
+  // Full lot alert (the real PRO feature) — kept for reference by the dashboard button.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _sendLotAlert = async () => {
     const top = feed?.tenders.map((x) => ({ t: x, r: results.get(x.id)! })).sort((a, b) => b.r.tos - a.r.tos)[0];
     if (!top || !settings.telegramChatId) return;
     if (!can(billing.plan, "telegram")) return billing.openCheckout("pro");
@@ -97,7 +105,9 @@ export default function ProfilePage() {
         ? `${tr({ kz: "Белсенді", ru: "Активен" })} · @${tg.bot}`
         : tg.status === "no-token"
           ? tr({ kz: "TELEGRAM_BOT_TOKEN табылмады", ru: "TELEGRAM_BOT_TOKEN не найден" })
-          : tr({ kz: "Telegram API қатесі", ru: "Ошибка Telegram API" });
+          : tg.status === "bad-token"
+            ? tr({ kz: "Токен қате — Telegram қабылдамады", ru: "Неверный токен — Telegram его отклонил" })
+            : tr({ kz: "Telegram API қатесі", ru: "Ошибка Telegram API" });
 
   return (
     <div className="mx-auto max-w-5xl px-5 pb-16 pt-8 sm:px-6">
@@ -220,11 +230,12 @@ export default function ProfilePage() {
             )}
           </div>
 
-          {tg.status === "no-token" || tg.status === "error" ? (
+          {tg.status === "no-token" || tg.status === "bad-token" || tg.status === "error" ? (
             <div className="mt-5 space-y-3">
               <ol className="list-decimal space-y-1.5 pl-5 text-sm text-slate-300">
                 <li>{tr({ kz: "Telegram-да @BotFather ашып, /newbot жіберіңіз.", ru: "Откройте @BotFather в Telegram и отправьте /newbot." })}</li>
                 <li>{tr({ kz: "Токенді .env.local файлына TELEGRAM_BOT_TOKEN= етіп қойыңыз (жолда бос орын жоқ).", ru: "Вставьте токен в .env.local как TELEGRAM_BOT_TOKEN= (без пробелов)." })}</li>
+                <li>{tr({ kz: "Бот атын NEXT_PUBLIC_TELEGRAM_BOT_USERNAME= етіп қосыңыз (@ болса да болады).", ru: "Имя бота — в NEXT_PUBLIC_TELEGRAM_BOT_USERNAME= (можно с @)." })}</li>
                 <li>{tr({ kz: "Файлды сақтап, осы жерде «Қайта тексеру» басыңыз.", ru: "Сохраните файл и нажмите «Проверить снова»." })}</li>
               </ol>
               <Button variant="outline" onClick={tg.checkBot} className="text-xs">
@@ -249,7 +260,7 @@ export default function ProfilePage() {
                 </Button>
               )}
               <Button variant="outline" onClick={sendTest} disabled={!tg.connected || sending} className="disabled:opacity-50">
-                {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : "🔔"} {tr({ kz: "Тесттік хабарлама жіберу", ru: "Отправить тестовое сообщение" })}
+                {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : "🔔"} {tr({ kz: "Тесттік ескерту жіберу", ru: "Отправить тестовое уведомление" })}
               </Button>
             </div>
           )}

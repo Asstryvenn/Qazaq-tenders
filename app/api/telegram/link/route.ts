@@ -6,7 +6,7 @@
  * getUpdates only works while the bot has no webhook set; for production switch to a webhook.
  */
 import { NextResponse } from "next/server";
-import { tg, TelegramError } from "@/lib/telegram";
+import { botToken, botUsernameFromEnv, tg, TelegramError } from "@/lib/telegram";
 
 export const dynamic = "force-dynamic";
 
@@ -19,8 +19,16 @@ export async function GET(req: Request) {
   const code = new URL(req.url).searchParams.get("code");
   try {
     if (!code) {
-      const me = await tg<{ username: string }>("getMe");
-      return NextResponse.json({ username: me.username });
+      // Without a token we can still tell the client the configured username.
+      if (!botToken()) return NextResponse.json({ error: "no-bot-token", username: botUsernameFromEnv() || null }, { status: 503 });
+      try {
+        const me = await tg<{ username: string }>("getMe");
+        return NextResponse.json({ username: me.username });
+      } catch (e) {
+        const err = e as TelegramError;
+        // Telegram answers 401 "Unauthorized" for a wrong or revoked token.
+        return NextResponse.json({ error: err.status === 401 || err.status === 404 ? "bad-token" : err.message }, { status: err.status === 404 ? 401 : err.status || 502 });
+      }
     }
     if (!/^[A-Za-z0-9_-]{6,64}$/.test(code)) return NextResponse.json({ error: "bad-code" }, { status: 400 });
 

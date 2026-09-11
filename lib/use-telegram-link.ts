@@ -5,7 +5,9 @@ import { useI18n } from "./i18n";
 import { useNotifications } from "./notifications";
 import { useProfile } from "./profile";
 import { useNotificationSettings } from "./settings";
+import { PUBLIC_BOT_USERNAME } from "./telegram-public";
 
+/** Per-browser id for visitors without an account (a shared "demo_user" would collide). */
 function demoId(): string {
   try {
     const saved = localStorage.getItem("qt-demo-id");
@@ -18,31 +20,29 @@ function demoId(): string {
   }
 }
 
-export type BotStatus = "checking" | "ready" | "no-token" | "error";
+/** ready = token works; no-token = TELEGRAM_BOT_TOKEN empty; bad-token = Telegram rejected it. */
+export type BotStatus = "checking" | "ready" | "no-token" | "bad-token" | "error";
 
 const POLL_MS = 2500;
 const POLL_MAX = 72; // ~3 minutes
 
 /**
- * One-click Telegram binding: opens t.me/<bot>?start=<code>, then polls until the
- * user presses Start. On success the chat id is saved, the switch turns on and the
- * server sends a real welcome message.
- *
- * The start parameter is the Supabase user id (an unguessable UUID). Visitors without an
- * account get a random per-browser id — a shared "demo_user" would let two visitors
- * claim each other's binding.
+ * One-click binding: opens https://t.me/<bot>?start=<user id>, polls until the user presses
+ * Start, then saves the chat id (switch turns on) — the server sends a welcome message.
+ * `sendTest` sends a real message through the Bot API to verify the connection.
  */
 export function useTelegramLink() {
-  const { tr } = useI18n();
+  const { tr, lang } = useI18n();
   const { session } = useProfile();
   const { toast } = useNotifications();
   const { settings, save, loading } = useNotificationSettings();
-  const [bot, setBot] = useState<string | null>(null);
+  const [bot, setBot] = useState<string | null>(PUBLIC_BOT_USERNAME || null);
   const [status, setStatus] = useState<BotStatus>("checking");
   const [waiting, setWaiting] = useState(false);
+  const [testing, setTesting] = useState(false);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Token is read per request on the server, so re-checking picks up a freshly edited .env.local.
+  // The token is read per request on the server, so re-checking picks up an edited .env.local.
   const checkBot = useCallback(async () => {
     setStatus("checking");
     try {
@@ -51,7 +51,10 @@ export function useTelegramLink() {
       if (r.ok) {
         setBot(d.username);
         setStatus("ready");
-      } else setStatus(d.error === "no-bot-token" ? "no-token" : "error");
+      } else {
+        if (d.username) setBot(d.username);
+        setStatus(d.error === "no-bot-token" ? "no-token" : d.error === "bad-token" ? "bad-token" : "error");
+      }
     } catch {
       setStatus("error");
     }
@@ -72,18 +75,25 @@ export function useTelegramLink() {
     setWaiting(false);
   }, []);
 
+  const notReady = useCallback(() => {
+    toast({
+      kind: "info",
+      title:
+        status === "bad-token"
+          ? tr({ kz: "Telegram токені қате", ru: "Неверный токен Telegram" })
+          : tr({ kz: "Telegram-бот қосылмаған", ru: "Telegram-бот не настроен" }),
+      body:
+        status === "bad-token"
+          ? tr({ kz: "@BotFather-дан токенді қайта көшіріңіз", ru: "Скопируйте токен из @BotFather заново" })
+          : tr({ kz: "TELEGRAM_BOT_TOKEN-ді .env.local-ға қосыңыз", ru: "Добавьте TELEGRAM_BOT_TOKEN в .env.local" }),
+      href: "/profile",
+    });
+  }, [status, toast, tr]);
+
   const connect = useCallback(() => {
-    if (status !== "ready" || !bot) {
-      toast({
-        kind: "info",
-        title: tr({ kz: "Telegram-бот қосылмаған", ru: "Telegram-бот не настроен" }),
-        body: tr({ kz: "TELEGRAM_BOT_TOKEN-ді .env.local-ға қосыңыз", ru: "Добавьте TELEGRAM_BOT_TOKEN в .env.local" }),
-        href: "/profile",
-      });
-      return;
-    }
-    const code = session ? session.user.id : demoId();
-    window.open(`https://t.me/${bot}?start=${code}`, "_blank", "noopener");
+    if (status !== "ready" || !bot) return notReady();
+    const code = session?.user.id ?? demoId();
+    window.open(`https://t.me/${bot}?start=${encodeURIComponent(code)}`, "_blank", "noopener");
     if (timer.current) clearInterval(timer.current);
     setWaiting(true);
     let tries = 0;
@@ -95,7 +105,7 @@ export function useTelegramLink() {
         return;
       }
       try {
-        const r = await fetch(`/api/telegram/link?code=${code}`, { cache: "no-store" }).then((x) => x.json());
+        const r = await fetch(`/api/telegram/link?code=${encodeURIComponent(code)}`, { cache: "no-store" }).then((x) => x.json());
         if (r.found) {
           stop();
           await save({ telegramChatId: r.chatId, telegramEnabled: true });
@@ -103,7 +113,39 @@ export function useTelegramLink() {
         }
       } catch {}
     }, POLL_MS);
-  }, [status, bot, session, save, stop, toast, tr]);
+  }, [status, bot, session, save, stop, toast, tr, notReady]);
 
-  return { bot, status, waiting, connect, cancel: stop, checkBot, settings, save, loading, connected: !!settings.telegramChatId };
+  /** Real message through the Bot API — proves the token and the binding work. */
+  const sendTest = useCallback(
+    async (tenderId?: string) => {
+      if (status !== "ready") return notReady();
+      if (!settings.telegramChatId) return connect();
+      setTesting(true);
+      try {
+        const r = await fetch("/api/telegram/test", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}) },
+          body: JSON.stringify({ chat_id: settings.telegramChatId, lang, tenderId }),
+        });
+        const d = await r.json();
+        if (r.ok) toast({ kind: "success", title: tr({ kz: "Тесттік ескерту жіберілді", ru: "Тестовое уведомление отправлено" }), body: tr({ kz: "Telegram-ды тексеріңіз.", ru: "Проверьте Telegram." }) });
+        else
+          toast({
+            kind: "error",
+            title: tr({ kz: "Жіберілмеді", ru: "Не отправлено" }),
+            body:
+              d.error === "cooldown"
+                ? tr({ kz: "20 секундтан кейін қайталаңыз.", ru: "Повторите через 20 секунд." })
+                : /blocked|chat not found/i.test(d.error)
+                  ? tr({ kz: "Бот бұғатталған немесе чат табылмады — қайта қосыңыз.", ru: "Бот заблокирован или чат не найден — переподключите." })
+                  : d.error,
+          });
+      } finally {
+        setTesting(false);
+      }
+    },
+    [status, settings.telegramChatId, session, lang, toast, tr, connect, notReady]
+  );
+
+  return { bot, status, waiting, testing, connect, sendTest, cancel: stop, checkBot, settings, save, loading, connected: !!settings.telegramChatId };
 }

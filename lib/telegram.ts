@@ -9,8 +9,16 @@ export class TelegramError extends Error {
   }
 }
 
+/** Read per request, so editing .env.local is picked up without code changes. */
 export function botToken(): string | null {
-  return process.env.TELEGRAM_BOT_TOKEN || null;
+  return process.env.TELEGRAM_BOT_TOKEN?.trim() || null;
+}
+
+/** "@qazaqtendersbot" and "qazaqtendersbot" both work. */
+export const cleanUsername = (v: string | undefined | null) => (v ?? "").trim().replace(/^@+/, "");
+
+export function botUsernameFromEnv(): string {
+  return cleanUsername(process.env.TELEGRAM_BOT_USERNAME || process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME);
 }
 
 export async function tg<T = unknown>(method: string, body?: Record<string, unknown>): Promise<T> {
