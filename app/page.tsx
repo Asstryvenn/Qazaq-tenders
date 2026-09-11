@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { useI18n } from "@/lib/i18n";
 import { StartCta } from "@/components/AccountGate";
+import { Eq, Frac, Num, Op, Sum, V } from "@/components/Math";
 
 const FEATURE_ICONS = [Wallet, Calculator, Route, FileSearch, Layers, Brain];
 const FEATURE_GLOW = ["crimson", "blue", "blue", "blue", "emerald", "blue"] as const;
@@ -38,12 +39,82 @@ export default function LandingPage() {
             <Badge tone="emerald" className="mb-4">Layer 2 · Economics</Badge>
             <h3 className="text-lg font-semibold text-white">{t.flow.steps[2].title}</h3>
             <p className="mt-3 text-sm leading-relaxed text-slate-300">{t.flow.steps[2].detail}</p>
-            <pre className="mt-5 overflow-x-auto rounded-xl border border-white/5 bg-black/40 p-4 font-mono text-[11px] leading-relaxed text-slate-300">
-{`Π      = S − (C_purch + C_log + C_tax + C_bank + C_oper)
-M_rel  = Π / S × 100%
-CF_t   = CF₀ + Σ Inflow − Σ Outflow
-TOS    = 0.35·M + 0.30·(100−CF) + 0.15·L + 0.20·(100−R)`}
-            </pre>
+            <div className="mt-5 rounded-xl border border-white/10 bg-black/30 px-4 py-1">
+              <Eq
+                lhs={<V>Π</V>}
+                def={
+                  <>
+                    <V>S</V>
+                    <Op>−</Op>
+                    <span className="text-slate-400">(</span>
+                    <V sub="purch">C</V>
+                    <Op>+</Op>
+                    <V sub="log">C</V>
+                    <Op>+</Op>
+                    <V sub="tax">C</V>
+                    <Op>+</Op>
+                    <V sub="bank">C</V>
+                    <Op>+</Op>
+                    <V sub="oper">C</V>
+                    <span className="text-slate-400">)</span>
+                  </>
+                }
+              />
+              <Eq
+                lhs={<V sub="rel">M</V>}
+                def={
+                  <>
+                    <Frac num={<V>Π</V>} den={<V>S</V>} />
+                    <Op>×</Op>
+                    <Num>100%</Num>
+                  </>
+                }
+              />
+              <Eq
+                lhs={<V sub="t">CF</V>}
+                def={
+                  <>
+                    <V sub="0">CF</V>
+                    <Op>+</Op>
+                    <Sum sub="i≤t" />
+                    <V sub="i">In</V>
+                    <Op>−</Op>
+                    <Sum sub="i≤t" />
+                    <V sub="i">Out</V>
+                  </>
+                }
+              />
+              <Eq
+                lhs={<V>TOS</V>}
+                def={
+                  <>
+                    <Num>0,35</Num>
+                    <Op>·</Op>
+                    <V>M</V>
+                    <Op>+</Op>
+                    <Num>0,30</Num>
+                    <Op>·</Op>
+                    <span className="text-slate-400">(</span>
+                    <Num>100</Num>
+                    <Op>−</Op>
+                    <V sub="risk">CF</V>
+                    <span className="text-slate-400">)</span>
+                    <Op>+</Op>
+                    <Num>0,15</Num>
+                    <Op>·</Op>
+                    <V>L</V>
+                    <Op>+</Op>
+                    <Num>0,20</Num>
+                    <Op>·</Op>
+                    <span className="text-slate-400">(</span>
+                    <Num>100</Num>
+                    <Op>−</Op>
+                    <V sub="legal">R</V>
+                    <span className="text-slate-400">)</span>
+                  </>
+                }
+              />
+            </div>
           </GlassCard>
         </div>
       </section>
