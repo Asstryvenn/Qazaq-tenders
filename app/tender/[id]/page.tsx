@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowLeft, ExternalLink, MapPin, Truck } from "lucide-react";
+import { ArrowLeft, ExternalLink, Loader2, MapPin, Send, Sparkles, Truck } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Badge } from "@/components/ui/Badge";
 import { TosGauge, ScoreBar } from "@/components/TosGauge";
@@ -16,6 +16,8 @@ import { PlainSummaryCard } from "@/components/PlainSummaryCard";
 import { ChatWidget } from "@/components/ChatWidget";
 import { ActionGuide } from "@/components/ActionGuide";
 import { SOURCES } from "@/lib/tenders/unified";
+import { decodeScenario } from "@/lib/chat-client";
+import { useTelegramLink } from "@/lib/use-telegram-link";
 import { analyzeTender, tosTone, TOS_WEIGHTS } from "@/lib/engine";
 import { useI18n } from "@/lib/i18n";
 import { useProfile } from "@/lib/profile";
@@ -33,6 +35,12 @@ export default function TenderPage({ params }: { params: { id: string } }) {
       .then((d) => setTender(d.tender))
       .catch(() => setTender(null));
   }, [params.id]);
+
+  // A scenario opened from an AI Studio card arrives as ?s=…
+  useEffect(() => {
+    const s = decodeScenario(new URLSearchParams(window.location.search).get("s"), NEUTRAL_SCENARIO);
+    if (s) setScenario(s);
+  }, []);
 
   const result = useMemo(() => tender && analyzeTender(tender, company, scenario), [tender, company, scenario]);
   const baseline = useMemo(() => tender && analyzeTender(tender, company), [tender, company]);
@@ -92,6 +100,8 @@ export default function TenderPage({ params }: { params: { id: string } }) {
           <Badge tone={badgeTone}>{t.verdict[tone.key]}</Badge>
         </div>
       </motion.div>
+
+      <TenderActions tenderId={tender.id} />
 
       {/* Row 1 — TOS breakdown | plain-language summary */}
       <div className="grid items-stretch gap-6 lg:grid-cols-12">
@@ -162,6 +172,36 @@ export default function TenderPage({ params }: { params: { id: string } }) {
       </GlassCard>
 
       <ChatWidget tenderId={tender.id} scenario={scenario} onScenario={setScenario} />
+    </div>
+  );
+}
+
+/** AI Studio entry + one-click Telegram binding for this lot. */
+function TenderActions({ tenderId }: { tenderId: string }) {
+  const { tr } = useI18n();
+  const tg = useTelegramLink();
+  return (
+    <div className="-mt-3 mb-6 flex flex-wrap items-center gap-2">
+      <Link
+        href={`/ai-studio?tender=${encodeURIComponent(tenderId)}`}
+        className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-sky-500 via-violet-500 to-pink-500 px-3.5 py-1.5 text-xs font-semibold text-white shadow-[0_0_24px_-8px_rgba(167,139,250,0.9)]"
+      >
+        <Sparkles className="h-3.5 w-3.5" /> AI Studio
+      </Link>
+      {tg.connected ? (
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1.5 text-xs text-emerald-100">
+          ✈️ {tr({ kz: "Telegram қосулы", ru: "Telegram подключён" })}
+        </span>
+      ) : (
+        <button
+          onClick={tg.connect}
+          disabled={tg.waiting}
+          className="inline-flex items-center gap-1.5 rounded-full border border-sky-400/40 bg-sky-500/10 px-3 py-1.5 text-xs text-sky-100 transition-colors hover:bg-sky-500/20 disabled:opacity-70"
+        >
+          {tg.waiting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+          {tg.waiting ? tr({ kz: "«Start» күтілуде…", ru: "Ждём «Start»…" }) : tr({ kz: "Telegram-ды қосу", ru: "Подключить Telegram" })}
+        </button>
+      )}
     </div>
   );
 }

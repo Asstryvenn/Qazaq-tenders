@@ -108,6 +108,8 @@ export interface Scenario {
   paymentDelayDelta: number;
   /** days of late delivery → penalty */
   lateDays: number;
+  /** Delivery term extended by agreement with the customer — no penalty */
+  deliveryDeltaDays: number;
 }
 
 export const NEUTRAL_SCENARIO: Scenario = {
@@ -116,6 +118,7 @@ export const NEUTRAL_SCENARIO: Scenario = {
   supplierDeltaPct: 0,
   paymentDelayDelta: 0,
   lateDays: 0,
+  deliveryDeltaDays: 0,
 };
 
 /** Codes for cash movements — the UI translates them, the engine stays language-free. */

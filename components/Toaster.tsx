@@ -16,7 +16,7 @@ const EXTRA = {
 export function Toaster() {
   const { toasts, dismissToast } = useNotifications();
   return (
-    <div className="pointer-events-none fixed right-4 top-20 z-[90] flex w-[min(92vw,360px)] flex-col gap-2.5" aria-live="polite">
+    <div className="pointer-events-none fixed right-4 top-20 z-[100] flex w-[min(92vw,360px)] flex-col gap-2.5" aria-live="polite">
       <AnimatePresence initial={false}>
         {toasts.map((t) => {
           const meta = t.kind in KIND_META ? KIND_META[t.kind as keyof typeof KIND_META] : EXTRA[t.kind as keyof typeof EXTRA];
@@ -37,7 +37,7 @@ export function Toaster() {
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, x: 60, scale: 0.95 }}
               transition={{ type: "spring", stiffness: 380, damping: 30 }}
-              className="glass-strong pointer-events-auto relative flex gap-3 overflow-hidden p-4 pr-9 shadow-card"
+              className="pointer-events-auto relative flex gap-3 overflow-hidden rounded-2xl border bg-ink-800/[0.97] p-4 pr-9 shadow-card backdrop-blur-xl"
               style={{ borderColor: `${meta.color}66`, boxShadow: `0 0 30px -10px ${meta.color}` }}
             >
               <span className="absolute inset-y-0 left-0 w-1" style={{ background: meta.color }} />

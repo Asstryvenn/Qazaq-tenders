@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Bell, Building2, CheckCircle2, ExternalLink, Loader2, Mail, Pencil, Send, Timer } from "lucide-react";
+import { Bell, Building2, CheckCircle2, ExternalLink, Loader2, Mail, Pencil, RefreshCw, Send, Timer } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { useI18n } from "@/lib/i18n";
 import { useProfile } from "@/lib/profile";
-import { useNotificationSettings } from "@/lib/settings";
+import { useTelegramLink } from "@/lib/use-telegram-link";
 import { useNotifications } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
 
@@ -32,58 +32,18 @@ function Toggle({ on, onChange, label }: { on: boolean; onChange: (v: boolean) =
 export default function ProfilePage() {
   const { t, tr, kzt, city } = useI18n();
   const { company, openModal, isDemo, session } = useProfile();
-  const { settings, save, loading } = useNotificationSettings();
   const { feed, results, toast } = useNotifications();
-
-  const [bot, setBot] = useState<string | null>(null);
-  const [botError, setBotError] = useState<string | null>(null);
-  const [code, setCode] = useState<string | null>(null);
-  const [checking, setChecking] = useState(false);
+  const tg = useTelegramLink();
+  const { settings, loading } = tg;
   const [sending, setSending] = useState(false);
 
-  useEffect(() => {
-    fetch("/api/telegram/link")
-      .then(async (r) => {
-        const d = await r.json();
-        if (r.ok) setBot(d.username);
-        else setBotError(d.error);
-      })
-      .catch(() => setBotError("network"));
-  }, []);
-
-  const set = async (patch: Parameters<typeof save>[0]) => {
-    const r = await save(patch);
+  const set = async (patch: Parameters<typeof tg.save>[0]) => {
+    const r = await tg.save(patch);
     if (r.error) toast({ kind: "error", title: tr({ kz: "Сақталмады", ru: "Не сохранилось" }), body: r.error });
   };
 
-  const connect = () => {
-    const c = `qt${Math.random().toString(36).slice(2, 10)}${Date.now().toString(36)}`;
-    setCode(c);
-    window.open(`https://t.me/${bot}?start=${c}`, "_blank", "noopener");
-  };
-
-  const verify = async () => {
-    if (!code) return;
-    setChecking(true);
-    const r = await fetch(`/api/telegram/link?code=${code}`).then((x) => x.json());
-    setChecking(false);
-    if (r.found) {
-      await set({ telegramChatId: r.chatId, telegramEnabled: true });
-      setCode(null);
-      toast({ kind: "success", title: tr({ kz: "Telegram қосылды", ru: "Telegram подключён" }), body: r.name });
-    } else {
-      toast({
-        kind: "info",
-        title: tr({ kz: "Әлі табылмады", ru: "Пока не найдено" }),
-        body: tr({ kz: "Ботта «Start» батырмасын басып, қайта тексеріңіз.", ru: "Нажмите «Start» в боте и проверьте ещё раз." }),
-      });
-    }
-  };
-
   const sendTest = async () => {
-    const top = feed?.tenders
-      .map((t) => ({ t, r: results.get(t.id)! }))
-      .sort((a, b) => b.r.tos - a.r.tos)[0];
+    const top = feed?.tenders.map((x) => ({ t: x, r: results.get(x.id)! })).sort((a, b) => b.r.tos - a.r.tos)[0];
     if (!top || !settings.telegramChatId) return;
     setSending(true);
     const res = await fetch("/api/telegram/send-alert", {
@@ -124,6 +84,15 @@ export default function ProfilePage() {
     [tr({ kz: "Сертификаттар", ru: "Сертификаты" }), company.certificates.join(", ") || "—"],
   ];
 
+  const statusLine =
+    tg.status === "checking"
+      ? tr({ kz: "Тексерілуде…", ru: "Проверяем…" })
+      : tg.status === "ready"
+        ? `@${tg.bot}`
+        : tg.status === "no-token"
+          ? tr({ kz: "TELEGRAM_BOT_TOKEN табылмады", ru: "TELEGRAM_BOT_TOKEN не найден" })
+          : tr({ kz: "Telegram API қатесі", ru: "Ошибка Telegram API" });
+
   return (
     <div className="mx-auto max-w-5xl px-5 pb-16 pt-8 sm:px-6">
       <h1 className="text-2xl font-semibold tracking-tight text-white">{tr({ kz: "Профиль және баптаулар", ru: "Профиль и настройки" })}</h1>
@@ -132,7 +101,6 @@ export default function ProfilePage() {
       </p>
 
       <div className="mt-7 grid gap-6 lg:grid-cols-2">
-        {/* Company */}
         <GlassCard interactive={false} className="p-6">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-2.5">
@@ -158,7 +126,6 @@ export default function ProfilePage() {
           </dl>
         </GlassCard>
 
-        {/* Notification preferences */}
         <GlassCard interactive={false} className="p-6">
           <div className="flex items-center gap-2.5">
             <Bell className="h-4 w-4 text-blue-300" />
@@ -167,25 +134,13 @@ export default function ProfilePage() {
           </div>
           <ul className="mt-5 space-y-4">
             {[
-              {
-                icon: Mail,
-                key: "emailDaily" as const,
-                title: tr({ kz: "Таңғы email-дайджест", ru: "Утренний email-дайджест" }),
-                desc: tr({ kz: "Күн сайын үздік тендерлер тізімі", ru: "Каждый день — лучшие тендеры" }),
-              },
-              {
-                icon: Timer,
-                key: "deadlineReminders" as const,
-                title: tr({ kz: "Шұғыл мерзім ескертулері", ru: "Срочные напоминания о сроках" }),
-                desc: tr({ kz: "Тендер жабылуына 24 сағат қалғанда", ru: "За 24 часа до закрытия тендера" }),
-              },
+              { icon: Mail, key: "emailDaily" as const, title: tr({ kz: "Таңғы email-дайджест", ru: "Утренний email-дайджест" }), desc: tr({ kz: "Күн сайын үздік тендерлер тізімі", ru: "Каждый день — лучшие тендеры" }) },
+              { icon: Timer, key: "deadlineReminders" as const, title: tr({ kz: "Шұғыл мерзім ескертулері", ru: "Срочные напоминания о сроках" }), desc: tr({ kz: "Тендер жабылуына 24 сағат қалғанда", ru: "За 24 часа до закрытия тендера" }) },
               {
                 icon: Send,
                 key: "telegramEnabled" as const,
                 title: tr({ kz: "Telegram-бот арқылы жедел хабарлама", ru: "Мгновенные уведомления в Telegram" }),
-                desc: settings.telegramChatId
-                  ? tr({ kz: "Бот қосылған", ru: "Бот подключён" })
-                  : tr({ kz: "Алдымен ботты қосыңыз ↓", ru: "Сначала подключите бота ↓" }),
+                desc: tg.connected ? tr({ kz: "Бот қосылған", ru: "Бот подключён" }) : tr({ kz: "Қосу үшін басыңыз — бот ашылады", ru: "Нажмите — откроется бот" }),
               },
             ].map((o) => (
               <li key={o.key} className="flex items-center gap-3.5">
@@ -194,11 +149,15 @@ export default function ProfilePage() {
                   <p className="text-sm text-slate-100">{o.title}</p>
                   <p className="text-xs text-slate-400">{o.desc}</p>
                 </div>
-                <Toggle
-                  on={settings[o.key]}
-                  label={o.title}
-                  onChange={(v) => (o.key === "telegramEnabled" && v && !settings.telegramChatId ? connect() : set({ [o.key]: v }))}
-                />
+                {o.key === "telegramEnabled" && tg.waiting ? (
+                  <Loader2 className="h-5 w-5 animate-spin text-sky-300" />
+                ) : (
+                  <Toggle
+                    on={settings[o.key]}
+                    label={o.title}
+                    onChange={(v) => (o.key === "telegramEnabled" && v && !tg.connected ? tg.connect() : set({ [o.key]: v }))}
+                  />
+                )}
               </li>
             ))}
           </ul>
@@ -210,44 +169,54 @@ export default function ProfilePage() {
           </p>
         </GlassCard>
 
-        {/* Telegram */}
         <GlassCard interactive={false} className="p-6 lg:col-span-2">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex items-center gap-3">
               <span className="grid h-10 w-10 place-items-center rounded-xl border border-sky-400/40 bg-sky-500/15 text-lg">✈️</span>
               <div>
                 <h2 className="text-sm font-semibold text-white">Telegram</h2>
-                <p className="text-xs text-slate-400">
-                  {bot ? `@${bot}` : botError === "no-bot-token" ? tr({ kz: "TELEGRAM_BOT_TOKEN қосылмаған", ru: "TELEGRAM_BOT_TOKEN не задан" }) : "…"}
+                <p className="flex items-center gap-2 text-xs text-slate-400">
+                  <span className={cn("h-2 w-2 rounded-full", tg.status === "ready" ? "bg-emerald-400 shadow-[0_0_8px_#34d399]" : tg.status === "checking" ? "bg-slate-500" : "bg-rose-400")} />
+                  {statusLine}
                 </p>
               </div>
             </div>
-            {settings.telegramChatId && (
+            {tg.connected && (
               <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-100">
                 <CheckCircle2 className="h-3.5 w-3.5" /> {tr({ kz: "Қосылған", ru: "Подключён" })} · {settings.telegramChatId}
               </span>
             )}
           </div>
 
-          {botError === "no-bot-token" ? (
-            <ol className="mt-5 list-decimal space-y-1.5 pl-5 text-sm text-slate-300">
-              <li>{tr({ kz: "Telegram-да @BotFather ашып, /newbot жіберіңіз.", ru: "Откройте @BotFather в Telegram и отправьте /newbot." })}</li>
-              <li>{tr({ kz: "Токенді .env.local файлына TELEGRAM_BOT_TOKEN= етіп қойыңыз.", ru: "Вставьте токен в .env.local как TELEGRAM_BOT_TOKEN=." })}</li>
-              <li>{tr({ kz: "npm run dev қайта іске қосыңыз.", ru: "Перезапустите npm run dev." })}</li>
-            </ol>
+          {tg.status === "no-token" || tg.status === "error" ? (
+            <div className="mt-5 space-y-3">
+              <ol className="list-decimal space-y-1.5 pl-5 text-sm text-slate-300">
+                <li>{tr({ kz: "Telegram-да @BotFather ашып, /newbot жіберіңіз.", ru: "Откройте @BotFather в Telegram и отправьте /newbot." })}</li>
+                <li>{tr({ kz: "Токенді .env.local файлына TELEGRAM_BOT_TOKEN= етіп қойыңыз (жолда бос орын жоқ).", ru: "Вставьте токен в .env.local как TELEGRAM_BOT_TOKEN= (без пробелов)." })}</li>
+                <li>{tr({ kz: "Файлды сақтап, осы жерде «Қайта тексеру» басыңыз.", ru: "Сохраните файл и нажмите «Проверить снова»." })}</li>
+              </ol>
+              <Button variant="outline" onClick={tg.checkBot} className="text-xs">
+                <RefreshCw className="h-3.5 w-3.5" /> {tr({ kz: "Қайта тексеру", ru: "Проверить снова" })}
+              </Button>
+            </div>
           ) : (
             <div className="mt-5 flex flex-wrap items-center gap-3">
-              <Button onClick={connect} disabled={!bot} className="disabled:opacity-50">
-                <Send className="h-4 w-4" /> {settings.telegramChatId ? tr({ kz: "Қайта қосу", ru: "Переподключить" }) : tr({ kz: "Telegram-ды қосу", ru: "Подключить Telegram" })}
-                <ExternalLink className="h-3.5 w-3.5 opacity-70" />
-              </Button>
-              {code && (
-                <Button variant="outline" onClick={verify} disabled={checking}>
-                  {checking ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-                  {tr({ kz: "Мен «Start» бастым — тексеру", ru: "Я нажал «Start» — проверить" })}
+              {tg.waiting ? (
+                <>
+                  <span className="inline-flex items-center gap-2 rounded-xl border border-sky-400/30 bg-sky-500/10 px-4 py-2.5 text-sm text-sky-100">
+                    <Loader2 className="h-4 w-4 animate-spin" /> {tr({ kz: "Telegram-да «Start» басуды күтуде…", ru: "Ждём нажатия «Start» в Telegram…" })}
+                  </span>
+                  <Button variant="ghost" onClick={tg.cancel} className="text-xs">
+                    {tr({ kz: "Болдырмау", ru: "Отмена" })}
+                  </Button>
+                </>
+              ) : (
+                <Button onClick={tg.connect} disabled={tg.status !== "ready"} className="disabled:opacity-50">
+                  <Send className="h-4 w-4" /> {tg.connected ? tr({ kz: "Қайта қосу", ru: "Переподключить" }) : tr({ kz: "Telegram-ды қосу", ru: "Подключить Telegram" })}
+                  <ExternalLink className="h-3.5 w-3.5 opacity-70" />
                 </Button>
               )}
-              <Button variant="outline" onClick={sendTest} disabled={!settings.telegramChatId || sending} className="disabled:opacity-50">
+              <Button variant="outline" onClick={sendTest} disabled={!tg.connected || sending} className="disabled:opacity-50">
                 {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : "🔔"} {tr({ kz: "Тесттік хабарлама жіберу", ru: "Отправить тестовое сообщение" })}
               </Button>
             </div>

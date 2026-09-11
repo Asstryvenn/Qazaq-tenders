@@ -136,7 +136,7 @@ export function analyzeTender(
   scenario: Scenario = NEUTRAL_SCENARIO,
   distances: DistanceProvider = haversineProvider
 ): AnalysisResult {
-  const deliveryDay = tender.deliveryDays + scenario.lateDays;
+  const deliveryDay = tender.deliveryDays + (scenario.deliveryDeltaDays ?? 0) + scenario.lateDays;
   const payDay = deliveryDay + tender.paymentDelayDays + scenario.paymentDelayDelta;
   const horizon = payDay + 5;
 

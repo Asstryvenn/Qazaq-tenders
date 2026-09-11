@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useEffect, useRef } from "react";
 import { Activity } from "lucide-react";
 import { Button } from "./ui/Button";
 import { Lang, useI18n } from "@/lib/i18n";
@@ -80,8 +81,22 @@ function AuthButtons() {
 
 export function Navbar() {
   const { t } = useI18n();
+  const ref = useRef<HTMLElement>(null);
+
+  // Full-height views (AI Studio) size themselves with calc(100dvh - var(--nav-h)).
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const publish = () => document.documentElement.style.setProperty("--nav-h", `${el.offsetHeight}px`);
+    publish();
+    const ro = new ResizeObserver(publish);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   return (
     <motion.header
+      ref={ref}
       initial={{ y: -24, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
@@ -103,6 +118,7 @@ export function Navbar() {
             { href: "/#how", label: t.nav.how },
             { href: "/#engine", label: t.nav.engine },
             { href: "/dashboard", label: t.nav.dashboard },
+            { href: "/ai-studio", label: "AI Studio ✨" },
           ].map((l) => (
             <Link key={l.href} href={l.href} className="text-sm text-slate-300 transition-colors hover:text-white">
               {l.label}
