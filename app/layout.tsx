@@ -11,6 +11,7 @@ import { NotificationsProvider } from "@/lib/notifications";
 import { Toaster } from "@/components/Toaster";
 import { BillingProvider } from "@/lib/billing-client";
 import { CheckoutModal } from "@/components/billing/CheckoutModal";
+import { AccountGate } from "@/components/AccountGate";
 
 export const metadata: Metadata = {
   title: "Qazaq Tenders — Intelligent Economic Simulator for SME Procurement",
@@ -36,7 +37,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <BillingProvider>
                 <AnimatedBackground />
                 <Navbar />
-                <main className="relative z-10 flex-1">{children}</main>
+                <main className="relative z-10 flex-1">
+                  <AccountGate>{children}</AccountGate>
+                </main>
                 <AuthModal />
                 <OnboardingModal />
                 <CheckoutModal />

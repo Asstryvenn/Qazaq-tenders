@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { Info } from "lucide-react";
 import { useProfile } from "@/lib/profile";
 import { isSupabaseConfigured } from "@/lib/supabase";
@@ -14,6 +15,8 @@ export function AuthModal() {
   const { t, tr } = useI18n();
   const { modal, openModal, signIn, pendingEmail } = useProfile();
   const open = modal === "login" || modal === "register";
+  const pathname = usePathname();
+  const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,7 +34,11 @@ export function AuthModal() {
     const r = await signIn(email, password);
     setBusy(false);
     if (r.error) setError(/confirm/i.test(r.error) ? tr({ kz: "Email әлі расталмаған.", ru: "Email ещё не подтверждён." }) : r.error);
-    else openModal(null);
+    else {
+      openModal(null);
+      // Signing in from the landing page goes straight to the app, like registration does.
+      if (pathname === "/") router.push("/dashboard");
+    }
   };
 
   if (modal === "register")

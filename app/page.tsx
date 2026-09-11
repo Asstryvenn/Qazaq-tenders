@@ -9,6 +9,7 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { useI18n } from "@/lib/i18n";
+import { StartCta } from "@/components/AccountGate";
 
 const FEATURE_ICONS = [Wallet, Calculator, Route, FileSearch, Layers, Brain];
 const FEATURE_GLOW = ["crimson", "blue", "blue", "blue", "emerald", "blue"] as const;
@@ -78,11 +79,11 @@ TOS    = 0.35·M + 0.30·(100−CF) + 0.15·L + 0.20·(100−R)`}
           <div className="pointer-events-none absolute inset-x-0 -top-24 h-56 bg-[radial-gradient(closest-side,rgba(59,130,246,0.35),transparent)] blur-2xl" />
           <h2 className="relative text-2xl font-semibold text-white sm:text-3xl">{L.ctaTitle}</h2>
           <p className="relative mx-auto mt-3 max-w-xl text-sm text-slate-300">{L.ctaBody}</p>
-          <Link href="/dashboard" className="relative mt-8 inline-block">
+          <StartCta className="relative mt-8 inline-block">
             <Button className="px-7 py-3">
               {L.ctaButton} <ArrowRight className="h-4 w-4" />
             </Button>
-          </Link>
+          </StartCta>
         </GlassCard>
       </section>
 

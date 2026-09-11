@@ -6,6 +6,7 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "./ui/Button";
 import { IsometricPreview } from "./IsometricPreview";
 import { useI18n } from "@/lib/i18n";
+import { StartCta } from "./AccountGate";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -59,11 +60,11 @@ export function Hero() {
           custom={3}
           className="mt-9 flex flex-wrap items-center gap-3"
         >
-          <Link href="/dashboard">
+          <StartCta>
             <Button className="px-6 py-3">
               {t.hero.ctaPrimary} <ArrowRight className="h-4 w-4" />
             </Button>
-          </Link>
+          </StartCta>
           <Link href="#engine">
             <Button variant="outline" className="px-6 py-3">
               {t.hero.ctaSecondary}

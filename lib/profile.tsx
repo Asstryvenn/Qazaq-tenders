@@ -20,6 +20,8 @@ interface ProfileValue {
   /** Active digital twin — the user's own once onboarded, the demo company before. */
   company: CompanyProfile;
   isDemo: boolean;
+  /** Registered: a Supabase session or the user's own saved profile. App screens need this. */
+  hasAccount: boolean;
   session: Session | null;
   loading: boolean;
   /** Set while a sign-up awaits email confirmation; the profile already works locally. */
@@ -230,7 +232,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ProfileContext.Provider
-      value={{ company, isDemo, session, loading, pendingEmail, saveProfile, register, signIn, signOut, modal, openModal: setModal }}
+      value={{ company, isDemo, hasAccount: !!session || !isDemo, session, loading, pendingEmail, saveProfile, register, signIn, signOut, modal, openModal: setModal }}
     >
       {children}
     </ProfileContext.Provider>

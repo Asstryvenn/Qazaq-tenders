@@ -105,6 +105,7 @@ function AuthButtons() {
 
 export function Navbar() {
   const { t } = useI18n();
+  const { hasAccount } = useProfile();
   const ref = useRef<HTMLElement>(null);
 
   // Full-height views (AI Studio) size themselves with calc(100dvh - var(--nav-h)).
@@ -143,7 +144,10 @@ export function Navbar() {
             { href: "/#engine", label: t.nav.engine },
             { href: "/dashboard", label: t.nav.dashboard },
             { href: "/ai-studio", label: "AI Studio ✨" },
-          ].map((l) => (
+          ]
+            // App screens appear only after registration.
+            .filter((l) => hasAccount || l.href.startsWith("/#"))
+            .map((l) => (
             <Link key={l.href} href={l.href} className="text-sm text-slate-300 transition-colors hover:text-white">
               {l.label}
             </Link>
@@ -153,7 +157,7 @@ export function Navbar() {
         <div className="flex items-center gap-3">
           <LangToggle />
           <ThemeToggle />
-          <NotificationBell />
+          {hasAccount && <NotificationBell />}
           <AuthButtons />
         </div>
       </nav>
