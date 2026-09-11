@@ -5,7 +5,18 @@ import { useI18n } from "./i18n";
 import { useNotifications } from "./notifications";
 import { useProfile } from "./profile";
 import { useNotificationSettings } from "./settings";
-import { isValidBin } from "./validation";
+
+function demoId(): string {
+  try {
+    const saved = localStorage.getItem("qt-demo-id");
+    if (saved) return saved;
+    const id = `demo_${Math.random().toString(36).slice(2, 12)}`;
+    localStorage.setItem("qt-demo-id", id);
+    return id;
+  } catch {
+    return `demo_${Math.random().toString(36).slice(2, 12)}`;
+  }
+}
 
 export type BotStatus = "checking" | "ready" | "no-token" | "error";
 
@@ -17,12 +28,13 @@ const POLL_MAX = 72; // ~3 minutes
  * user presses Start. On success the chat id is saved, the switch turns on and the
  * server sends a real welcome message.
  *
- * The code is "b<BIN>_<nonce>" (or "u<user>_<nonce>"): readable, but the random
- * nonce stops anyone who merely knows the BIN from hijacking the binding.
+ * The start parameter is the Supabase user id (an unguessable UUID). Visitors without an
+ * account get a random per-browser id — a shared "demo_user" would let two visitors
+ * claim each other's binding.
  */
 export function useTelegramLink() {
   const { tr } = useI18n();
-  const { company, session } = useProfile();
+  const { session } = useProfile();
   const { toast } = useNotifications();
   const { settings, save, loading } = useNotificationSettings();
   const [bot, setBot] = useState<string | null>(null);
@@ -70,8 +82,7 @@ export function useTelegramLink() {
       });
       return;
     }
-    const who = isValidBin(company.bin) ? `b${company.bin}` : session ? `u${session.user.id.replace(/-/g, "").slice(0, 16)}` : "qt";
-    const code = `${who}_${Math.random().toString(36).slice(2, 10)}`;
+    const code = session ? session.user.id : demoId();
     window.open(`https://t.me/${bot}?start=${code}`, "_blank", "noopener");
     if (timer.current) clearInterval(timer.current);
     setWaiting(true);
@@ -92,7 +103,7 @@ export function useTelegramLink() {
         }
       } catch {}
     }, POLL_MS);
-  }, [status, bot, company.bin, session, save, stop, toast, tr]);
+  }, [status, bot, session, save, stop, toast, tr]);
 
   return { bot, status, waiting, connect, cancel: stop, checkBot, settings, save, loading, connected: !!settings.telegramChatId };
 }

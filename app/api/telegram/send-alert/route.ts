@@ -2,11 +2,14 @@
  * POST /api/telegram/send-alert  { chat_id, tenderData, lang }
  * Sends a formatted alert with an inline button to the lot's deep-analysis page.
  *
- * NOTE: any caller can target any chat_id that has started the bot. Before a public
- * deployment, look the chat_id up from the signed-in user's settings instead.
+ * Requires a signed-in PRO/MAX user. NOTE: the chat_id still comes from the client;
+ * before a public launch, read it from the user's notification_settings row instead.
  */
 import { NextResponse } from "next/server";
 import { esc, isChatId, isPublicUrl, tg, TelegramError } from "@/lib/telegram";
+import { getRequestUser } from "@/lib/server/auth";
+import { resolvePlan } from "@/lib/server/billing";
+import { can } from "@/lib/plans";
 
 interface TenderData {
   id: string;
@@ -25,6 +28,12 @@ const VERDICT = {
 } as const;
 
 export async function POST(req: Request) {
+  // Instant alerts are a PRO feature — checked on the server.
+  const user = await getRequestUser(req);
+  if (!user) return NextResponse.json({ error: "auth" }, { status: 401 });
+  const { plan } = await resolvePlan({ kind: "user", user });
+  if (!can(plan, "telegram")) return NextResponse.json({ error: "plan", need: "pro" }, { status: 402 });
+
   const { chat_id, tenderData, lang = "kz" } = (await req.json()) as { chat_id: unknown; tenderData: TenderData; lang?: "kz" | "ru" };
   if (!isChatId(chat_id)) return NextResponse.json({ error: "bad-chat-id" }, { status: 400 });
   if (!tenderData?.id || !tenderData.title) return NextResponse.json({ error: "bad-tender" }, { status: 400 });

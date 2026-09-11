@@ -3,14 +3,18 @@
  *
  * OpenAI handles language; every number comes from the deterministic engine through
  * `run_scenario`, every quote from `get_spec_pages`. The LLM never does the math itself.
- * Tiers gate tools: Flash = spec Q&A, Engine Pro = + scenarios and the .docx letter,
- * Max = + stronger model and legal/strategy review. Gating is presentational until
- * billing exists — the client sends its plan.
+ * The plan, the AI quota and the model are decided HERE from the caller's verified
+ * session (see lib/server/billing.ts) — the request body cannot raise them.
+ * Signed-in users only. FREE: 5 queries/day, spec Q&A. PRO: 300/month, gpt-4o, What-If tool.
+ * MAX: 6000/month, + .docx letter tool, optional o3-mini deep reasoning.
  */
 import { analyzeTender } from "@/lib/engine";
 import { fetchTender } from "@/lib/tenders/source";
 import { NEUTRAL_SCENARIO, Scenario } from "@/lib/types";
-import { TIER_RANK, type ChatEvent, type ChatRequest, type Tier } from "@/lib/chat-types";
+import type { ChatEvent, ChatRequest } from "@/lib/chat-types";
+import { can, FEATURE_MIN_PLAN, modelFor, PLAN_RANK, type PlanId } from "@/lib/plans";
+import { getRequestUser } from "@/lib/server/auth";
+import { checkQuota, consume, resolvePlan, usageOf, type Subject } from "@/lib/server/billing";
 
 export const dynamic = "force-dynamic";
 
@@ -60,7 +64,7 @@ const TOOLS = [
   },
 ];
 
-const NEED: Record<string, Tier> = { run_scenario: "pro", generate_letter: "pro", get_spec_pages: "free" };
+const NEED: Record<string, PlanId> = { run_scenario: FEATURE_MIN_PLAN.scenario, generate_letter: FEATURE_MIN_PLAN.letter, get_spec_pages: "free" };
 
 function summarize(r: ReturnType<typeof analyzeTender>) {
   return {
@@ -89,14 +93,24 @@ export async function POST(req: Request) {
   if (!apiKey) return Response.json({ error: "no-openai-key" }, { status: 503 });
 
   const body = (await req.json()) as ChatRequest;
-  const tier: Tier = body.tier === "pro" || body.tier === "max" ? body.tier : "free";
   const tender = await fetchTender(body.tenderId);
   if (!tender) return Response.json({ error: "tender-not-found" }, { status: 404 });
+
+  // Plan and quota come from the verified session, never the body. AI needs an account:
+  // per-IP limits for guests are trivially bypassed by spoofing X-Forwarded-For.
+  const user = await getRequestUser(req);
+  if (!user) return Response.json({ error: "auth" }, { status: 401 });
+  const subject: Subject = { kind: "user", user };
+  const { plan: tier } = await resolvePlan(subject);
+  const quota = checkQuota(tier, await usageOf(subject));
+  if (!quota.ok) return Response.json({ error: "quota", plan: tier, period: quota.period, limit: quota.limit }, { status: 429 });
+  await consume(subject);
 
   const company = body.company;
   const baseline = analyzeTender(tender, company);
   const language = body.lang === "kz" ? "Kazakh (қазақ тілі, Cyrillic)" : "Russian";
-  const model = tier === "max" ? process.env.OPENAI_MODEL_MAX || "gpt-4o" : process.env.OPENAI_MODEL || "gpt-4o-mini";
+  const deep = !!body.deep && can(tier, "deepReasoning");
+  const model = modelFor(tier, deep);
 
   const system = `You are "QazaqTenders AI", an economic advisor for a Kazakhstani SME deciding whether to bid on a public tender.
 Answer ONLY in ${language}. Be concise: short paragraphs or a tight "- " list. End with one actionable recommendation. You may use **bold**.
@@ -107,7 +121,7 @@ HARD RULES
 - If a requested page does not exist, say so plainly — do not invent content.
 - Amounts like "14,1 млн ₸". For what-if answers state the change from deltaVsBaseline; under 1 млн ₸ give it in мың ₸.
 - cashGapStartsOnDay is the DAY the balance first goes negative; daysInDeficit is how long it stays negative.
-- If a tool answers {"locked": true}, say in one sentence that it is available on the Engine Pro plan, then help as far as you can without it.
+- If a tool answers {"locked": true}, say in one sentence which plan unlocks it (availableOn: PRO or MAX), then help as far as you can without it.
 - Kazakh procurement norms: bid security 1%, performance security 3%, penalty 0.1%/day capped at 10%.
 ${
   tier === "max"
@@ -128,6 +142,7 @@ BASELINE ENGINE RESULT: ${JSON.stringify(summarize(baseline))}`;
     async start(controller) {
       const send = (e: ChatEvent) => controller.enqueue(enc.encode(JSON.stringify(e) + "\n"));
       let applied: Scenario | null = null;
+      send({ t: "quota", plan: tier, period: quota.period, limit: quota.limit, remaining: quota.remaining === null ? null : Math.max(0, quota.remaining - 1) });
       try {
         for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
           send({ t: "status", key: round === 0 ? "thinking" : "writing" });
@@ -136,7 +151,8 @@ BASELINE ENGINE RESULT: ${JSON.stringify(summarize(baseline))}`;
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
             body: JSON.stringify({
               model,
-              temperature: 0.3,
+              // Reasoning models take an effort level instead of a temperature.
+              ...(deep ? { reasoning_effort: "medium" } : { temperature: 0.3 }),
               stream: true,
               messages,
               tools: TOOLS,
@@ -199,7 +215,7 @@ BASELINE ENGINE RESULT: ${JSON.stringify(summarize(baseline))}`;
             let result: unknown;
             const need = NEED[call.name] ?? "free";
 
-            if (TIER_RANK[tier] < TIER_RANK[need]) {
+            if (PLAN_RANK[tier] < PLAN_RANK[need]) {
               send({ t: "locked", feature: call.name === "generate_letter" ? "letter" : "scenario", need });
               result = { locked: true, availableOn: need };
             } else if (call.name === "run_scenario") {

@@ -8,6 +8,7 @@ import { analyzeTender, tosTone } from "@/lib/engine";
 import { useI18n } from "@/lib/i18n";
 import { useProfile } from "@/lib/profile";
 import { encodeScenario, scenarioLabels, STATUS_TEXT, TIERS } from "@/lib/chat-client";
+import { Download, Loader2 } from "lucide-react";
 import type { LockedFeature, ScenarioCardData, StatusKey, Tier } from "@/lib/chat-types";
 import type { Scenario, TenderSpec } from "@/lib/types";
 import { Slider } from "../ui/Slider";
@@ -212,7 +213,7 @@ export function LockedCard({ feature, need, onUpgrade }: { feature: LockedFeatur
     <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border px-4 py-3" style={{ borderColor: `${meta.color}55`, background: `${meta.color}12` }}>
       <Lock className="h-4 w-4 shrink-0" style={{ color: meta.color }} />
       <p className="min-w-0 flex-1 text-sm text-slate-100">
-        {what} — <span className="font-semibold">{meta.icon} {meta.name}</span>
+        {what} — <span className="font-semibold">{meta.icon} {need === "pro" ? "PRO/MAX" : meta.name} {tr({ kz: "керек", ru: "нужен" })}</span>
       </p>
       <Button className="px-3 py-1.5 text-xs" onClick={() => onUpgrade(need)}>
         {tr({ kz: "Жаңарту", ru: "Улучшить" })}
@@ -221,12 +222,25 @@ export function LockedCard({ feature, need, onUpgrade }: { feature: LockedFeatur
   );
 }
 
-export function LetterCard() {
+/** Inline "Жүктеу (.docx)" action — the server builds the file and checks the MAX plan. */
+export function LetterCard({ onDownload }: { onDownload: () => Promise<void> }) {
   const { tr } = useI18n();
+  const [busy, setBusy] = useState(false);
   return (
-    <div className="mt-4 flex items-center gap-3 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
+    <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
       <FileCheck2 className="h-4 w-4 shrink-0 text-emerald-300" />
-      {tr({ kz: "Кепілдік хат (.docx) жүктелді", ru: "Гарантийное письмо (.docx) скачано" })}
+      <span className="min-w-0 flex-1">{tr({ kz: "Кепілдік хат дайын", ru: "Гарантийное письмо готово" })}</span>
+      <Button
+        className="px-3 py-1.5 text-xs"
+        disabled={busy}
+        onClick={async () => {
+          setBusy(true);
+          await onDownload();
+          setBusy(false);
+        }}
+      >
+        {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />} {tr({ kz: "Жүктеу (.docx)", ru: "Скачать (.docx)" })}
+      </Button>
     </div>
   );
 }

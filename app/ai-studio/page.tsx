@@ -3,19 +3,26 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowUp, BarChart3, FileDown, Lock, MessageSquare, PanelLeftClose, PanelLeftOpen, Plus, Sparkles, Trash2 } from "lucide-react";
+import { ArrowUp, BarChart3, Brain, FileDown, Gauge, Lock, MessageSquare, PanelLeftClose, PanelLeftOpen, Plus, Sparkles, Trash2 } from "lucide-react";
 import { ThinkingBadge, RichText, ScenarioCard, LockedCard, LetterCard } from "@/components/studio/Parts";
-import { UpgradeModal } from "@/components/studio/UpgradeModal";
-import { CHIPS, streamChat, TIERS, usePlan } from "@/lib/chat-client";
-import { TIER_RANK, type LockedFeature, type ScenarioCardData, type StatusKey, type Tier } from "@/lib/chat-types";
-import { downloadWarrantyLetter } from "@/lib/letter";
+import { Button } from "@/components/ui/Button";
+import { CHIPS, priceLabel, streamChat, TIERS } from "@/lib/chat-client";
+import type { LockedFeature, ScenarioCardData, StatusKey, Tier } from "@/lib/chat-types";
+import { useBilling } from "@/lib/billing-client";
+import { downloadLetter } from "@/lib/letter-client";
+import { can, PLAN_RANK } from "@/lib/plans";
 import { tosTone } from "@/lib/engine";
 import { useI18n } from "@/lib/i18n";
 import { useNotifications } from "@/lib/notifications";
 import { useProfile } from "@/lib/profile";
 import { cn } from "@/lib/utils";
 
-type StudioCard = { kind: "scenario"; data: ScenarioCardData } | { kind: "locked"; feature: LockedFeature; need: Tier } | { kind: "letter" };
+type StudioCard =
+  | { kind: "scenario"; data: ScenarioCardData }
+  | { kind: "locked"; feature: LockedFeature; need: Tier }
+  | { kind: "letter" }
+  | { kind: "quota"; period: "day" | "month"; limit: number | null }
+  | { kind: "auth" };
 interface StudioMsg {
   id: string;
   role: "user" | "assistant";
@@ -34,12 +41,13 @@ interface Session {
 const KEY = "qt-studio-sessions";
 const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 
-/** Full-screen AI Studio: sessions, plans, streamed answers with live engine cards. */
+/** Full-screen AI Studio. Plan, quota and model are enforced by the server; this page mirrors them. */
 export default function AiStudioPage() {
   const { tr, lang, lotTitle } = useI18n();
-  const { company } = useProfile();
-  const { feed, results } = useNotifications();
-  const { plan, setPlan } = usePlan();
+  const { company, openModal } = useProfile();
+  const { feed, results, toast } = useNotifications();
+  const billing = useBilling();
+  const plan = billing.plan;
 
   const [sessions, setSessions] = useState<Session[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -48,7 +56,7 @@ export default function AiStudioPage() {
   const [input, setInput] = useState("");
   const [status, setStatus] = useState<StatusKey | null>(null);
   const [busy, setBusy] = useState(false);
-  const [upgrade, setUpgrade] = useState<Tier | null>(null);
+  const [deep, setDeep] = useState(false);
   const loaded = useRef(false);
   const scroller = useRef<HTMLDivElement>(null);
   const textarea = useRef<HTMLTextAreaElement>(null);
@@ -70,10 +78,7 @@ export default function AiStudioPage() {
     } catch {}
   }, [sessions]);
 
-  const lots = useMemo(
-    () => [...(feed?.tenders ?? [])].sort((a, b) => (results.get(b.id)?.tos ?? 0) - (results.get(a.id)?.tos ?? 0)),
-    [feed, results]
-  );
+  const lots = useMemo(() => [...(feed?.tenders ?? [])].sort((a, b) => (results.get(b.id)?.tos ?? 0) - (results.get(a.id)?.tos ?? 0)), [feed, results]);
   useEffect(() => {
     if (!tenderId && lots.length) setTenderId(lots[0].id);
   }, [lots, tenderId]);
@@ -81,20 +86,22 @@ export default function AiStudioPage() {
   const tender = lots.find((t) => t.id === tenderId);
   const active = sessions.find((s) => s.id === activeId) ?? null;
   const messages = active?.messages ?? [];
+  const st = billing.status;
+  const outOfQuota = st?.remaining === 0;
 
   useEffect(() => {
     scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: "smooth" });
   }, [messages.length, messages[messages.length - 1]?.content, status]);
 
-  const newChat = () => {
-    setActiveId(null);
-    setInput("");
-    textarea.current?.focus();
-  };
-
-  const openSession = (s: Session) => {
-    setActiveId(s.id);
-    setTenderId(s.tenderId);
+  const letter = async (tId: string) => {
+    if (!can(plan, "letter")) return billing.openCheckout("max");
+    const r = await downloadLetter(tId, company, lang, billing.headers());
+    if (!r.ok)
+      toast({
+        kind: "error",
+        title: tr({ kz: "Хат жасалмады", ru: "Письмо не создано" }),
+        body: r.error === "invalid-company" ? tr({ kz: "Профильде дұрыс БСН керек", ru: "Нужен корректный БИН в профиле" }) : r.error,
+      });
   };
 
   const send = async (text: string) => {
@@ -124,36 +131,38 @@ export default function AiStudioPage() {
     setStatus("thinking");
 
     const r = await streamChat(
-      { tenderId, lang, tier: plan, company, messages: history.map(({ role, content }) => ({ role, content })) },
+      { tenderId, lang, company, deep: deep && can(plan, "deepReasoning"), messages: history.map(({ role, content }) => ({ role, content })) },
       (e) => {
-        if (e.t === "status") setStatus(e.key);
+        if (e.t === "quota") billing.applyQuota(e);
+        else if (e.t === "status") setStatus(e.key);
         else if (e.t === "delta") {
           setStatus(null);
           patch((m) => ({ ...m, content: m.content + e.text }));
         } else if (e.t === "card") patch((m) => ({ ...m, cards: [...m.cards, { kind: "scenario", data: e.card }] }));
         else if (e.t === "locked")
           patch((m) => (m.cards.some((c) => c.kind === "locked") ? m : { ...m, cards: [...m.cards, { kind: "locked", feature: e.feature, need: e.need }] }));
-        else if (e.t === "action" && tender)
-          downloadWarrantyLetter(tender, company, lang).then(() => patch((m) => ({ ...m, cards: [...m.cards, { kind: "letter" }] })));
-      }
+        else if (e.t === "action") patch((m) => ({ ...m, cards: [...m.cards, { kind: "letter" }] }));
+      },
+      billing.headers()
     );
-    if (!r.ok)
-      patch((m) => ({
-        ...m,
-        error: true,
-        content:
-          m.content ||
-          (r.error === "no-openai-key"
-            ? tr({ kz: "OpenAI кілті қосылмаған (.env.local → OPENAI_API_KEY).", ru: "Ключ OpenAI не подключён (.env.local → OPENAI_API_KEY)." })
-            : tr({ kz: "Жауап алу мүмкін болмады. Қайталап көріңіз.", ru: "Не удалось получить ответ. Попробуйте ещё раз." })),
-      }));
+    if (!r.ok) {
+      if (r.status === 401) patch((m) => ({ ...m, cards: [{ kind: "auth" }] }));
+      else if (r.status === 429) {
+        patch((m) => ({ ...m, cards: [{ kind: "quota", period: (r.data?.period as "day" | "month") ?? "day", limit: (r.data?.limit as number) ?? null }] }));
+        billing.refresh();
+      } else
+        patch((m) => ({
+          ...m,
+          error: true,
+          content:
+            m.content ||
+            (r.error === "no-openai-key"
+              ? tr({ kz: "OpenAI кілті қосылмаған (.env.local → OPENAI_API_KEY).", ru: "Ключ OpenAI не подключён (.env.local → OPENAI_API_KEY)." })
+              : tr({ kz: "Жауап алу мүмкін болмады. Қайталап көріңіз.", ru: "Не удалось получить ответ. Попробуйте ещё раз." })),
+        }));
+    }
     setStatus(null);
     setBusy(false);
-  };
-
-  const letter = () => {
-    if (TIER_RANK[plan] < TIER_RANK.pro) return setUpgrade("pro");
-    if (tender) downloadWarrantyLetter(tender, company, lang);
   };
 
   /** "қазір / 5 мин бұрын / 2 сағ бұрын / 3 күн бұрын" — Intl has no Kazakh relative-time data. */
@@ -168,11 +177,19 @@ export default function AiStudioPage() {
     return kz ? `${d} күн бұрын` : `${d} дн. назад`;
   };
 
+  const quotaText = st
+    ? st.limit === null
+      ? "∞"
+      : tr({
+          kz: `${st.remaining}/${st.limit} сұраныс қалды${st.period === "day" ? " (бүгін)" : " (осы ай)"}`,
+          ru: `осталось ${st.remaining}/${st.limit}${st.period === "day" ? " (сегодня)" : " (в этом месяце)"}`,
+        })
+    : "…";
   const firstName = company.name.replace(/^(ТОО|ИП|АО|ЖШС)\s*/i, "").replace(/["«»]/g, "");
+  const meta = TIERS[plan];
 
   return (
     <div className="relative flex h-[calc(100dvh-var(--nav-h,71px))] overflow-hidden">
-      {/* Ambient Gemini-style glow */}
       <div aria-hidden className="pointer-events-none absolute inset-0">
         <div className="absolute -top-40 left-1/3 h-[36rem] w-[36rem] rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.22),transparent_65%)] blur-2xl" />
         <div className="absolute -bottom-48 right-10 h-[32rem] w-[32rem] rounded-full bg-[radial-gradient(circle,rgba(236,72,153,0.14),transparent_65%)] blur-2xl" />
@@ -180,18 +197,9 @@ export default function AiStudioPage() {
       </div>
 
       {/* Sidebar */}
-      <aside
-        className={cn(
-          "relative z-10 flex shrink-0 flex-col border-r border-white/10 bg-ink-900/85 backdrop-blur-xl transition-[width] duration-300",
-          sidebar ? "w-72" : "w-16"
-        )}
-      >
+      <aside className={cn("relative z-10 flex shrink-0 flex-col border-r border-white/10 bg-ink-900/85 backdrop-blur-xl transition-[width] duration-300", sidebar ? "w-72" : "w-16")}>
         <div className="flex items-center gap-2 p-3">
-          <button
-            onClick={() => setSidebar((v) => !v)}
-            aria-label="Toggle sidebar"
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
-          >
+          <button onClick={() => setSidebar((v) => !v)} aria-label="Toggle sidebar" className="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-slate-300 transition-colors hover:bg-white/10 hover:text-white">
             {sidebar ? <PanelLeftClose className="h-5 w-5" /> : <PanelLeftOpen className="h-5 w-5" />}
           </button>
           {sidebar && <span className="bg-gradient-to-r from-sky-300 via-violet-300 to-pink-300 bg-clip-text text-sm font-semibold text-transparent">AI Studio</span>}
@@ -199,11 +207,12 @@ export default function AiStudioPage() {
 
         <div className="px-3">
           <button
-            onClick={newChat}
-            className={cn(
-              "flex h-11 items-center gap-2.5 rounded-2xl border border-white/10 bg-white/[0.06] text-sm font-medium text-slate-100 transition-colors hover:bg-white/10",
-              sidebar ? "w-full px-4" : "w-10 justify-center"
-            )}
+            onClick={() => {
+              setActiveId(null);
+              setInput("");
+              textarea.current?.focus();
+            }}
+            className={cn("flex h-11 items-center gap-2.5 rounded-2xl border border-white/10 bg-white/[0.06] text-sm font-medium text-slate-100 transition-colors hover:bg-white/10", sidebar ? "w-full px-4" : "w-10 justify-center")}
             title={tr({ kz: "Жаңа чат", ru: "Новый чат" })}
           >
             <Plus className="h-4 w-4 shrink-0" />
@@ -220,7 +229,10 @@ export default function AiStudioPage() {
                 {sessions.map((s) => (
                   <li key={s.id} className="group relative">
                     <button
-                      onClick={() => openSession(s)}
+                      onClick={() => {
+                        setActiveId(s.id);
+                        setTenderId(s.tenderId);
+                      }}
                       className={cn("flex w-full items-start gap-2.5 rounded-xl px-2.5 py-2 pr-8 text-left transition-colors", s.id === activeId ? "bg-white/10" : "hover:bg-white/[0.05]")}
                     >
                       <MessageSquare className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-500" />
@@ -246,36 +258,53 @@ export default function AiStudioPage() {
           )}
         </div>
 
-        {/* Plans */}
+        {/* Tier status + switcher */}
         <div className="border-t border-white/10 p-3">
-          {sidebar && <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-wider text-slate-500">{tr({ kz: "Модель жоспары", ru: "Тариф модели" })}</p>}
-          <div className="space-y-1">
-            {(Object.keys(TIERS) as Tier[]).map((t) => {
-              const m = TIERS[t];
-              const on = t === plan;
-              const locked = TIER_RANK[t] > TIER_RANK[plan];
-              return (
-                <button
-                  key={t}
-                  onClick={() => (locked ? setUpgrade(t) : setPlan(t))}
-                  title={`${m.name} · ${tr(m.price)}`}
-                  className={cn("flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors", on ? "bg-white/10" : "hover:bg-white/[0.05]", !sidebar && "justify-center px-0")}
-                  style={on ? { boxShadow: `inset 0 0 0 1px ${m.color}66` } : undefined}
-                >
-                  <span className="text-base leading-none">{m.icon}</span>
-                  {sidebar && (
-                    <>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-medium text-slate-100">{m.name}</span>
-                        <span className="block truncate font-mono text-[10px] text-slate-500">{m.model}</span>
-                      </span>
-                      {locked ? <Lock className="h-3.5 w-3.5 text-slate-500" /> : <span className="text-[11px] text-slate-400">{tr(m.price)}</span>}
-                    </>
-                  )}
-                </button>
-              );
-            })}
-          </div>
+          {sidebar ? (
+            <div className="rounded-2xl border p-3" style={{ borderColor: `${meta.color}55`, background: `${meta.color}10` }}>
+              <p className="text-[11px] uppercase tracking-wider text-slate-400">{tr({ kz: "Ағымдағы тариф", ru: "Текущий тариф" })}</p>
+              <p className="mt-1 text-sm font-semibold text-white">
+                {meta.icon} {meta.name} <span className="font-normal text-slate-400">· {tr(meta.sub)}</span>
+              </p>
+              <p className={cn("mt-1 flex items-center gap-1.5 font-mono text-xs", outOfQuota ? "text-rose-300" : "text-slate-300")}>
+                <Gauge className="h-3.5 w-3.5" /> {quotaText}
+              </p>
+              {st?.limit != null && (
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
+                  <div className="h-full rounded-full" style={{ width: `${Math.min(100, (st.used / st.limit) * 100)}%`, background: outOfQuota ? "#f43f5e" : meta.color }} />
+                </div>
+              )}
+              {plan !== "max" && (
+                <Button className="mt-3 w-full px-3 py-2 text-xs" onClick={() => billing.openCheckout(plan === "free" ? "pro" : "max")}>
+                  {tr({ kz: "Тарифті жаңарту", ru: "Улучшить тариф" })}
+                </Button>
+              )}
+            </div>
+          ) : (
+            <button onClick={() => billing.openCheckout(plan === "free" ? "pro" : "max")} className="grid h-10 w-10 place-items-center rounded-xl text-lg hover:bg-white/10" title={`${meta.name} · ${quotaText}`}>
+              {meta.icon}
+            </button>
+          )}
+          {sidebar && (
+            <div className="mt-2 space-y-1">
+              {(Object.keys(TIERS) as Tier[]).map((t) => {
+                const m = TIERS[t];
+                const locked = PLAN_RANK[t] > PLAN_RANK[plan];
+                return (
+                  <button
+                    key={t}
+                    onClick={() => locked && billing.openCheckout(t)}
+                    className={cn("flex w-full items-center gap-2.5 rounded-xl px-2.5 py-1.5 text-left transition-colors", t === plan ? "bg-white/10" : "hover:bg-white/[0.05]")}
+                  >
+                    <span>{m.icon}</span>
+                    <span className="min-w-0 flex-1 truncate text-xs text-slate-200">{m.name}</span>
+                    <span className="font-mono text-[11px] text-slate-400">{priceLabel(t, lang)}</span>
+                    {locked && <Lock className="h-3 w-3 text-slate-500" />}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       </aside>
 
@@ -294,17 +323,26 @@ export default function AiStudioPage() {
               </option>
             ))}
           </select>
-          {tender && (
+          {tender && results.get(tender.id) && (
             <span className="rounded-lg border px-2 py-1 font-mono text-xs font-bold" style={{ color: tosTone(results.get(tender.id)!.verdict).text, borderColor: `${tosTone(results.get(tender.id)!.verdict).color}66` }}>
               TOS {Math.round(results.get(tender.id)!.tos)}
             </span>
           )}
           <div className="ml-auto flex items-center gap-1.5">
-            <button onClick={() => setUpgrade(plan === "max" ? "max" : plan === "pro" ? "max" : "pro")} className="rounded-full border px-3 py-1.5 text-xs font-semibold" style={{ color: TIERS[plan].color, borderColor: `${TIERS[plan].color}66`, background: `${TIERS[plan].color}14` }}>
-              {TIERS[plan].icon} {TIERS[plan].name}
+            <button
+              onClick={() => (can(plan, "deepReasoning") ? setDeep((v) => !v) : billing.openCheckout("max"))}
+              title={tr({ kz: "Терең ойлау (o3-mini, MAX)", ru: "Глубокое мышление (o3-mini, MAX)" })}
+              aria-pressed={deep}
+              className={cn("flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs", deep ? "border-violet-400/60 bg-violet-500/20 text-violet-100" : "border-white/10 text-slate-300 hover:bg-white/10")}
+            >
+              {can(plan, "deepReasoning") ? <Brain className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />} o3-mini
             </button>
-            <button onClick={letter} title={tr({ kz: "Кепілдік хат (.docx)", ru: "Гарантийное письмо (.docx)" })} className="grid h-9 w-9 place-items-center rounded-lg text-slate-300 hover:bg-white/10 hover:text-white">
-              {TIER_RANK[plan] < TIER_RANK.pro ? <Lock className="h-4 w-4" /> : <FileDown className="h-4 w-4" />}
+            <button
+              onClick={() => tender && letter(tender.id)}
+              title={tr({ kz: "Кепілдік хат (.docx) — MAX", ru: "Гарантийное письмо (.docx) — MAX" })}
+              className="grid h-9 w-9 place-items-center rounded-lg text-slate-300 hover:bg-white/10 hover:text-white"
+            >
+              {can(plan, "letter") ? <FileDown className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
             </button>
             {tender && (
               <Link href={`/tender/${encodeURIComponent(tender.id)}`} title={tr({ kz: "Толық талдау", ru: "Полный анализ" })} className="grid h-9 w-9 place-items-center rounded-lg text-slate-300 hover:bg-white/10 hover:text-white">
@@ -324,11 +362,7 @@ export default function AiStudioPage() {
                 <p className="mt-3 text-2xl font-medium text-slate-500 sm:text-3xl">{tr({ kz: "Бүгін қай тендерді талдаймыз?", ru: "Какой тендер разберём сегодня?" })}</p>
                 <div className="mt-10 grid gap-3 sm:grid-cols-2">
                   {CHIPS.map((c) => (
-                    <button
-                      key={c.ru}
-                      onClick={() => send(tr(c))}
-                      className="group rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left text-sm text-slate-200 transition-colors hover:border-violet-400/40 hover:bg-violet-500/[0.07]"
-                    >
+                    <button key={c.ru} onClick={() => send(tr(c))} className="group rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left text-sm text-slate-200 transition-colors hover:border-violet-400/40 hover:bg-violet-500/[0.07]">
                       {tr(c)}
                       <Sparkles className="mt-3 h-4 w-4 text-violet-300/60 transition-colors group-hover:text-violet-300" />
                     </button>
@@ -349,14 +383,40 @@ export default function AiStudioPage() {
                       </span>
                       <div className="min-w-0 flex-1">
                         {m.content && (m.error ? <p className="text-[15px] text-rose-200">{m.content}</p> : <RichText text={m.content} />)}
-                        {busy && i === messages.length - 1 && status && <div className={m.content ? "mt-4" : ""}><ThinkingBadge status={status} /></div>}
+                        {busy && i === messages.length - 1 && status && (
+                          <div className={m.content ? "mt-4" : ""}>
+                            <ThinkingBadge status={status} />
+                          </div>
+                        )}
                         {m.cards.map((c, j) =>
                           c.kind === "scenario" ? (
                             <ScenarioCard key={j} data={c.data} tender={lots.find((t) => t.id === c.data.tenderId)} />
                           ) : c.kind === "locked" ? (
-                            <LockedCard key={j} feature={c.feature} need={c.need} onUpgrade={setUpgrade} />
+                            <LockedCard key={j} feature={c.feature} need={c.need} onUpgrade={billing.openCheckout} />
+                          ) : c.kind === "auth" ? (
+                            <div key={j} className="flex flex-wrap items-center gap-3 rounded-2xl border border-sky-400/30 bg-sky-500/10 px-4 py-3 text-sm text-sky-100">
+                              <Sparkles className="h-4 w-4 shrink-0 text-sky-300" />
+                              <span className="min-w-0 flex-1">{tr({ kz: "AI үшін тіркеліңіз — FREE тарифте күніне 5 сұраныс тегін.", ru: "Для AI зарегистрируйтесь — на FREE 5 запросов в день бесплатно." })}</span>
+                              <Button className="px-3 py-1.5 text-xs" onClick={() => openModal("register")}>
+                                {tr({ kz: "Тіркелу", ru: "Регистрация" })}
+                              </Button>
+                            </div>
+                          ) : c.kind === "letter" ? (
+                            <LetterCard key={j} onDownload={() => letter(active?.tenderId ?? tenderId)} />
                           ) : (
-                            <LetterCard key={j} />
+                            <div key={j} className="flex flex-wrap items-center gap-3 rounded-2xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
+                              <Gauge className="h-4 w-4 shrink-0 text-rose-300" />
+                              <span className="min-w-0 flex-1">
+                                {c.period === "day"
+                                  ? tr({ kz: `Бүгінгі ${c.limit} тегін сұраныс бітті.`, ru: `Бесплатные ${c.limit} запросов на сегодня закончились.` })
+                                  : tr({ kz: `Осы айдағы ${c.limit} сұраныс бітті.`, ru: `Лимит ${c.limit} запросов в этом месяце исчерпан.` })}
+                              </span>
+                              {plan !== "max" && (
+                                <Button className="px-3 py-1.5 text-xs" onClick={() => billing.openCheckout(plan === "free" ? "pro" : "max")}>
+                                  {tr({ kz: "Тарифті жаңарту", ru: "Улучшить тариф" })}
+                                </Button>
+                              )}
+                            </div>
                           )
                         )}
                       </div>
@@ -374,12 +434,7 @@ export default function AiStudioPage() {
             {messages.length > 0 && (
               <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
                 {CHIPS.map((c) => (
-                  <button
-                    key={c.ru}
-                    onClick={() => send(tr(c))}
-                    disabled={busy}
-                    className="shrink-0 rounded-full border border-white/10 bg-white/[0.05] px-3.5 py-1.5 text-xs text-slate-300 transition-colors hover:border-violet-400/40 hover:text-white disabled:opacity-50"
-                  >
+                  <button key={c.ru} onClick={() => send(tr(c))} disabled={busy || outOfQuota} className="shrink-0 rounded-full border border-white/10 bg-white/[0.05] px-3.5 py-1.5 text-xs text-slate-300 transition-colors hover:border-violet-400/40 hover:text-white disabled:opacity-50">
                     {tr(c)}
                   </button>
                 ))}
@@ -407,26 +462,20 @@ export default function AiStudioPage() {
                   }
                 }}
                 rows={1}
-                placeholder={tr({ kz: "QazaqTenders AI-дан сұраңыз…", ru: "Спросите QazaqTenders AI…" })}
-                className="max-h-40 min-h-[44px] flex-1 resize-none bg-transparent py-3 text-[15px] text-white placeholder:text-slate-500 outline-none"
+                disabled={outOfQuota}
+                placeholder={outOfQuota ? tr({ kz: "Лимит бітті — тарифті жаңартыңыз", ru: "Лимит исчерпан — улучшите тариф" }) : tr({ kz: "QazaqTenders AI-дан сұраңыз…", ru: "Спросите QazaqTenders AI…" })}
+                className="max-h-40 min-h-[44px] flex-1 resize-none bg-transparent py-3 text-[15px] text-white placeholder:text-slate-500 outline-none disabled:cursor-not-allowed"
               />
-              <button
-                type="submit"
-                disabled={busy || !input.trim()}
-                aria-label={tr({ kz: "Жіберу", ru: "Отправить" })}
-                className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-sky-400 via-violet-500 to-pink-500 text-white transition-opacity disabled:opacity-30"
-              >
+              <button type="submit" disabled={busy || !input.trim() || outOfQuota} aria-label={tr({ kz: "Жіберу", ru: "Отправить" })} className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-sky-400 via-violet-500 to-pink-500 text-white transition-opacity disabled:opacity-30">
                 <ArrowUp className="h-5 w-5" />
               </button>
             </form>
             <p className="mt-2 text-center text-[11px] text-slate-500">
-              {tr({ kz: "Сандарды детерминистік қозғалтқыш есептейді; AI тек түсіндіреді.", ru: "Числа считает детерминированный движок; AI только объясняет." })}
+              {meta.icon} {meta.name} · {deep ? "o3-mini" : meta.model.split(" ")[0]} · {tr({ kz: "сандарды қозғалтқыш есептейді", ru: "числа считает движок" })}
             </p>
           </div>
         </div>
       </section>
-
-      <UpgradeModal open={!!upgrade} highlight={upgrade ?? "pro"} plan={plan} onClose={() => setUpgrade(null)} onSelect={setPlan} />
     </div>
   );
 }

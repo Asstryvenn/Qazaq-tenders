@@ -13,12 +13,15 @@ import { useNotificationSettings } from "@/lib/settings";
 import { SOURCES, TenderSource } from "@/lib/tenders/unified";
 import type { TenderSpec } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useBilling } from "@/lib/billing-client";
+import { can } from "@/lib/plans";
 
 export default function DashboardPage() {
   const { t, kzt, city, tr, lotTitle, lang } = useI18n();
   const { company, isDemo, openModal, pendingEmail, session } = useProfile();
   const { feed, results, simulate, toast } = useNotifications();
   const { settings } = useNotificationSettings();
+  const billing = useBilling();
   const [filter, setFilter] = useState<TenderSource | "all">("all");
 
   // Lots scored against the active digital twin (shared with the notification centre).
@@ -33,6 +36,10 @@ export default function DashboardPage() {
   );
 
   const sendTelegram = async (tender: TenderSpec) => {
+    if (!can(billing.plan, "telegram")) {
+      billing.openCheckout("pro");
+      return;
+    }
     if (!settings.telegramChatId) {
       toast({
         kind: "info",
@@ -45,7 +52,7 @@ export default function DashboardPage() {
     const r = results.get(tender.id)!;
     const res = await fetch("/api/telegram/send-alert", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...billing.headers() },
       body: JSON.stringify({
         chat_id: settings.telegramChatId,
         lang,

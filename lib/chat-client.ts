@@ -1,55 +1,57 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
 import type { ChatEvent, ChatRequest, StatusKey, Tier } from "./chat-types";
+import { PLANS } from "./plans";
 
 type Bi = { kz: string; ru: string };
 
-/**
- * Plans. The model line is what really answers — no third-party model names we
- * don't call. Payment isn't integrated; upgrades are a demo switch.
- */
-export const TIERS: Record<Tier, { icon: string; color: string; name: string; price: Bi; model: string; features: Bi[] }> = {
+/** Display data for plans. Prices and limits come from lib/plans.ts (what the server enforces). */
+export const TIERS: Record<Tier, { icon: string; color: string; name: string; sub: Bi; model: string; features: Bi[] }> = {
   free: {
     icon: "🟢",
     color: "#34d399",
-    name: "Flash",
-    price: { kz: "Тегін", ru: "Бесплатно" },
+    name: "FREE",
+    sub: { kz: "Тегін", ru: "Бесплатно" },
     model: "gpt-4o-mini",
     features: [
-      { kz: "Тендер бойынша сұрақ-жауап", ru: "Вопросы и ответы по тендеру" },
-      { kz: "ТЕ беттерін оқу және түйіндеу", ru: "Чтение и резюме страниц ТЗ" },
+      { kz: "Тендерлерді жартылай талдау (TOS + түйін)", ru: "Половина анализа (TOS + резюме)" },
+      { kz: `Күніне ${PLANS.free.daily} AI сұраныс`, ru: `${PLANS.free.daily} AI-запросов в день` },
+      { kz: "What-If және .docx — жабық", ru: "What-If и .docx — закрыты" },
     ],
   },
   pro: {
     icon: "🔵",
     color: "#60a5fa",
-    name: "Engine Pro",
-    price: { kz: "$15 / ай", ru: "$15 / мес" },
-    model: "gpt-4o-mini + Engine",
+    name: "PRO",
+    sub: { kz: "Кәсіпкер", ru: "Предприниматель" },
+    model: "gpt-4o",
     features: [
-      { kz: "Ақша ағыны симуляциясы чатта", ru: "Симуляция денежного потока в чате" },
-      { kz: "What-If сценарийлер және слайдерлер", ru: "What-If сценарии и слайдеры" },
-      { kz: ".docx кепілдік хат генераторы", ru: "Генератор гарантийного письма .docx" },
+      { kz: "Толық терең талдау: ақша ағыны, тәуекелдер", ru: "Полный анализ: денежный поток, риски" },
+      { kz: `Айына ${PLANS.pro.monthly} AI сұраныс (gpt-4o)`, ru: `${PLANS.pro.monthly} AI-запросов в месяц (gpt-4o)` },
+      { kz: "What-If сценарийлер, тексеру парақтары", ru: "What-If сценарии, чеклисты" },
+      { kz: "Telegram жедел хабарламалар", ru: "Мгновенные уведомления в Telegram" },
     ],
   },
   max: {
     icon: "🟣",
     color: "#c084fc",
-    name: "Max Enterprise",
-    price: { kz: "$45 / ай", ru: "$45 / мес" },
-    model: "gpt-4o + Engine",
+    name: "MAX",
+    sub: { kz: "Enterprise / All-Inclusive", ru: "Enterprise / All-Inclusive" },
+    model: "gpt-4o + o3-mini",
     features: [
-      { kz: "Pro-ның барлық мүмкіндіктері", ru: "Всё из Pro" },
-      { kz: "Терең құқықтық сәйкестік талдауы", ru: "Глубокий юридический разбор ТЗ" },
-      { kz: "Автоматты өтінім стратегиясы", ru: "Автоматическая стратегия заявки" },
+      { kz: `PRO-дан 20 есе көп: айына ${PLANS.max.monthly} сұраныс`, ru: `В 20 раз больше PRO: ${PLANS.max.monthly} запросов/мес` },
+      { kz: "Толық What-If симуляция + терең ойлау (o3-mini)", ru: "Полная What-If симуляция + глубокое мышление (o3-mini)" },
+      { kz: ".docx генераторы: кепілдік хаттар, құжаттар", ru: "Генератор .docx: гарантийные письма, документы" },
     ],
   },
 };
 
+export const priceLabel = (t: Tier, lang: "kz" | "ru") =>
+  PLANS[t].priceKzt === 0 ? "0 ₸" : `${PLANS[t].priceKzt.toLocaleString("ru-RU").replace(/ /g, " ")} ₸ / ${lang === "kz" ? "ай" : "мес"}`;
+
 export const STATUS_TEXT: Record<StatusKey, Bi> = {
-  thinking: { kz: "QazaqTenders AI ойлануда…", ru: "QazaqTenders AI думает…" },
-  engine: { kz: "Формулалар мен тәуекелдерді есептеуде…", ru: "Считаю формулы и риски…" },
+  thinking: { kz: "QazaqTenders AI есептеуде…", ru: "QazaqTenders AI считает…" },
+  engine: { kz: "Қаржылық тәуекелдерді талдауда…", ru: "Анализирую финансовые риски…" },
   spec: { kz: "Техникалық ерекшелікті оқуда…", ru: "Читаю техническую спецификацию…" },
   letter: { kz: "Кепілдік хатты дайындауда…", ru: "Готовлю гарантийное письмо…" },
   writing: { kz: "Жауап жазуда…", ru: "Пишу ответ…" },
@@ -62,39 +64,24 @@ export const CHIPS: Bi[] = [
   { kz: "Көлік шығынын 10%-ға азайтсам?", ru: "Если снизить транспортные расходы на 10%?" },
 ];
 
-const PLAN_KEY = "qt-plan";
-
-export function usePlan() {
-  const [plan, setPlanState] = useState<Tier>("free");
-  useEffect(() => {
-    try {
-      const v = localStorage.getItem(PLAN_KEY);
-      if (v === "free" || v === "pro" || v === "max") setPlanState(v);
-    } catch {}
-    const sync = (e: StorageEvent) => e.key === PLAN_KEY && (e.newValue === "free" || e.newValue === "pro" || e.newValue === "max") && setPlanState(e.newValue);
-    window.addEventListener("storage", sync);
-    return () => window.removeEventListener("storage", sync);
-  }, []);
-  const setPlan = useCallback((t: Tier) => {
-    setPlanState(t);
-    try {
-      localStorage.setItem(PLAN_KEY, t);
-    } catch {}
-  }, []);
-  return { plan, setPlan };
+export interface StreamResult {
+  ok: boolean;
+  error?: string;
+  status?: number;
+  data?: Record<string, unknown>;
 }
 
 /** POST /api/chat and dispatch each NDJSON event as it arrives. */
-export async function streamChat(body: ChatRequest, onEvent: (e: ChatEvent) => void): Promise<{ ok: boolean; error?: string }> {
+export async function streamChat(body: ChatRequest, onEvent: (e: ChatEvent) => void, headers: Record<string, string> = {}): Promise<StreamResult> {
   let res: Response;
   try {
-    res = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    res = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json", ...headers }, body: JSON.stringify(body) });
   } catch {
     return { ok: false, error: "network" };
   }
   if (!res.ok || !res.body) {
     const d = await res.json().catch(() => ({}));
-    return { ok: false, error: d.error || `HTTP ${res.status}` };
+    return { ok: false, error: d.error || `HTTP ${res.status}`, status: res.status, data: d };
   }
   const reader = res.body.getReader();
   const dec = new TextDecoder();

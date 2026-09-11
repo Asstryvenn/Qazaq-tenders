@@ -10,6 +10,9 @@ import { useProfile } from "@/lib/profile";
 import { useTelegramLink } from "@/lib/use-telegram-link";
 import { useNotifications } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
+import { useBilling } from "@/lib/billing-client";
+import { priceLabel, TIERS } from "@/lib/chat-client";
+import { can } from "@/lib/plans";
 
 function Toggle({ on, onChange, label }: { on: boolean; onChange: (v: boolean) => void; label: string }) {
   return (
@@ -34,6 +37,8 @@ export default function ProfilePage() {
   const { company, openModal, isDemo, session } = useProfile();
   const { feed, results, toast } = useNotifications();
   const tg = useTelegramLink();
+  const billing = useBilling();
+  const { lang } = useI18n();
   const { settings, loading } = tg;
   const [sending, setSending] = useState(false);
 
@@ -45,10 +50,11 @@ export default function ProfilePage() {
   const sendTest = async () => {
     const top = feed?.tenders.map((x) => ({ t: x, r: results.get(x.id)! })).sort((a, b) => b.r.tos - a.r.tos)[0];
     if (!top || !settings.telegramChatId) return;
+    if (!can(billing.plan, "telegram")) return billing.openCheckout("pro");
     setSending(true);
     const res = await fetch("/api/telegram/send-alert", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...billing.headers() },
       body: JSON.stringify({
         chat_id: settings.telegramChatId,
         lang: tr({ kz: "kz", ru: "ru" }),
@@ -88,7 +94,7 @@ export default function ProfilePage() {
     tg.status === "checking"
       ? tr({ kz: "Тексерілуде…", ru: "Проверяем…" })
       : tg.status === "ready"
-        ? `@${tg.bot}`
+        ? `${tr({ kz: "Белсенді", ru: "Активен" })} · @${tg.bot}`
         : tg.status === "no-token"
           ? tr({ kz: "TELEGRAM_BOT_TOKEN табылмады", ru: "TELEGRAM_BOT_TOKEN не найден" })
           : tr({ kz: "Telegram API қатесі", ru: "Ошибка Telegram API" });
@@ -167,6 +173,32 @@ export default function ProfilePage() {
               ru: "Настройки сохраняются. Для отправки email и по расписанию нужно подключить cron и почтовый сервис на сервере.",
             })}
           </p>
+        </GlassCard>
+
+        {/* Plan */}
+        <GlassCard interactive={false} className="p-6 lg:col-span-2">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-wider text-slate-400">{tr({ kz: "Ағымдағы тариф", ru: "Текущий тариф" })}</p>
+              <p className="mt-1 text-lg font-semibold text-white">
+                {TIERS[billing.plan].icon} {TIERS[billing.plan].name} <span className="text-sm font-normal text-slate-400">· {tr(TIERS[billing.plan].sub)} · {priceLabel(billing.plan, lang)}</span>
+              </p>
+              <p className="mt-1 font-mono text-xs text-slate-400">
+                {billing.status?.limit != null
+                  ? tr({
+                      kz: `AI: ${billing.status.remaining}/${billing.status.limit} сұраныс қалды (${billing.status.period === "day" ? "бүгін" : "осы ай"})`,
+                      ru: `AI: осталось ${billing.status.remaining}/${billing.status.limit} (${billing.status.period === "day" ? "сегодня" : "в этом месяце"})`,
+                    })
+                  : ""}
+                {billing.status?.until ? ` · ${tr({ kz: "дейін", ru: "до" })} ${new Date(billing.status.until).toLocaleDateString()}` : ""}
+              </p>
+            </div>
+            {billing.plan !== "max" && (
+              <Button onClick={() => billing.openCheckout(billing.plan === "free" ? "pro" : "max")}>
+                {tr({ kz: "Тарифті жаңарту", ru: "Улучшить тариф" })}
+              </Button>
+            )}
+          </div>
         </GlassCard>
 
         <GlassCard interactive={false} className="p-6 lg:col-span-2">

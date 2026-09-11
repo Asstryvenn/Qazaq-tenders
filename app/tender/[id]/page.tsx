@@ -13,7 +13,7 @@ import { RiskAlerts } from "@/components/RiskAlerts";
 import { WhatIfPanel } from "@/components/WhatIfPanel";
 import { Checklist } from "@/components/Checklist";
 import { PlainSummaryCard } from "@/components/PlainSummaryCard";
-import { ChatWidget } from "@/components/ChatWidget";
+import { PlanGate } from "@/components/billing/PlanGate";
 import { ActionGuide } from "@/components/ActionGuide";
 import { SOURCES } from "@/lib/tenders/unified";
 import { decodeScenario } from "@/lib/chat-client";
@@ -135,8 +135,9 @@ export default function TenderPage({ params }: { params: { id: string } }) {
         </GlassCard>
       </div>
 
-      {/* Row 2 — cash flow */}
-      <GlassCard glow={result.cashFlowGap ? "crimson" : "blue"} interactive={false} className="mt-6 p-7">
+      {/* Row 2 — cash flow (PRO: full analysis) */}
+      <PlanGate feature="fullAnalysis" className="mt-6">
+      <GlassCard glow={result.cashFlowGap ? "crimson" : "blue"} interactive={false} className="p-7">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h3 className="text-sm font-semibold text-white">{t.dash.cfTitle}</h3>
@@ -152,26 +153,41 @@ export default function TenderPage({ params }: { params: { id: string } }) {
         </div>
         <CashFlowChart result={result} />
       </GlassCard>
+      </PlanGate>
 
       {/* Row 3 — risks | what-if | checklist */}
       <div className="mt-6 grid items-stretch gap-6 md:grid-cols-2 xl:grid-cols-3">
-        <GlassCard glow={result.cashFlowGap ? "crimson" : "emerald"} interactive={false} className="h-full p-6">
-          <RiskAlerts result={result} tender={tender} />
-        </GlassCard>
-        <GlassCard glow="blue" interactive={false} className="h-full p-6">
-          <WhatIfPanel scenario={scenario} onChange={setScenario} result={result} baseline={baseline} />
-        </GlassCard>
-        <GlassCard glow="blue" interactive={false} className="h-full p-6 md:col-span-2 xl:col-span-1">
-          <Checklist tender={tender} company={company} result={result} />
-        </GlassCard>
+        <PlanGate feature="fullAnalysis" className="h-full">
+          <GlassCard glow={result.cashFlowGap ? "crimson" : "emerald"} interactive={false} className="h-full p-6">
+            <RiskAlerts result={result} tender={tender} />
+          </GlassCard>
+        </PlanGate>
+        <PlanGate feature="scenario" className="h-full">
+          <GlassCard glow="blue" interactive={false} className="h-full p-6">
+            <WhatIfPanel scenario={scenario} onChange={setScenario} result={result} baseline={baseline} />
+          </GlassCard>
+        </PlanGate>
+        <PlanGate feature="checklist" className="h-full md:col-span-2 xl:col-span-1">
+          <GlassCard glow="blue" interactive={false} className="h-full p-6">
+            <Checklist tender={tender} company={company} result={result} />
+          </GlassCard>
+        </PlanGate>
       </div>
 
       {/* Row 4 — documents, where to get them, letter, preparation timeline */}
-      <GlassCard glow="blue" interactive={false} className="mt-6 p-7">
-        <ActionGuide tender={tender} />
-      </GlassCard>
+      <PlanGate feature="checklist" className="mt-6">
+        <GlassCard glow="blue" interactive={false} className="p-7">
+          <ActionGuide tender={tender} />
+        </GlassCard>
+      </PlanGate>
 
-      <ChatWidget tenderId={tender.id} scenario={scenario} onScenario={setScenario} />
+      {/* The consultant lives in the full-screen AI Studio now */}
+      <Link
+        href={`/ai-studio?tender=${encodeURIComponent(tender.id)}`}
+        className="fixed bottom-6 right-6 z-[80] flex items-center gap-2.5 rounded-full bg-gradient-to-r from-sky-500 via-violet-500 to-pink-500 px-5 py-3.5 text-sm font-semibold text-white shadow-[0_0_40px_-8px_rgba(167,139,250,0.9)] transition-transform hover:scale-105"
+      >
+        <Sparkles className="h-4 w-4" /> AI Studio
+      </Link>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 /**
  * Warranty letter (кепілдік хат / гарантийное письмо) as a real .docx,
- * filled from the digital twin and the lot. Runs entirely in the browser.
+ * filled from the digital twin and the lot. Built on the server (/api/documents/letter),
+ * where the MAX-plan requirement is enforced.
  */
 import { AlignmentType, Document, Packer, Paragraph, TextRun } from "docx";
 import type { CompanyProfile, TenderSpec } from "./types";
@@ -53,17 +54,4 @@ export function buildWarrantyLetter(t: TenderSpec, c: CompanyProfile, lang: Lang
       },
     ],
   });
-}
-
-/** Build the letter and hand it to the browser as a download. */
-export async function downloadWarrantyLetter(t: TenderSpec, c: CompanyProfile, lang: Lang) {
-  const blob = await Packer.toBlob(buildWarrantyLetter(t, c, lang));
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${lang === "kz" ? "Kepildik-hat" : "Garantiynoe-pismo"}-${t.externalId}.docx`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 2000);
 }

@@ -8,6 +8,8 @@ import { AuthModal } from "@/components/auth/AuthModal";
 import { OnboardingModal } from "@/components/auth/OnboardingModal";
 import { NotificationsProvider } from "@/lib/notifications";
 import { Toaster } from "@/components/Toaster";
+import { BillingProvider } from "@/lib/billing-client";
+import { CheckoutModal } from "@/components/billing/CheckoutModal";
 
 export const metadata: Metadata = {
   title: "Qazaq Tenders — Intelligent Economic Simulator for SME Procurement",
@@ -22,12 +24,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <I18nProvider>
           <ProfileProvider>
             <NotificationsProvider>
-              <AnimatedBackground />
-              <Navbar />
-              <main className="relative z-10 flex-1">{children}</main>
-              <AuthModal />
-              <OnboardingModal />
-              <Toaster />
+              <BillingProvider>
+                <AnimatedBackground />
+                <Navbar />
+                <main className="relative z-10 flex-1">{children}</main>
+                <AuthModal />
+                <OnboardingModal />
+                <CheckoutModal />
+                <Toaster />
+              </BillingProvider>
             </NotificationsProvider>
           </ProfileProvider>
         </I18nProvider>

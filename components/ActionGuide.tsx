@@ -4,7 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { AlertTriangle, Check, ClipboardList, ExternalLink, FileDown, HelpCircle, Loader2 } from "lucide-react";
 import { deadlineAt, DocItem, prepSchedule, readDocState, requiredDocs, writeDocState } from "@/lib/documents";
-import { downloadWarrantyLetter } from "@/lib/letter";
+import { downloadLetter } from "@/lib/letter-client";
+import { useBilling } from "@/lib/billing-client";
+import { useNotifications } from "@/lib/notifications";
+import { can } from "@/lib/plans";
 import { useI18n } from "@/lib/i18n";
 import { useProfile } from "@/lib/profile";
 import type { TenderSpec } from "@/lib/types";
@@ -18,6 +21,8 @@ const DAY = 86_400_000;
 export function ActionGuide({ tender }: { tender: TenderSpec }) {
   const { tr, lang } = useI18n();
   const { company, isDemo, openModal } = useProfile();
+  const billing = useBilling();
+  const { toast } = useNotifications();
   const docs = useMemo(() => requiredDocs(tender, company), [tender, company]);
   const [done, setDone] = useState<Record<string, boolean>>({});
   const [help, setHelp] = useState<DocItem | null>(null);
@@ -46,7 +51,15 @@ export function ActionGuide({ tender }: { tender: TenderSpec }) {
   const generate = async () => {
     setGenerating(true);
     try {
-      await downloadWarrantyLetter(tender, company, lang);
+      if (!can(billing.plan, "letter")) {
+        billing.openCheckout("max");
+        return;
+      }
+      const r = await downloadLetter(tender.id, company, lang, billing.headers());
+      if (!r.ok) {
+        toast({ kind: "error", title: tr({ kz: "Хат жасалмады", ru: "Письмо не создано" }), body: r.error });
+        return;
+      }
       toggle("warrantyLetter");
     } finally {
       setGenerating(false);
@@ -121,6 +134,7 @@ export function ActionGuide({ tender }: { tender: TenderSpec }) {
                   >
                     {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileDown className="h-3.5 w-3.5" />}
                     {tr({ kz: "Кепілдеме хатты генерациялау", ru: "Сгенерировать гарантийное письмо" })}
+                    {!can(billing.plan, "letter") && <span className="ml-1 rounded bg-white/20 px-1.5 py-0.5 text-[10px] font-bold">MAX</span>}
                   </Button>
                 ) : (
                   <button
