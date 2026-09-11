@@ -203,7 +203,16 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = useCallback(async (email: string, password: string) => {
     if (!supabase) return { error: "supabase-not-configured" };
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    let { error } = await supabase.auth.signInWithPassword({ email, password });
+    // Sign-ups made while confirmation was required: confirm server-side, then retry.
+    if (error && /not confirmed/i.test(error.message)) {
+      const r = await fetch("/api/auth/confirm-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      if (r.ok) ({ error } = await supabase.auth.signInWithPassword({ email, password }));
+    }
     return error ? { error: error.message } : {};
   }, []);
 

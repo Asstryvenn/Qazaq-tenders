@@ -8,7 +8,8 @@ import { Button } from "./ui/Button";
 import { Lang, useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { useProfile } from "@/lib/profile";
-import { LogOut, UserRound } from "lucide-react";
+import { LogIn, LogOut, Moon, Sun, UserRound } from "lucide-react";
+import { useTheme } from "@/lib/theme";
 import { NotificationBell } from "./NotificationBell";
 
 function LangToggle() {
@@ -26,7 +27,7 @@ function LangToggle() {
           aria-pressed={lang === o.v}
           className={cn(
             "relative z-10 rounded-md px-2.5 py-1 text-xs font-semibold transition-colors",
-            lang === o.v ? "text-white" : "text-slate-400 hover:text-slate-200"
+            lang === o.v ? "keep-white text-white" : "text-slate-400 hover:text-slate-200"
           )}
         >
           {lang === o.v && (
@@ -43,38 +44,61 @@ function LangToggle() {
   );
 }
 
-function AuthButtons() {
-  const { t } = useI18n();
-  const { session, isDemo, company, openModal, signOut } = useProfile();
-  void openModal;
+function ThemeToggle() {
+  const { theme, toggle } = useTheme();
+  const { tr } = useI18n();
+  const label = theme === "dark" ? tr({ kz: "Жарық тема", ru: "Светлая тема" }) : tr({ kz: "Қараңғы тема", ru: "Тёмная тема" });
+  return (
+    <button
+      onClick={toggle}
+      aria-label={label}
+      title={label}
+      className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/5 text-slate-200 transition-colors hover:bg-white/10"
+    >
+      {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+    </button>
+  );
+}
 
-  if (session || !isDemo) {
+/**
+ * Signed in → company chip + Шығу. A profile saved only in this browser is NOT a session
+ * (paying needs one), so it shows the chip plus Кіру — no more "looks logged in but isn't".
+ */
+function AuthButtons() {
+  const { t, tr } = useI18n();
+  const { session, isDemo, company, openModal, signOut } = useProfile();
+  const logoutLabel = tr({ kz: "Аккаунттан шығу", ru: "Выйти из аккаунта" });
+
+  if (isDemo && !session)
     return (
-      <div className="flex items-center gap-1.5">
-        <Link
-          href="/profile"
-          className="flex max-w-[180px] items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-200 transition-colors hover:bg-white/10"
-          title={t.nav.profile}
-        >
-          <UserRound className="h-3.5 w-3.5 shrink-0 text-blue-300" />
-          <span className="truncate">{company.name}</span>
-        </Link>
-        {session && (
-          <button onClick={signOut} title={t.nav.logout} aria-label={t.nav.logout} className="rounded-lg p-2 text-slate-400 hover:bg-white/10 hover:text-white">
-            <LogOut className="h-4 w-4" />
-          </button>
-        )}
+      <div className="flex items-center gap-2">
+        <Button variant="ghost" className="px-3 py-2 text-sm" onClick={() => openModal("login")}>
+          {t.nav.login}
+        </Button>
+        <Button className="px-4 py-2 text-sm" onClick={() => openModal("register")}>
+          {t.nav.register}
+        </Button>
       </div>
     );
-  }
+
   return (
-    <div className="flex items-center gap-2">
-      <Button variant="ghost" className="px-3 py-2 text-sm" onClick={() => openModal("login")}>
-        {t.nav.login}
-      </Button>
-      <Button className="px-4 py-2 text-sm" onClick={() => openModal("register")}>
-        {t.nav.register}
-      </Button>
+    <div className="flex items-center gap-1.5">
+      <Link
+        href="/profile"
+        className="flex max-w-[170px] items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-200 transition-colors hover:bg-white/10"
+        title={session ? session.user.email ?? t.nav.profile : tr({ kz: "Жергілікті профиль — аккаунтқа кірмегенсіз", ru: "Локальный профиль — вы не вошли в аккаунт" })}
+      >
+        <UserRound className="h-3.5 w-3.5 shrink-0 text-blue-300" />
+        <span className="truncate">{company.name}</span>
+      </Link>
+      {!session && (
+        <Button className="px-3 py-2 text-xs" onClick={() => openModal("login")}>
+          <LogIn className="h-3.5 w-3.5" /> {t.nav.login}
+        </Button>
+      )}
+      <button onClick={signOut} title={logoutLabel} aria-label={logoutLabel} className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-white/10 hover:text-white">
+        <LogOut className="h-4 w-4" />
+      </button>
     </div>
   );
 }
@@ -128,6 +152,7 @@ export function Navbar() {
 
         <div className="flex items-center gap-3">
           <LangToggle />
+          <ThemeToggle />
           <NotificationBell />
           <AuthButtons />
         </div>

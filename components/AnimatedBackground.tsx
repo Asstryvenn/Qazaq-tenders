@@ -87,7 +87,7 @@ export function AnimatedBackground() {
 
       {/* Static base grid */}
       <div
-        className="absolute inset-0 opacity-[0.35]"
+        className="bg-grid-lines absolute inset-0 opacity-[0.35]"
         style={{
           backgroundImage:
             "linear-gradient(to right, rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.045) 1px, transparent 1px)",
@@ -99,7 +99,7 @@ export function AnimatedBackground() {
 
       {/* Grid segment that lights up under the cursor */}
       <motion.div
-        className="absolute inset-0"
+        className="bg-grid-lines absolute inset-0"
         style={{
           backgroundImage:
             "linear-gradient(to right, rgba(96,165,250,0.5) 1px, transparent 1px), linear-gradient(to bottom, rgba(96,165,250,0.5) 1px, transparent 1px)",
@@ -113,7 +113,7 @@ export function AnimatedBackground() {
       <motion.div className="absolute inset-0" style={{ background: spotlight }} />
 
       {/* Vignette to keep text readable */}
-      <div className="absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_0%,transparent_40%,rgba(3,7,18,0.85)_100%)]" />
+      <div className="bg-vignette absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_0%,transparent_40%,rgba(3,7,18,0.85)_100%)]" />
     </div>
   );
 }

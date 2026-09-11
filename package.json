@@ -6,7 +6,8 @@
     "dev": "next dev -p 3077",
     "build": "next build",
     "start": "next start -p 3077",
-    "lint": "next lint"
+    "lint": "next lint",
+    "theme:gen": "node scripts/gen-light-theme.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Info } from "lucide-react";
 import { useProfile } from "@/lib/profile";
 import { isSupabaseConfigured } from "@/lib/supabase";
@@ -12,13 +12,17 @@ import { RegisterWizard } from "./RegisterWizard";
 /** Кіру → simple email/password. Тіркелу → the 3-step registration wizard. */
 export function AuthModal() {
   const { t, tr } = useI18n();
-  const { modal, openModal, signIn } = useProfile();
+  const { modal, openModal, signIn, pendingEmail } = useProfile();
   const open = modal === "login" || modal === "register";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (modal === "login" && pendingEmail && !email) setEmail(pendingEmail);
+  }, [modal, pendingEmail, email]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,7 +48,12 @@ export function AuthModal() {
     );
 
   return (
-    <Modal open={open} onClose={() => openModal(null)} title={t.auth.loginTitle}>
+    <Modal
+      open={open}
+      onClose={() => openModal(null)}
+      title={t.auth.loginTitle}
+      subtitle={pendingEmail ? tr({ kz: "Профиліңіз осы браузерде бар — тіркелген email-мен кіріңіз.", ru: "Профиль уже есть в этом браузере — войдите с email регистрации." }) : undefined}
+    >
       {!isSupabaseConfigured ? (
         <p className="flex gap-2.5 rounded-xl border border-amber-400/25 bg-amber-400/[0.07] p-3.5 text-sm leading-relaxed text-amber-100">
           <Info className="mt-0.5 h-4 w-4 shrink-0" />

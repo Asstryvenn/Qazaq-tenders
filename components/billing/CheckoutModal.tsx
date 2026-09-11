@@ -35,7 +35,7 @@ type Checkout = { mode: "cloudpayments" | "test"; amount: number; invoiceId: str
  */
 export function CheckoutModal() {
   const { tr, lang } = useI18n();
-  const { session, openModal } = useProfile();
+  const { session, openModal, pendingEmail, isDemo } = useProfile();
   const { toast } = useNotifications();
   const billing = useBilling();
   const open = billing.checkoutPlan !== null;
@@ -69,8 +69,14 @@ export function CheckoutModal() {
   const pay = async () => {
     if (!session) {
       billing.closeCheckout();
-      openModal("register");
-      toast({ kind: "info", title: tr({ kz: "Алдымен тіркеліңіз", ru: "Сначала зарегистрируйтесь" }), body: tr({ kz: "Тариф аккаунтқа байланады.", ru: "Тариф привязывается к аккаунту." }) });
+      // Already registered (profile saved locally) → sign in; otherwise register.
+      const hasAccount = !!pendingEmail || !isDemo;
+      openModal(hasAccount ? "login" : "register");
+      toast({
+        kind: "info",
+        title: hasAccount ? tr({ kz: "Аккаунтқа кіріңіз", ru: "Войдите в аккаунт" }) : tr({ kz: "Алдымен тіркеліңіз", ru: "Сначала зарегистрируйтесь" }),
+        body: tr({ kz: "Тариф аккаунтқа байланады.", ru: "Тариф привязывается к аккаунту." }),
+      });
       return;
     }
     setBusy(true);

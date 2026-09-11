@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Bell, Building2, CheckCircle2, ExternalLink, Loader2, Mail, Pencil, RefreshCw, Send, Timer } from "lucide-react";
+import { Bell, Building2, CheckCircle2, ExternalLink, Loader2, LogOut, Mail, Pencil, RefreshCw, Send, Timer } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { useI18n } from "@/lib/i18n";
@@ -34,7 +34,7 @@ function Toggle({ on, onChange, label }: { on: boolean; onChange: (v: boolean) =
 
 export default function ProfilePage() {
   const { t, tr, kzt, city } = useI18n();
-  const { company, openModal, isDemo, session } = useProfile();
+  const { company, openModal, isDemo, session, signOut } = useProfile();
   const { feed, results, toast } = useNotifications();
   const tg = useTelegramLink();
   const billing = useBilling();
@@ -111,10 +111,26 @@ export default function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-5xl px-5 pb-16 pt-8 sm:px-6">
-      <h1 className="text-2xl font-semibold tracking-tight text-white">{tr({ kz: "Профиль және баптаулар", ru: "Профиль и настройки" })}</h1>
-      <p className="mt-1.5 text-sm text-slate-400">
-        {session ? session.user.email : tr({ kz: "Жергілікті профиль (осы браузерде)", ru: "Локальный профиль (в этом браузере)" })}
-      </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-white">{tr({ kz: "Профиль және баптаулар", ru: "Профиль и настройки" })}</h1>
+          <p className="mt-1.5 text-sm text-slate-400">
+            {session
+              ? session.user.email
+              : tr({ kz: "Жергілікті профиль (осы браузерде) — аккаунтқа кірмегенсіз", ru: "Локальный профиль (в этом браузере) — вы не вошли в аккаунт" })}
+          </p>
+        </div>
+        <div className="flex gap-2">
+          {!session && (
+            <Button onClick={() => openModal("login")}>{tr({ kz: "Аккаунтқа кіру", ru: "Войти в аккаунт" })}</Button>
+          )}
+          {(session || !isDemo) && (
+            <Button variant="outline" onClick={signOut}>
+              <LogOut className="h-4 w-4" /> {tr({ kz: "Шығу", ru: "Выйти" })}
+            </Button>
+          )}
+        </div>
+      </div>
 
       <div className="mt-7 grid gap-6 lg:grid-cols-2">
         <GlassCard interactive={false} className="p-6">
