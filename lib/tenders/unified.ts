@@ -6,7 +6,7 @@
 import type { TenderSpec } from "../types";
 import { haversineProvider } from "../logistics";
 
-export type TenderSource = "goszakup" | "samruk" | "nadloc" | "erg" | "bi_group" | "upload";
+export type TenderSource = "goszakup" | "samruk" | "nadloc" | "erg" | "bi_group" | "tenderplus" | "upload";
 
 export interface UnifiedTender {
   id: string;
@@ -81,6 +81,16 @@ export const SOURCES: Record<TenderSource, SourceMeta> = {
     color: "#fb923c",
     kz: "Eurasian Resources Group өнеркәсіптік тендерлері",
     ru: "Промышленные тендеры Eurasian Resources Group",
+  },
+  tenderplus: {
+    id: "tenderplus",
+    name: "TenderPlus",
+    host: "tenderplus.kz",
+    url: "https://tenderplus.kz",
+    kind: "commercial",
+    color: "#34d399",
+    kz: "Агрегатор: барлық қазақстандық алаңдар (API)",
+    ru: "Агрегатор всех площадок Казахстана (API)",
   },
   upload: {
     id: "upload",
