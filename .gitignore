@@ -6,3 +6,10 @@ next-env.d.ts
 .env*.local
 .DS_Store
 .vercel
+
+# Python-бот
+bot/.venv/
+bot/.env
+bot/data/*.db*
+__pycache__/
+.pytest_cache/
