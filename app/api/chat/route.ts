@@ -10,7 +10,7 @@
  */
 import { analyzeTender } from "@/lib/engine";
 import { fetchTender } from "@/lib/tenders/source";
-import { NEUTRAL_SCENARIO, Scenario } from "@/lib/types";
+import { NEUTRAL_SCENARIO, Scenario, type TenderSpec } from "@/lib/types";
 import type { ChatEvent, ChatRequest } from "@/lib/chat-types";
 import { can, FEATURE_MIN_PLAN, modelFor, PLAN_RANK, type PlanId } from "@/lib/plans";
 import { getRequestUser } from "@/lib/server/auth";
@@ -49,10 +49,24 @@ const TOOLS = [
     type: "function",
     function: {
       name: "get_spec_pages",
-      description: "Return the text of technical-specification pages. Call before quoting or judging any clause.",
+      description:
+        "Return the full text of specific specification pages. Call before quoting or judging any clause. With no pages on a long document it returns a page index with previews instead.",
       parameters: {
         type: "object",
         properties: { pages: { type: "array", items: { type: "integer" }, description: "Page numbers; empty = all pages." } },
+        additionalProperties: false,
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "search_spec",
+      description: "Search the whole specification for a topic or words (e.g. 'неустойка', 'гарантия', 'опыт') and get the matching pages with snippets. Use it when the page is unknown.",
+      parameters: {
+        type: "object",
+        properties: { query: { type: "string" } },
+        required: ["query"],
         additionalProperties: false,
       },
     },
@@ -67,7 +81,54 @@ const TOOLS = [
   },
 ];
 
-const NEED: Record<string, PlanId> = { run_scenario: FEATURE_MIN_PLAN.scenario, generate_letter: FEATURE_MIN_PLAN.letter, get_spec_pages: "free" };
+const NEED: Record<string, PlanId> = {
+  run_scenario: FEATURE_MIN_PLAN.scenario,
+  generate_letter: FEATURE_MIN_PLAN.letter,
+  get_spec_pages: "free",
+  search_spec: "free",
+};
+
+/** "1–12, 14, 20–31" — compact list of available pages for the prompt. */
+function pageRanges(pages: number[]): string {
+  const s = [...pages].sort((a, b) => a - b);
+  const out: string[] = [];
+  for (let i = 0; i < s.length; i++) {
+    let j = i;
+    while (j + 1 < s.length && s[j + 1] === s[j] + 1) j++;
+    out.push(i === j ? `${s[i]}` : `${s[i]}–${s[j]}`);
+    i = j;
+  }
+  return out.join(", ");
+}
+
+const PAGE_CAP = 6_000;
+
+/** Requested pages in full (capped per page); a whole long document → an index, not a token flood. */
+function specPages(tender: TenderSpec, wanted: number[]) {
+  const all = tender.specPages;
+  const missing = wanted.filter((n) => !all.some((p) => p.page === n));
+  if (!wanted.length && all.reduce((a, p) => a + p.text.length, 0) > 20_000)
+    return { index: all.map((p) => ({ page: p.page, preview: p.text.slice(0, 160) })), note: "Long document: request specific pages or use search_spec.", missingPages: [] };
+  const pages = (wanted.length ? all.filter((p) => wanted.includes(p.page)) : all).map((p) => ({ page: p.page, text: p.text.slice(0, PAGE_CAP) }));
+  return { pages, missingPages: missing, hiddenRequirementsFlagged: tender.hiddenRequirements };
+}
+
+/** Keyword search across every page, best pages first, with a snippet around the first hit. */
+function searchSpec(tender: TenderSpec, query: string) {
+  const words = query.toLowerCase().split(/[\s,.;:!?«»"']+/).filter((w) => w.length > 2);
+  if (!words.length) return { results: [] };
+  const results = tender.specPages
+    .map((p) => {
+      const low = p.text.toLowerCase();
+      const score = words.reduce((a, w) => a + (low.split(w).length - 1), 0);
+      const at = Math.max(0, Math.min(...words.map((w) => { const k = low.indexOf(w); return k < 0 ? Infinity : k; })));
+      return { page: p.page, score, snippet: Number.isFinite(at) ? p.text.slice(Math.max(0, at - 200), at + 300) : "" };
+    })
+    .filter((r) => r.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 6);
+  return { results };
+}
 
 function summarize(r: ReturnType<typeof analyzeTender>) {
   return {
@@ -96,7 +157,8 @@ export async function POST(req: Request) {
   if (!apiKey) return Response.json({ error: "no-openai-key" }, { status: 503 });
 
   const body = (await req.json()) as ChatRequest;
-  const tender = await fetchTender(body.tenderId);
+  const tender =
+    body.tenderId.startsWith("upload-") && body.upload?.id === body.tenderId ? body.upload : await fetchTender(body.tenderId);
   if (!tender) return Response.json({ error: "tender-not-found" }, { status: 404 });
 
   // Plan and quota come from the verified session, never the body. AI needs an account:
@@ -133,7 +195,7 @@ ${
 }
 
 PLAN: ${tier}. TENDER: ${tender.title} — ${tender.customer}. Contract ${tender.contractAmount} KZT, delivery ${tender.deliveryDays} days, payment ${tender.paymentDelayDays} days after delivery, advance ${tender.advancePercentage}%.
-Spec pages available: ${tender.specPages.map((p) => p.page).join(", ") || "none"}.
+Spec pages available: ${pageRanges(tender.specPages.map((p) => p.page)) || "none"} (${tender.specPages.length} pages). Use search_spec to locate topics, get_spec_pages to read exact pages.
 COMPANY: ${company.name}, working capital ${company.workingCapital} KZT, tax regime ${company.taxRegime}.
 BASELINE ENGINE RESULT: ${JSON.stringify(summarize(baseline))}`;
 
@@ -254,10 +316,11 @@ BASELINE ENGINE RESULT: ${JSON.stringify(summarize(baseline))}`;
               };
             } else if (call.name === "get_spec_pages") {
               send({ t: "status", key: "spec" });
-              const wanted: number[] = Array.isArray(args.pages) ? args.pages : [];
-              const pages = wanted.length ? tender.specPages.filter((p) => wanted.includes(p.page)) : tender.specPages;
-              const missing = wanted.filter((n) => !tender.specPages.some((p) => p.page === n));
-              result = { pages, missingPages: missing, hiddenRequirementsFlagged: tender.hiddenRequirements };
+              const wanted: number[] = Array.isArray(args.pages) ? args.pages.filter((n: unknown) => Number.isInteger(n)) : [];
+              result = specPages(tender, wanted);
+            } else if (call.name === "search_spec") {
+              send({ t: "status", key: "spec" });
+              result = searchSpec(tender, String(args.query ?? ""));
             } else if (call.name === "generate_letter") {
               send({ t: "status", key: "letter" });
               send({ t: "action", action: "letter" });

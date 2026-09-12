@@ -116,7 +116,7 @@ export default function DashboardPage() {
       {/* Platform filter */}
       <div className="mb-5 flex flex-wrap items-center gap-2">
         <Chip active={filter === "all"} onClick={() => setFilter("all")} label={tr({ kz: "Барлық алаңдар", ru: "Все площадки" })} count={feed?.tenders.length ?? 0} color="#e2e8f0" />
-        {(Object.keys(SOURCES) as TenderSource[]).map((s) => {
+        {(Object.keys(SOURCES) as TenderSource[]).filter((s) => s !== "upload").map((s) => {
           const status = feed?.sources.find((x) => x.id === s);
           return (
             <Chip

@@ -1,13 +1,13 @@
 "use client";
 
-import type { CompanyProfile } from "./types";
+import type { CompanyProfile, TenderSpec } from "./types";
 
 /** Asks the server for the .docx (MAX plan enforced there) and saves it. */
-export async function downloadLetter(tenderId: string, company: CompanyProfile, lang: "kz" | "ru", headers: Record<string, string>) {
+export async function downloadLetter(tenderId: string, company: CompanyProfile, lang: "kz" | "ru", headers: Record<string, string>, upload?: TenderSpec) {
   const res = await fetch("/api/documents/letter", {
     method: "POST",
     headers: { "Content-Type": "application/json", ...headers },
-    body: JSON.stringify({ tenderId, lang, company }),
+    body: JSON.stringify({ tenderId, lang, company, upload }),
   });
   if (!res.ok) {
     const d = await res.json().catch(() => ({}));

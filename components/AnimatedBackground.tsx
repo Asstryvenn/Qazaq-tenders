@@ -42,7 +42,7 @@ export function AnimatedBackground() {
   const spotlight = useTransform(
     [sx, sy],
     ([x, y]: number[]) =>
-      `radial-gradient(560px circle at ${x * 100}% ${y * 100}%, rgba(59,130,246,0.16), transparent 70%)`
+      `radial-gradient(560px circle at ${x * 100}% ${y * 100}%, rgba(0,178,254,0.18), transparent 70%)`
   );
   const maskImage = useTransform(
     [sx, sy],
@@ -63,7 +63,7 @@ export function AnimatedBackground() {
     <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
       {/* Floating gradient orbs */}
       <Orb
-        className="-left-40 -top-32 h-[34rem] w-[34rem] bg-[radial-gradient(circle_at_30%_30%,#3b82f6,transparent_65%)]"
+        className="-left-40 -top-32 h-[34rem] w-[34rem] bg-[radial-gradient(circle_at_30%_30%,#00B2FE,transparent_65%)]"
         duration={22}
       />
       <Orb
@@ -87,7 +87,7 @@ export function AnimatedBackground() {
 
       {/* Static base grid */}
       <div
-        className="bg-grid-lines absolute inset-0 opacity-[0.35]"
+        className="bg-grid-lines absolute inset-0 opacity-[0.22]"
         style={{
           backgroundImage:
             "linear-gradient(to right, rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.045) 1px, transparent 1px)",
@@ -102,7 +102,7 @@ export function AnimatedBackground() {
         className="bg-grid-lines absolute inset-0"
         style={{
           backgroundImage:
-            "linear-gradient(to right, rgba(96,165,250,0.5) 1px, transparent 1px), linear-gradient(to bottom, rgba(96,165,250,0.5) 1px, transparent 1px)",
+            "linear-gradient(to right, rgba(0,178,254,0.35) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,178,254,0.35) 1px, transparent 1px)",
           backgroundSize: "56px 56px",
           maskImage,
           WebkitMaskImage: maskImage,
@@ -113,7 +113,7 @@ export function AnimatedBackground() {
       <motion.div className="absolute inset-0" style={{ background: spotlight }} />
 
       {/* Vignette to keep text readable */}
-      <div className="bg-vignette absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_0%,transparent_40%,rgba(3,7,18,0.85)_100%)]" />
+      <div className="bg-vignette absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_0%,transparent_40%,rgba(3,33,71,0.85)_100%)]" />
     </div>
   );
 }

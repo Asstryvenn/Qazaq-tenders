@@ -34,6 +34,9 @@ export interface TenderSpec {
   contractAmount: number;
   /** Advance paid by the customer at signing, % of S */
   advancePercentage: number;
+  /** Bid / performance security as stated in the document (fractions). Default: KZ law 1% / 3%. */
+  bidSecurityRate?: number;
+  performanceSecurityRate?: number;
   /** D — delivery deadline, days from contract start */
   deliveryDays: number;
   /** P_delay — deferred payment, days after delivery */

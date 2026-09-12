@@ -1,5 +1,5 @@
 /** Wire format of the AI chat stream — shared by the API route and the clients. */
-import type { AnalysisResult, CompanyProfile, Scenario } from "./types";
+import type { AnalysisResult, CompanyProfile, Scenario, TenderSpec } from "./types";
 import { PLAN_RANK, type PlanId } from "./plans";
 
 export type Tier = PlanId;
@@ -40,4 +40,6 @@ export interface ChatRequest {
   messages: { role: "user" | "assistant"; content: string }[];
   /** MAX only: answer with the reasoning model */
   deep?: boolean;
+  /** An analysed PDF (kept in the user's browser) — its pages are the chat context */
+  upload?: TenderSpec;
 }

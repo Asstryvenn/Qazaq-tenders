@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react";
 import { useProfile } from "@/lib/profile";
 
 /** App screens that only exist after registration. */
-const PROTECTED = ["/dashboard", "/tender", "/ai-studio", "/profile"];
+const PROTECTED = ["/dashboard", "/tender", "/ai-studio", "/profile", "/analyze"];
 
 const isProtected = (path: string) => PROTECTED.some((p) => path === p || path.startsWith(`${p}/`));
 

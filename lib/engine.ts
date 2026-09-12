@@ -144,8 +144,8 @@ export function analyzeTender(
   const freight = freightCost(distanceKm, tender.cargoTonnes, scenario.fuelDeltaPct, scenario.transportDeltaPct);
 
   const S = tender.contractAmount;
-  const bidSecurity = S * KZ.bidSecurityRate;
-  const performanceSecurity = S * KZ.performanceSecurityRate;
+  const bidSecurity = S * (tender.bidSecurityRate ?? KZ.bidSecurityRate);
+  const performanceSecurity = S * (tender.performanceSecurityRate ?? KZ.performanceSecurityRate);
   const advance = S * (tender.advancePercentage / 100);
 
   const costs: CostBreakdown = {

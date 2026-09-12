@@ -6,7 +6,7 @@
 import type { TenderSpec } from "../types";
 import { haversineProvider } from "../logistics";
 
-export type TenderSource = "goszakup" | "samruk" | "nadloc" | "erg" | "bi_group";
+export type TenderSource = "goszakup" | "samruk" | "nadloc" | "erg" | "bi_group" | "upload";
 
 export interface UnifiedTender {
   id: string;
@@ -35,7 +35,7 @@ export interface SourceMeta {
   name: string;
   host: string;
   url: string;
-  kind: "official" | "quasi" | "commercial";
+  kind: "official" | "quasi" | "commercial" | "user";
   color: string;
   kz: string;
   ru: string;
@@ -81,6 +81,16 @@ export const SOURCES: Record<TenderSource, SourceMeta> = {
     color: "#fb923c",
     kz: "Eurasian Resources Group өнеркәсіптік тендерлері",
     ru: "Промышленные тендеры Eurasian Resources Group",
+  },
+  upload: {
+    id: "upload",
+    name: "PDF",
+    host: "upload",
+    url: "",
+    kind: "user",
+    color: "#00B2FE",
+    kz: "Жүктелген техникалық ерекшелік",
+    ru: "Загруженная техническая спецификация",
   },
   bi_group: {
     id: "bi_group",

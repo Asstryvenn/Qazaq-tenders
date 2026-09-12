@@ -6,7 +6,7 @@ import { buildWarrantyLetter } from "@/lib/letter";
 import { fetchTender } from "@/lib/tenders/source";
 import { can } from "@/lib/plans";
 import { isValidBin } from "@/lib/validation";
-import type { CompanyProfile } from "@/lib/types";
+import type { CompanyProfile, TenderSpec } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -17,9 +17,9 @@ export async function POST(req: Request) {
   const { plan } = await resolvePlan({ kind: "user", user });
   if (!can(plan, "letter")) return Response.json({ error: "plan", need: "max" }, { status: 402 });
 
-  const { tenderId, lang, company } = (await req.json()) as { tenderId: string; lang: "kz" | "ru"; company: CompanyProfile };
+  const { tenderId, lang, company, upload } = (await req.json()) as { tenderId: string; lang: "kz" | "ru"; company: CompanyProfile; upload?: TenderSpec };
   if (!company?.name || !isValidBin(company.bin || "")) return Response.json({ error: "invalid-company" }, { status: 400 });
-  const tender = await fetchTender(tenderId);
+  const tender = tenderId.startsWith("upload-") && upload?.id === tenderId ? upload : await fetchTender(tenderId);
   if (!tender) return Response.json({ error: "tender-not-found" }, { status: 404 });
 
   const buf = await Packer.toBuffer(buildWarrantyLetter(tender, company, lang === "kz" ? "kz" : "ru"));

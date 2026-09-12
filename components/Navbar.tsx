@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { useProfile } from "@/lib/profile";
 import { LogIn, LogOut, Moon, Sun, UserRound } from "lucide-react";
 import { useTheme } from "@/lib/theme";
+import { isSupabaseConfigured } from "@/lib/supabase";
 import { NotificationBell } from "./NotificationBell";
 
 function LangToggle() {
@@ -27,7 +28,7 @@ function LangToggle() {
           aria-pressed={lang === o.v}
           className={cn(
             "relative z-10 rounded-md px-2.5 py-1 text-xs font-semibold transition-colors",
-            lang === o.v ? "keep-white text-white" : "text-slate-400 hover:text-slate-200"
+            lang === o.v ? "text-ink" : "text-slate-400 hover:text-slate-200"
           )}
         >
           {lang === o.v && (
@@ -72,9 +73,11 @@ function AuthButtons() {
   if (isDemo && !session)
     return (
       <div className="flex items-center gap-2">
-        <Button variant="ghost" className="px-3 py-2 text-sm" onClick={() => openModal("login")}>
-          {t.nav.login}
-        </Button>
+        {isSupabaseConfigured && (
+          <Button variant="ghost" className="px-3 py-2 text-sm" onClick={() => openModal("login")}>
+            {t.nav.login}
+          </Button>
+        )}
         <Button className="px-4 py-2 text-sm" onClick={() => openModal("register")}>
           {t.nav.register}
         </Button>
@@ -91,7 +94,7 @@ function AuthButtons() {
         <UserRound className="h-3.5 w-3.5 shrink-0 text-blue-300" />
         <span className="truncate">{company.name}</span>
       </Link>
-      {!session && (
+      {!session && isSupabaseConfigured && (
         <Button className="px-3 py-2 text-xs" onClick={() => openModal("login")}>
           <LogIn className="h-3.5 w-3.5" /> {t.nav.login}
         </Button>
@@ -104,7 +107,7 @@ function AuthButtons() {
 }
 
 export function Navbar() {
-  const { t } = useI18n();
+  const { t, tr } = useI18n();
   const { hasAccount } = useProfile();
   const ref = useRef<HTMLElement>(null);
 
@@ -143,6 +146,7 @@ export function Navbar() {
             { href: "/#how", label: t.nav.how },
             { href: "/#engine", label: t.nav.engine },
             { href: "/dashboard", label: t.nav.dashboard },
+            { href: "/analyze", label: tr({ kz: "PDF талдау", ru: "Анализ PDF" }) },
             { href: "/ai-studio", label: "AI Studio ✨" },
           ]
             // App screens appear only after registration.

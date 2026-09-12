@@ -11,7 +11,9 @@ import type { LockedFeature, ScenarioCardData, StatusKey, Tier } from "@/lib/cha
 import { useBilling } from "@/lib/billing-client";
 import { downloadLetter } from "@/lib/letter-client";
 import { can, PLAN_RANK } from "@/lib/plans";
-import { tosTone } from "@/lib/engine";
+import { analyzeTender, tosTone } from "@/lib/engine";
+import { loadUploads } from "@/lib/uploads";
+import type { TenderSpec } from "@/lib/types";
 import { useI18n } from "@/lib/i18n";
 import { useNotifications } from "@/lib/notifications";
 import { useProfile } from "@/lib/profile";
@@ -78,7 +80,21 @@ export default function AiStudioPage() {
     } catch {}
   }, [sessions]);
 
-  const lots = useMemo(() => [...(feed?.tenders ?? [])].sort((a, b) => (results.get(b.id)?.tos ?? 0) - (results.get(a.id)?.tos ?? 0)), [feed, results]);
+  // Analysed PDFs (stored in this browser) join the platform lots.
+  const [uploads, setUploads] = useState<TenderSpec[]>([]);
+  useEffect(() => {
+    const read = () => setUploads(loadUploads().map((u) => u.spec).filter((x) => x.contractAmount > 0));
+    read();
+    window.addEventListener("qt-uploads-changed", read);
+    return () => window.removeEventListener("qt-uploads-changed", read);
+  }, []);
+  const uploadResults = useMemo(() => new Map(uploads.map((u) => [u.id, analyzeTender(u, company)])), [uploads, company]);
+  const rOf = (id: string) => results.get(id) ?? uploadResults.get(id);
+  const lots = useMemo(
+    () => [...uploads, ...(feed?.tenders ?? [])].sort((a, b) => (rOf(b.id)?.tos ?? 0) - (rOf(a.id)?.tos ?? 0)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [feed, results, uploads, uploadResults]
+  );
   useEffect(() => {
     if (!tenderId && lots.length) setTenderId(lots[0].id);
   }, [lots, tenderId]);
@@ -95,7 +111,7 @@ export default function AiStudioPage() {
 
   const letter = async (tId: string) => {
     if (!can(plan, "letter")) return billing.openCheckout("max");
-    const r = await downloadLetter(tId, company, lang, billing.headers());
+    const r = await downloadLetter(tId, company, lang, billing.headers(), lots.find((t) => t.id === tId && t.source === "upload"));
     if (!r.ok)
       toast({
         kind: "error",
@@ -131,7 +147,7 @@ export default function AiStudioPage() {
     setStatus("thinking");
 
     const r = await streamChat(
-      { tenderId, lang, company, deep: deep && can(plan, "deepReasoning"), messages: history.map(({ role, content }) => ({ role, content })) },
+      { tenderId, lang, company, deep: deep && can(plan, "deepReasoning"), upload: tender?.source === "upload" ? tender : undefined, messages: history.map(({ role, content }) => ({ role, content })) },
       (e) => {
         if (e.t === "quota") billing.applyQuota(e);
         else if (e.t === "status") setStatus(e.key);
@@ -319,13 +335,13 @@ export default function AiStudioPage() {
           >
             {lots.map((t) => (
               <option key={t.id} value={t.id}>
-                {Math.round(results.get(t.id)?.tos ?? 0)} · {lotTitle(t)}
+                {Math.round(rOf(t.id)?.tos ?? 0)} · {lotTitle(t)}
               </option>
             ))}
           </select>
-          {tender && results.get(tender.id) && (
-            <span className="rounded-lg border px-2 py-1 font-mono text-xs font-bold" style={{ color: tosTone(results.get(tender.id)!.verdict).text, borderColor: `${tosTone(results.get(tender.id)!.verdict).color}66` }}>
-              TOS {Math.round(results.get(tender.id)!.tos)}
+          {tender && rOf(tender.id) && (
+            <span className="rounded-lg border px-2 py-1 font-mono text-xs font-bold" style={{ color: tosTone(rOf(tender.id)!.verdict).text, borderColor: `${tosTone(rOf(tender.id)!.verdict).color}66` }}>
+              TOS {Math.round(rOf(tender.id)!.tos)}
             </span>
           )}
           <div className="ml-auto flex items-center gap-1.5">

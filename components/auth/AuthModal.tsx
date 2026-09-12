@@ -62,10 +62,15 @@ export function AuthModal() {
       subtitle={pendingEmail ? tr({ kz: "Профиліңіз осы браузерде бар — тіркелген email-мен кіріңіз.", ru: "Профиль уже есть в этом браузере — войдите с email регистрации." }) : undefined}
     >
       {!isSupabaseConfigured ? (
-        <p className="flex gap-2.5 rounded-xl border border-amber-400/25 bg-amber-400/[0.07] p-3.5 text-sm leading-relaxed text-amber-100">
-          <Info className="mt-0.5 h-4 w-4 shrink-0" />
-          {t.auth.notConfigured}
-        </p>
+        <div className="space-y-4">
+          <p className="flex gap-2.5 rounded-xl border border-white/10 bg-white/[0.04] p-3.5 text-sm leading-relaxed text-slate-300">
+            <Info className="mt-0.5 h-4 w-4 shrink-0 text-sky-300" />
+            {tr({ kz: "Бұлттық аккаунттар осы серверде әлі қосылмаған. Профиль осы браузерде сақталады.", ru: "Облачные аккаунты на этом сервере ещё не подключены. Профиль сохранится в этом браузере." })}
+          </p>
+          <Button className="w-full" onClick={() => openModal("register")}>
+            {t.nav.register}
+          </Button>
+        </div>
       ) : (
         <form onSubmit={submit} className="space-y-4">
           <Field label={t.auth.email}>

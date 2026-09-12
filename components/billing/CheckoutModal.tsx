@@ -11,6 +11,7 @@ import { useProfile } from "@/lib/profile";
 import { priceLabel, TIERS } from "@/lib/chat-client";
 import { PLAN_RANK, type PlanId } from "@/lib/plans";
 import { cn } from "@/lib/utils";
+import { isSupabaseConfigured } from "@/lib/supabase";
 
 const WIDGET_SRC = "https://widget.cloudpayments.ru/bundles/cloudpayments.js";
 
@@ -67,6 +68,10 @@ export function CheckoutModal() {
   };
 
   const pay = async () => {
+    if (!isSupabaseConfigured) {
+      toast({ kind: "info", title: tr({ kz: "Төлем уақытша қолжетімсіз", ru: "Оплата временно недоступна" }), body: tr({ kz: "Сервердегі аккаунттар бапталмаған.", ru: "На сервере не настроены аккаунты." }) });
+      return;
+    }
     if (!session) {
       billing.closeCheckout();
       // Already registered (profile saved locally) → sign in; otherwise register.

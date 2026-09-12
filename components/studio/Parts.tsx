@@ -173,7 +173,7 @@ export function ScenarioCard({ data, tender }: { data: ScenarioCardData; tender?
       <div className="flex justify-end border-t border-white/10 px-4 py-3">
         <Link
           href={`/tender/${encodeURIComponent(data.tenderId)}?s=${encodeScenario(s)}`}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-accent-blue px-3.5 py-2 text-xs font-semibold text-white shadow-glow hover:bg-blue-500"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-accent-blue px-3.5 py-2 text-xs font-semibold text-ink shadow-glow hover:bg-[#33c1fe]"
         >
           {tr({ kz: "Сценарийді толық талдауда ашу", ru: "Открыть сценарий в полном анализе" })} <ArrowUpRight className="h-3.5 w-3.5" />
         </Link>
