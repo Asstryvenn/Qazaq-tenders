@@ -29,6 +29,8 @@ interface ProfileValue {
   saveProfile: (p: CompanyProfile) => Promise<{ error?: string }>;
   register: (email: string, password: string, p: CompanyProfile) => Promise<{ error?: string; mode?: RegisterMode }>;
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
+  /** Sends a password-reset link to the email (Supabase). */
+  resetPassword: (email: string) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
   modal: ModalKind;
   openModal: (m: ModalKind) => void;
@@ -92,9 +94,10 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
       setIsDemo(false);
       return;
     }
-    // First sign-in after a sign-up that saved its profile locally → push it to the cloud.
+    // The account has no profile row yet but this browser has one (e.g. registered while cloud
+    // accounts were unavailable) → push it instead of asking the user to fill everything again.
     const local = readLocal();
-    if (local && readPending()?.toLowerCase() === s.user.email?.toLowerCase()) {
+    if (local) {
       const err = await upsertRemote(s.user.id, local);
       if (!err) {
         setPendingStorage(null);
@@ -218,6 +221,12 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     return error ? { error: error.message } : {};
   }, []);
 
+  const resetPassword = useCallback(async (email: string) => {
+    if (!supabase) return { error: "supabase-not-configured" };
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: `${window.location.origin}/reset-password` });
+    return error ? { error: error.message } : {};
+  }, []);
+
   const signOut = useCallback(async () => {
     await supabase?.auth.signOut();
     try {
@@ -232,7 +241,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ProfileContext.Provider
-      value={{ company, isDemo, hasAccount: !!session || !isDemo, session, loading, pendingEmail, saveProfile, register, signIn, signOut, modal, openModal: setModal }}
+      value={{ company, isDemo, hasAccount: !!session || !isDemo, session, loading, pendingEmail, saveProfile, register, signIn, resetPassword, signOut, modal, openModal: setModal }}
     >
       {children}
     </ProfileContext.Provider>
