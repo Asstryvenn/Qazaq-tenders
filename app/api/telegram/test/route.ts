@@ -7,7 +7,7 @@
  * one test per 20 seconds.
  */
 import { NextResponse } from "next/server";
-import { esc, isChatId, isPublicUrl, tg, TelegramError, botToken } from "@/lib/telegram";
+import { esc, isChatId, isPublicUrl, publicBaseUrl, tg, TelegramError, botToken } from "@/lib/telegram";
 import { getRequestUser } from "@/lib/server/auth";
 import { fetchTender } from "@/lib/tenders/source";
 
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
 
   const kz = lang === "kz";
   const tender = tenderId ? await fetchTender(tenderId) : undefined;
-  const base = process.env.NEXT_PUBLIC_APP_URL || new URL(req.url).origin;
+  const base = publicBaseUrl(req);
   const link = tender ? `${base}/tender/${encodeURIComponent(tender.id)}` : `${base}/dashboard`;
   const lines = [
     `✅ <b>${kz ? "Qazaq Tenders — тесттік ескерту" : "Qazaq Tenders — тестовое уведомление"}</b>`,

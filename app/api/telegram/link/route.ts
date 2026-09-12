@@ -3,7 +3,9 @@
  *   GET /api/telegram/link            → { username } of the bot (for the t.me deep link)
  *   GET /api/telegram/link?code=XYZ   → finds "/start XYZ" in recent updates → { chatId, name }
  *
- * getUpdates only works while the bot has no webhook set; for production switch to a webhook.
+ * Reads the LATEST 100 updates (offset −100): without an offset Telegram returns the oldest
+ * unconfirmed ones, so after ~100 messages to the bot new /start commands were never found.
+ * getUpdates is refused while a webhook is set (409) — the webhook is removed and it retries.
  */
 import { NextResponse } from "next/server";
 import { botToken, botUsernameFromEnv, tg, TelegramError } from "@/lib/telegram";
@@ -13,6 +15,17 @@ export const dynamic = "force-dynamic";
 interface Update {
   update_id: number;
   message?: { text?: string; chat: { id: number; first_name?: string; username?: string } };
+}
+
+async function recentUpdates(): Promise<Update[]> {
+  const params = { offset: -100, limit: 100, allowed_updates: ["message"] };
+  try {
+    return await tg<Update[]>("getUpdates", params);
+  } catch (e) {
+    if ((e as TelegramError).status !== 409) throw e;
+    await tg("deleteWebhook", { drop_pending_updates: false });
+    return tg<Update[]>("getUpdates", params);
+  }
 }
 
 export async function GET(req: Request) {
@@ -32,7 +45,7 @@ export async function GET(req: Request) {
     }
     if (!/^[A-Za-z0-9_-]{6,64}$/.test(code)) return NextResponse.json({ error: "bad-code" }, { status: 400 });
 
-    const updates = await tg<Update[]>("getUpdates", { allowed_updates: ["message"], limit: 100 });
+    const updates = await recentUpdates();
     const hit = [...updates].reverse().find((u) => u.message?.text?.trim() === `/start ${code}`);
     if (!hit?.message) return NextResponse.json({ found: false });
 

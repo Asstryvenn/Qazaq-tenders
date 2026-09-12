@@ -2,11 +2,11 @@
  * POST /api/telegram/send-alert  { chat_id, tenderData, lang }
  * Sends a formatted alert with an inline button to the lot's deep-analysis page.
  *
- * Requires a signed-in PRO/MAX user. NOTE: the chat_id still comes from the client;
- * before a public launch, read it from the user's notification_settings row instead.
+ * Requires a signed-in PRO/MAX user, and the chat_id must be the one saved in the user's
+ * own notification settings.
  */
 import { NextResponse } from "next/server";
-import { esc, isChatId, isPublicUrl, tg, TelegramError } from "@/lib/telegram";
+import { esc, isChatId, isPublicUrl, publicBaseUrl, tg, TelegramError } from "@/lib/telegram";
 import { getRequestUser } from "@/lib/server/auth";
 import { resolvePlan } from "@/lib/server/billing";
 import { can } from "@/lib/plans";
@@ -38,8 +38,13 @@ export async function POST(req: Request) {
   if (!isChatId(chat_id)) return NextResponse.json({ error: "bad-chat-id" }, { status: 400 });
   if (!tenderData?.id || !tenderData.title) return NextResponse.json({ error: "bad-tender" }, { status: 400 });
 
+  // Only the chat this user linked may receive alerts — never an arbitrary chat_id from the client.
+  const { data: settings } = await user.db.from("notification_settings").select("telegram_chat_id").eq("user_id", user.id).maybeSingle();
+  if (!settings?.telegram_chat_id) return NextResponse.json({ error: "not-linked" }, { status: 403 });
+  if (settings.telegram_chat_id !== String(chat_id)) return NextResponse.json({ error: "not-your-chat" }, { status: 403 });
+
   const kz = lang === "kz";
-  const base = process.env.NEXT_PUBLIC_APP_URL || new URL(req.url).origin;
+  const base = publicBaseUrl(req);
   const link = `${base}/tender/${encodeURIComponent(tenderData.id)}`;
   const budget = new Intl.NumberFormat("ru-RU").format(Math.round(tenderData.budgetKzt));
 

@@ -48,5 +48,18 @@ export function isPublicUrl(url: string): boolean {
   }
 }
 
+/**
+ * Base URL for links inside Telegram messages. NEXT_PUBLIC_APP_URL wins only if it is a
+ * public address — a copied "http://localhost:3077" must not disable buttons in production.
+ * Otherwise the request's own origin (on Vercel that is the real domain).
+ */
+export function publicBaseUrl(req: Request): string {
+  const env = process.env.NEXT_PUBLIC_APP_URL?.trim().replace(/\/+$/, "");
+  if (env && isPublicUrl(env)) return env;
+  const host = req.headers.get("x-forwarded-host");
+  const proto = req.headers.get("x-forwarded-proto") || "https";
+  return host ? `${proto}://${host}` : new URL(req.url).origin;
+}
+
 /** A chat id is an integer (negative for groups). */
 export const isChatId = (v: unknown): v is string | number => /^-?\d{3,20}$/.test(String(v ?? ""));
