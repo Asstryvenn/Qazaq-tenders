@@ -7,7 +7,8 @@ import { Loader2 } from "lucide-react";
 import { useProfile } from "@/lib/profile";
 
 /** App screens that only exist after registration. */
-const PROTECTED = ["/dashboard", "/tender", "/ai-studio", "/profile", "/analyze"];
+// /analyze is open to guests: the PDF is read locally and analysis resumes after sign-in.
+const PROTECTED = ["/dashboard", "/tender", "/ai-studio", "/profile"];
 
 const isProtected = (path: string) => PROTECTED.some((p) => path === p || path.startsWith(`${p}/`));
 

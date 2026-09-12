@@ -6,11 +6,23 @@ import { useRef, useState } from "react";
 import { MAX_PDF_BYTES } from "@/lib/pdf-extract";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { Button } from "../ui/Button";
 
 export type Stage = { key: "reading"; done: number; total: number } | { key: "ai" } | { key: "engine" } | null;
 
 /** Drag & drop (or click) a single PDF up to 50 MB; shows pipeline progress. */
-export function Dropzone({ onFile, stage, error }: { onFile: (f: File) => void; stage: Stage; error: string | null }) {
+export function Dropzone({
+  onFile,
+  stage,
+  error,
+  action,
+}: {
+  onFile: (f: File) => void;
+  stage: Stage;
+  error: string | null;
+  /** Button shown inside the error banner, e.g. «Кіру үшін басыңыз» */
+  action?: { label: string; onClick: () => void } | null;
+}) {
   const { tr } = useI18n();
   const input = useRef<HTMLInputElement>(null);
   const [over, setOver] = useState(false);
@@ -78,7 +90,16 @@ export function Dropzone({ onFile, stage, error }: { onFile: (f: File) => void; 
           </div>
         )}
       </motion.div>
-      {(localError || error) && <p className="mt-3 rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-2.5 text-sm text-rose-200">{localError || error}</p>}
+      {(localError || error) && (
+        <div role="alert" className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-2.5 text-sm text-rose-200">
+          <span className="min-w-0 flex-1">{localError || error}</span>
+          {!localError && action && (
+            <Button className="shrink-0 px-3.5 py-1.5 text-xs" onClick={action.onClick}>
+              {action.label}
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

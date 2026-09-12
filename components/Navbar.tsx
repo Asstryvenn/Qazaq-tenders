@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 import { useProfile } from "@/lib/profile";
 import { LogIn, LogOut, Moon, Sun, UserRound } from "lucide-react";
 import { useTheme } from "@/lib/theme";
-import { isSupabaseConfigured } from "@/lib/supabase";
 import { NotificationBell } from "./NotificationBell";
 
 function LangToggle() {
@@ -70,35 +69,34 @@ function AuthButtons() {
   const { session, isDemo, company, openModal, signOut } = useProfile();
   const logoutLabel = tr({ kz: "Аккаунттан шығу", ru: "Выйти из аккаунта" });
 
-  if (isDemo && !session)
-    return (
-      <div className="flex items-center gap-2">
-        {isSupabaseConfigured && (
-          <Button variant="ghost" className="px-3 py-2 text-sm" onClick={() => openModal("login")}>
-            {t.nav.login}
-          </Button>
-        )}
-        <Button className="px-4 py-2 text-sm" onClick={() => openModal("register")}>
-          {t.nav.register}
-        </Button>
-      </div>
-    );
+  const signInButtons = (
+    <>
+      <Button variant="outline" className="px-3.5 py-2 text-sm" onClick={() => openModal("login")}>
+        <LogIn className="h-3.5 w-3.5" /> {t.nav.login}
+      </Button>
+      <Button className="px-4 py-2 text-sm" onClick={() => openModal("register")}>
+        {t.nav.register}
+      </Button>
+    </>
+  );
+
+  // Not signed in (also when Supabase runs in local fallback): both actions side by side.
+  if (isDemo && !session) return <div className="flex items-center gap-2">{signInButtons}</div>;
 
   return (
     <div className="flex items-center gap-1.5">
       <Link
         href="/profile"
-        className="flex max-w-[170px] items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-200 transition-colors hover:bg-white/10"
+        className={cn(
+          "items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-200 transition-colors hover:bg-white/10",
+          session ? "flex max-w-[170px]" : "hidden max-w-[140px] xl:flex"
+        )}
         title={session ? session.user.email ?? t.nav.profile : tr({ kz: "Жергілікті профиль — аккаунтқа кірмегенсіз", ru: "Локальный профиль — вы не вошли в аккаунт" })}
       >
         <UserRound className="h-3.5 w-3.5 shrink-0 text-blue-300" />
         <span className="truncate">{company.name}</span>
       </Link>
-      {!session && isSupabaseConfigured && (
-        <Button className="px-3 py-2 text-xs" onClick={() => openModal("login")}>
-          <LogIn className="h-3.5 w-3.5" /> {t.nav.login}
-        </Button>
-      )}
+      {!session && signInButtons}
       <button onClick={signOut} title={logoutLabel} aria-label={logoutLabel} className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-white/10 hover:text-white">
         <LogOut className="h-4 w-4" />
       </button>
@@ -150,7 +148,7 @@ export function Navbar() {
             { href: "/ai-studio", label: "AI Studio ✨" },
           ]
             // App screens appear only after registration.
-            .filter((l) => hasAccount || l.href.startsWith("/#"))
+            .filter((l) => hasAccount || l.href.startsWith("/#") || l.href === "/analyze")
             .map((l) => (
             <Link key={l.href} href={l.href} className="text-sm text-slate-300 transition-colors hover:text-white">
               {l.label}

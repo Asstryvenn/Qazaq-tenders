@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // "Қозғалтқыш" is a section of the landing page, not a separate route.
+  async redirects() {
+    return [{ source: "/engine", destination: "/#engine", permanent: false }];
+  },
   webpack: (config) => {
     // pdf.js references the optional node-canvas package; it is never used in the browser.
     config.resolve.alias.canvas = false;
