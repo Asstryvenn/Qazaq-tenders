@@ -117,11 +117,13 @@ export function CheckoutModal() {
     const d = await r.json();
     setBusy(false);
     if (!r.ok) return toast({ kind: "error", title: tr({ kz: "Қате", ru: "Ошибка" }), body: d.error });
+    const active: PlanId = d.plan ?? selected;
+    billing.grant(active, d.until);
     await billing.refresh();
     billing.closeCheckout();
     toast({
       kind: "success",
-      title: tr({ kz: `${TIERS[selected].name} қосылды (тест)`, ru: `${TIERS[selected].name} активирован (тест)` }),
+      title: tr({ kz: `${TIERS[active].name} қосылды (тест)`, ru: `${TIERS[active].name} активирован (тест)` }),
       body: d.persisted ? undefined : tr({ kz: "Сервер жадында — қайта іске қосқанда өшеді.", ru: "В памяти сервера — сбросится при перезапуске." }),
     });
   };

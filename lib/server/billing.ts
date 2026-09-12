@@ -7,7 +7,7 @@
  * which is fine for local demos but not for production.
  */
 import { adminClient, type RequestUser } from "./auth";
-import { PLAN_PERIOD_DAYS, PLANS, isPlan, type PlanId } from "../plans";
+import { PLAN_PERIOD_DAYS, PLAN_RANK, PLANS, isPlan, type PlanId } from "../plans";
 
 export type Subject = { kind: "user"; user: RequestUser } | { kind: "anon"; key: string };
 
@@ -110,13 +110,25 @@ export async function consume(s: Subject): Promise<void> {
  * Activate or extend a paid plan. Persists through the service key; without it (local
  * test mode) the plan lives in memory. Returns whether it reached the database.
  */
-export async function activatePlan(userId: string, plan: PlanId, provider: string, ref: string, amountKzt: number): Promise<{ persisted: boolean; until: string }> {
+export async function activatePlan(userId: string, plan: PlanId, provider: string, ref: string, amountKzt: number): Promise<{ persisted: boolean; until: string; plan: PlanId }> {
   const admin = adminClient();
   let base = Date.now();
   if (admin) {
-    const { data } = await admin.from("subscriptions").select("plan, current_period_end").eq("user_id", userId).maybeSingle();
-    // Paying again for the same plan extends it from the current end date.
-    if (data && data.plan === plan && new Date(data.current_period_end).getTime() > base) base = new Date(data.current_period_end).getTime();
+    const { data } = await admin.from("subscriptions").select("plan, status, current_period_end").eq("user_id", userId).maybeSingle();
+    const end = data ? new Date(data.current_period_end).getTime() : 0;
+    const current: unknown = data?.plan;
+    if (data && data.status === "active" && isPlan(current) && end > base) {
+      // Never downgrade: buying PRO while MAX is active extends MAX instead.
+      if (PLAN_RANK[current] > PLAN_RANK[plan]) plan = current;
+      // Paying again for the same plan extends it from the current end date.
+      if (current === plan) base = end;
+    }
+  } else {
+    const m: { plan: PlanId; until: number } | undefined = mem.plans.get(`u:${userId}`);
+    if (m && m.until > base) {
+      if (PLAN_RANK[m.plan] > PLAN_RANK[plan]) plan = m.plan;
+      if (m.plan === plan) base = m.until;
+    }
   }
   const until = new Date(base + PLAN_PERIOD_DAYS * 86_400_000).toISOString();
 
@@ -124,7 +136,7 @@ export async function activatePlan(userId: string, plan: PlanId, provider: strin
     const pay = await admin.from("payments").insert({ user_id: userId, plan, amount_kzt: amountKzt, provider, provider_ref: ref, status: "completed" });
     // Duplicate provider_ref = webhook retry — already applied.
     if (pay.error && !/duplicate/i.test(pay.error.message)) throw new Error(pay.error.message);
-    if (pay.error) return { persisted: true, until };
+    if (pay.error) return { persisted: true, until, plan };
     const sub = await admin.from("subscriptions").upsert({
       user_id: userId,
       plan,
@@ -135,10 +147,10 @@ export async function activatePlan(userId: string, plan: PlanId, provider: strin
       updated_at: new Date().toISOString(),
     });
     if (sub.error) throw new Error(sub.error.message);
-    return { persisted: true, until };
+    return { persisted: true, until, plan };
   }
   mem.plans.set(`u:${userId}`, { plan, until: new Date(until).getTime() });
-  return { persisted: false, until };
+  return { persisted: false, until, plan };
 }
 
 export type PaymentsMode = "cloudpayments" | "test" | "off";
