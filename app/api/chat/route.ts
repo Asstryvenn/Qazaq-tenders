@@ -12,7 +12,9 @@ import { analyzeTender } from "@/lib/engine";
 import { fetchTender } from "@/lib/tenders/source";
 import { NEUTRAL_SCENARIO, Scenario, type TenderSpec } from "@/lib/types";
 import type { ChatEvent, ChatRequest } from "@/lib/chat-types";
-import { can, FEATURE_MIN_PLAN, modelFor, PLAN_RANK, type PlanId } from "@/lib/plans";
+import { can, FEATURE_MIN_PLAN, PLAN_RANK, type PlanId } from "@/lib/plans";
+import { modelFor } from "@/lib/server/models";
+import { codeForStatus, getOpenAIKey, keyMissingBody, redactKeys } from "@/lib/server/openai";
 import { getRequestUser } from "@/lib/server/auth";
 import { checkQuota, consume, resolvePlan, usageOf, type Subject } from "@/lib/server/billing";
 
@@ -153,8 +155,8 @@ function summarize(r: ReturnType<typeof analyzeTender>) {
 const isNeutral = (s: Scenario) => (Object.keys(NEUTRAL_SCENARIO) as (keyof Scenario)[]).every((k) => !s[k]);
 
 export async function POST(req: Request) {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) return Response.json({ error: "no-openai-key" }, { status: 503 });
+  const apiKey = getOpenAIKey();
+  if (!apiKey) return Response.json(keyMissingBody, { status: 500 });
 
   const body = (await req.json()) as ChatRequest;
   const tender =
@@ -226,7 +228,10 @@ BASELINE ENGINE RESULT: ${JSON.stringify(summarize(baseline))}`;
             }),
           });
           if (!res.ok || !res.body) {
-            send({ t: "error", error: "openai-error", detail: (await res.text()).slice(0, 300) });
+            const detail = redactKeys((await res.text()).slice(0, 300));
+            const code = codeForStatus(res.status);
+            console.error(`[openai] chat failed: HTTP ${res.status} ${code} — ${detail}`);
+            send({ t: "error", error: code, detail });
             return;
           }
 

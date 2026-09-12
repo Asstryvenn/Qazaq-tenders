@@ -18,6 +18,7 @@ import { useI18n } from "@/lib/i18n";
 import { useNotifications } from "@/lib/notifications";
 import { useProfile } from "@/lib/profile";
 import { cn } from "@/lib/utils";
+import { apiErrorMessage } from "@/lib/api-errors";
 
 type StudioCard =
   | { kind: "scenario"; data: ScenarioCardData }
@@ -170,11 +171,7 @@ export default function AiStudioPage() {
         patch((m) => ({
           ...m,
           error: true,
-          content:
-            m.content ||
-            (r.error === "no-openai-key"
-              ? tr({ kz: "OpenAI кілті қосылмаған (.env.local → OPENAI_API_KEY).", ru: "Ключ OpenAI не подключён (.env.local → OPENAI_API_KEY)." })
-              : tr({ kz: "Жауап алу мүмкін болмады. Қайталап көріңіз.", ru: "Не удалось получить ответ. Попробуйте ещё раз." })),
+          content: m.content || apiErrorMessage(r.error, lang, tr({ kz: "Жауап алу мүмкін болмады. Қайталап көріңіз.", ru: "Не удалось получить ответ. Попробуйте ещё раз." })),
         }));
     }
     setStatus(null);

@@ -12,7 +12,8 @@
 import { NextResponse } from "next/server";
 import { analyzeTender } from "@/lib/engine";
 import { CITIES } from "@/lib/logistics";
-import { modelFor } from "@/lib/plans";
+import { modelFor } from "@/lib/server/models";
+import { getOpenAIKey, httpStatusFor, keyMissingBody, OpenAIError, openaiJson } from "@/lib/server/openai";
 import { getRequestUser } from "@/lib/server/auth";
 import { checkQuota, consume, resolvePlan, usageOf, type Subject } from "@/lib/server/billing";
 import type { CompanyProfile, TenderSpec } from "@/lib/types";
@@ -21,7 +22,6 @@ import type { AnalyzeResponse, ExtractedFacts, ExtractedRequirement, ExtractedRi
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 /** ~50–70k tokens of Cyrillic text — leaves room for the answer and keeps latency sane. */
 const MAX_CHARS = 150_000;
 const DEFAULT_COST_SHARE = 0.78;
@@ -109,16 +109,6 @@ function buildDocument(pages: { page: number; text: string }[]) {
   return { text: parts.join("\n\n"), truncated };
 }
 
-async function openai(apiKey: string, body: Record<string, unknown>) {
-  const res = await fetch(OPENAI_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) throw new Error(`openai ${res.status}: ${(await res.text()).slice(0, 200)}`);
-  const content = (await res.json()).choices?.[0]?.message?.content;
-  return JSON.parse(content ?? "{}");
-}
 
 function matchCity(name: string | null): string | null {
   if (!name) return null;
@@ -129,8 +119,8 @@ function matchCity(name: string | null): string | null {
 const pct = (v: number | null) => (v == null || !Number.isFinite(v) || v < 0 ? null : v);
 
 export async function POST(req: Request) {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) return NextResponse.json({ error: "no-openai-key" }, { status: 503 });
+  const apiKey = getOpenAIKey();
+  if (!apiKey) return NextResponse.json(keyMissingBody, { status: 500 });
 
   const user = await getRequestUser(req);
   if (!user) return NextResponse.json({ error: "auth" }, { status: 401 });
@@ -154,7 +144,7 @@ export async function POST(req: Request) {
   // ---- Layer 1: extraction only
   let x: ExtractedFacts & { requirements: ExtractedRequirement[]; risks: ExtractedRisk[] };
   try {
-    x = await openai(apiKey, {
+    x = await openaiJson(apiKey, {
       model,
       temperature: 0,
       response_format: { type: "json_schema", json_schema: { name: "tender_extraction", strict: true, schema: SCHEMA } },
@@ -173,9 +163,11 @@ RULES
         },
         { role: "user", content: doc.text },
       ],
-    });
+    }, "extract");
   } catch (e) {
-    return NextResponse.json({ error: "extract-failed", detail: (e as Error).message }, { status: 502 });
+    if (e instanceof OpenAIError) return NextResponse.json({ success: false, error: e.code, detail: e.message }, { status: httpStatusFor(e.code) });
+    console.error("[analyze] extraction failed:", (e as Error).message);
+    return NextResponse.json({ success: false, error: "EXTRACT_FAILED", detail: (e as Error).message }, { status: 502 });
   }
 
   // ---- Engine input, with explicit assumptions where the document is silent
@@ -230,7 +222,7 @@ RULES
   if (budget > 0) {
     const r = analyzeTender({ ...spec, specPages: [] }, body.company);
     try {
-      const out = await openai(apiKey, {
+      const out = await openaiJson(apiKey, {
         model,
         temperature: 0.2,
         response_format: {
@@ -274,11 +266,12 @@ RULES
             }),
           },
         ],
-      });
+      }, "summary");
       summary = Array.isArray(out.bullets) ? out.bullets.slice(0, 6) : [];
       recommendation = out.recommendation ?? null;
-    } catch {
+    } catch (e) {
       // The dashboard falls back to the deterministic plain-language summary.
+      console.warn("[analyze] summary skipped:", (e as Error).message);
     }
   }
 
@@ -314,5 +307,5 @@ RULES
     summaryLang: lang,
     truncatedPages: doc.truncated,
   };
-  return NextResponse.json(response);
+  return NextResponse.json({ success: true, ...response });
 }

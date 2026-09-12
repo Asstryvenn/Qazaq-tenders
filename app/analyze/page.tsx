@@ -11,6 +11,7 @@ import { extractPdfText } from "@/lib/pdf-extract";
 import { loadUploads, removeUpload, saveUpload } from "@/lib/uploads";
 import type { AnalyzeResponse, UploadAnalysis } from "@/lib/upload-types";
 import { cn } from "@/lib/utils";
+import { apiErrorMessage } from "@/lib/api-errors";
 
 /** PDF → text (browser) → facts (AI) → TOS & money (engine) → dashboard. */
 export default function AnalyzePage() {
@@ -21,6 +22,14 @@ export default function AnalyzePage() {
   const [current, setCurrent] = useState<string | null>(null);
   const [stage, setStage] = useState<Stage>(null);
   const [error, setError] = useState<string | null>(null);
+  // Server integration status (presence only) — shown before the user wastes an upload.
+  const [health, setHealth] = useState<{ openai: boolean } | null>(null);
+  useEffect(() => {
+    fetch("/api/health", { cache: "no-store" })
+      .then((r) => r.json())
+      .then(setHealth)
+      .catch(() => setHealth(null));
+  }, []);
 
   useEffect(() => {
     const list = loadUploads();
@@ -48,15 +57,8 @@ export default function AnalyzePage() {
       const data = await res.json();
       if (!res.ok) {
         if (res.status === 429) billing.openCheckout(billing.plan === "free" ? "pro" : "max");
-        setError(
-          res.status === 401
-            ? tr({ kz: "Талдау үшін аккаунтқа кіріңіз.", ru: "Для анализа войдите в аккаунт." })
-            : res.status === 429
-              ? tr({ kz: "AI сұраныс лимиті бітті — тарифті жаңартыңыз.", ru: "Лимит AI-запросов исчерпан — улучшите тариф." })
-              : data.error === "no-openai-key"
-                ? tr({ kz: "Серверде OpenAI кілті бапталмаған.", ru: "На сервере не настроен ключ OpenAI." })
-                : `${tr({ kz: "Талдау сәтсіз", ru: "Анализ не удался" })}: ${data.detail || data.error}`
-        );
+        // Exact server status: our own codes first, OpenAI's detail kept for debugging.
+        setError(apiErrorMessage(data.error, lang, `${tr({ kz: "Талдау сәтсіз", ru: "Анализ не удался" })}: ${data.detail || data.error || res.status}`));
         return;
       }
 
@@ -101,6 +103,13 @@ export default function AnalyzePage() {
             })}
           </p>
         </div>
+      )}
+
+      {health && !health.openai && !active && (
+        <p className="mb-5 rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
+          ⚠️ {apiErrorMessage("OPENAI_KEY_MISSING", lang)}{" "}
+          {tr({ kz: "Vercel → Settings → Environment Variables бөлімінде қосып, қайта deploy жасаңыз.", ru: "Добавьте его в Vercel → Settings → Environment Variables и сделайте Redeploy." })}
+        </p>
       )}
 
       {active ? (

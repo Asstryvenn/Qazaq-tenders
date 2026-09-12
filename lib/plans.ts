@@ -45,10 +45,4 @@ export const can = (plan: PlanId, feature: Feature) => PLAN_RANK[plan] >= PLAN_R
 
 export const isPlan = (v: unknown): v is PlanId => v === "free" || v === "pro" || v === "max";
 
-/** Model per plan; overridable per deployment. */
-export function modelFor(plan: PlanId, deep: boolean): string {
-  if (plan === "max" && deep) return process.env.OPENAI_MODEL_REASONING || "o3-mini";
-  if (plan === "max") return process.env.OPENAI_MODEL_MAX || "gpt-4o";
-  if (plan === "pro") return process.env.OPENAI_MODEL_PRO || "gpt-4o";
-  return process.env.OPENAI_MODEL || "gpt-4o-mini";
-}
+// modelFor() lives in lib/server/models.ts — it reads server-only env vars.
