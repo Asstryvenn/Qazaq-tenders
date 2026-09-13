@@ -1630,9 +1630,9 @@
    "twin": "demo",
    "scenario": "neutral",
    "expect": {
-    "tos": 72.6,
-    "netProfit": 764413.793103449,
-    "marginPct": 6.164627363737493,
+    "tos": 80.7,
+    "netProfit": 1340413.793103449,
+    "marginPct": 10.809788654060073,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -1644,17 +1644,17 @@
     "costs": {
      "purchase": 8900000,
      "logistics": 60000,
-     "operating": 1960000,
+     "operating": 1240000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 665586.2068965518
+     "tax": 809586.2068965518
     },
     "payDay": 35,
     "deliveryDay": 20,
     "minBalance": 41324000,
     "reasons": [
-     "thinMargin"
+     "safe"
     ]
    }
   },
@@ -1663,9 +1663,9 @@
    "twin": "demo",
    "scenario": "fuel15",
    "expect": {
-    "tos": 72.6,
-    "netProfit": 764413.793103449,
-    "marginPct": 6.164627363737493,
+    "tos": 80.7,
+    "netProfit": 1340413.793103449,
+    "marginPct": 10.809788654060073,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -1677,17 +1677,17 @@
     "costs": {
      "purchase": 8900000,
      "logistics": 60000,
-     "operating": 1960000,
+     "operating": 1240000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 665586.2068965518
+     "tax": 809586.2068965518
     },
     "payDay": 35,
     "deliveryDay": 20,
     "minBalance": 41324000,
     "reasons": [
-     "thinMargin"
+     "safe"
     ]
    }
   },
@@ -1696,9 +1696,9 @@
    "twin": "demo",
    "scenario": "supplier10",
    "expect": {
-    "tos": 63.7,
-    "netProfit": 150620.6896551717,
-    "marginPct": 1.2146829810900945,
+    "tos": 71.8,
+    "netProfit": 726620.6896551717,
+    "marginPct": 5.859844271412675,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -1706,21 +1706,21 @@
     "trucks": 1,
     "legalRisk": 0.8400000000000001,
     "cashFlowRisk": 10.009038461538463,
-    "verdict": "caution",
+    "verdict": "go",
     "costs": {
      "purchase": 9790000,
      "logistics": 60000,
-     "operating": 1960000,
+     "operating": 1240000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 389379.3103448276
+     "tax": 533379.3103448276
     },
     "payDay": 35,
     "deliveryDay": 20,
     "minBalance": 40434000,
     "reasons": [
-     "lowMargin"
+     "thinMargin"
     ]
    }
   },
@@ -1729,9 +1729,9 @@
    "twin": "demo",
    "scenario": "pay30",
    "expect": {
-    "tos": 61.4,
-    "netProfit": -514482.75862069055,
-    "marginPct": -4.149054505005569,
+    "tos": 80.3,
+    "netProfit": 1340413.793103449,
+    "marginPct": 10.809788654060073,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -1739,21 +1739,21 @@
     "trucks": 1,
     "legalRisk": 0.8400000000000001,
     "cashFlowRisk": 10.51096153846154,
-    "verdict": "caution",
+    "verdict": "go",
     "costs": {
      "purchase": 8900000,
      "logistics": 60000,
-     "operating": 3430000,
+     "operating": 1240000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 474482.7586206897
+     "tax": 809586.2068965518
     },
     "payDay": 65,
     "deliveryDay": 20,
     "minBalance": 39854000,
     "reasons": [
-     "lowMargin"
+     "safe"
     ]
    }
   },
@@ -1762,9 +1762,9 @@
    "twin": "demo",
    "scenario": "all3",
    "expect": {
-    "tos": 61.2,
-    "netProfit": -1281724.137931034,
-    "marginPct": -10.33648498331479,
+    "tos": 71.5,
+    "netProfit": 726620.6896551717,
+    "marginPct": 5.859844271412675,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -1772,21 +1772,21 @@
     "trucks": 1,
     "legalRisk": 0.8400000000000001,
     "cashFlowRisk": 11.281153846153845,
-    "verdict": "caution",
+    "verdict": "go",
     "costs": {
      "purchase": 9790000,
      "logistics": 60000,
-     "operating": 3430000,
+     "operating": 1240000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 351724.1379310345
+     "tax": 533379.3103448276
     },
     "payDay": 65,
     "deliveryDay": 20,
     "minBalance": 38964000,
     "reasons": [
-     "lowMargin"
+     "thinMargin"
     ]
    }
   },
@@ -1795,9 +1795,9 @@
    "twin": "demo",
    "scenario": "late7",
    "expect": {
-    "tos": 67.6,
-    "netProfit": 420573.79310344905,
-    "marginPct": 3.391724137931041,
+    "tos": 79.6,
+    "netProfit": 1270973.793103449,
+    "marginPct": 10.249788654060072,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -1805,21 +1805,20 @@
     "trucks": 1,
     "legalRisk": 0.8400000000000001,
     "cashFlowRisk": 9.610788461538462,
-    "verdict": "caution",
+    "verdict": "go",
     "costs": {
      "purchase": 8900000,
      "logistics": 60000,
-     "operating": 2303000,
+     "operating": 1240000,
      "penalty": 86800,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 579626.2068965518
+     "tax": 792226.2068965518
     },
     "payDay": 42,
     "deliveryDay": 27,
     "minBalance": 40894200,
     "reasons": [
-     "lowMargin",
      "lateScenario"
     ]
    }
@@ -1829,9 +1828,9 @@
    "twin": "demo",
    "scenario": "extend_transport",
    "expect": {
-    "tos": 66.9,
-    "netProfit": 372413.79310344905,
-    "marginPct": 3.003337041156847,
+    "tos": 80.6,
+    "netProfit": 1340413.793103449,
+    "marginPct": 10.809788654060073,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -1839,21 +1838,21 @@
     "trucks": 1,
     "legalRisk": 0.8400000000000001,
     "cashFlowRisk": 9.662884615384618,
-    "verdict": "caution",
+    "verdict": "go",
     "costs": {
      "purchase": 8900000,
      "logistics": 60000,
-     "operating": 2450000,
+     "operating": 1240000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 567586.2068965518
+     "tax": 809586.2068965518
     },
     "payDay": 45,
     "deliveryDay": 30,
     "minBalance": 40834000,
     "reasons": [
-     "lowMargin"
+     "safe"
     ]
    }
   },
@@ -2096,9 +2095,9 @@
    "twin": "general",
    "scenario": "neutral",
    "expect": {
-    "tos": 62.2,
-    "netProfit": 308640,
-    "marginPct": 2.489032258064516,
+    "tos": 75.3,
+    "netProfit": 1236640,
+    "marginPct": 9.972903225806451,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -2106,21 +2105,21 @@
     "trucks": 1,
     "legalRisk": 0.8400000000000001,
     "cashFlowRisk": 3.4962600000000013,
-    "verdict": "caution",
+    "verdict": "go",
     "costs": {
      "purchase": 8900000,
      "logistics": 664200,
-     "operating": 2400000,
+     "operating": 1240000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 77160
+     "tax": 309160
     },
     "payDay": 35,
     "deliveryDay": 20,
     "minBalance": 138345800,
     "reasons": [
-     "lowMargin"
+     "thinMargin"
     ]
    }
   },
@@ -2129,9 +2128,9 @@
    "twin": "general",
    "scenario": "fuel15",
    "expect": {
-    "tos": 61.8,
-    "netProfit": 276758.4000000004,
-    "marginPct": 2.2319225806451644,
+    "tos": 74.9,
+    "netProfit": 1204758.4000000004,
+    "marginPct": 9.7157935483871,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -2139,21 +2138,21 @@
     "trucks": 1,
     "legalRisk": 0.8400000000000001,
     "cashFlowRisk": 3.508215599999998,
-    "verdict": "caution",
+    "verdict": "go",
     "costs": {
      "purchase": 8900000,
      "logistics": 704052,
-     "operating": 2400000,
+     "operating": 1240000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 69189.6
+     "tax": 301189.60000000003
     },
     "payDay": 35,
     "deliveryDay": 20,
     "minBalance": 138305948,
     "reasons": [
-     "lowMargin"
+     "thinMargin"
     ]
    }
   },
@@ -2162,9 +2161,9 @@
    "twin": "general",
    "scenario": "supplier10",
    "expect": {
-    "tos": 57.8,
-    "netProfit": -504200,
-    "marginPct": -4.066129032258065,
+    "tos": 65.2,
+    "netProfit": 524640,
+    "marginPct": 4.230967741935484,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -2176,11 +2175,11 @@
     "costs": {
      "purchase": 9790000,
      "logistics": 664200,
-     "operating": 2400000,
+     "operating": 1240000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 0
+     "tax": 131160
     },
     "payDay": 35,
     "deliveryDay": 20,
@@ -2195,9 +2194,9 @@
    "twin": "general",
    "scenario": "pay30",
    "expect": {
-    "tos": 57.7,
-    "netProfit": -1414200,
-    "marginPct": -11.404838709677419,
+    "tos": 75.2,
+    "netProfit": 1236640,
+    "marginPct": 9.972903225806451,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -2205,21 +2204,21 @@
     "trucks": 1,
     "legalRisk": 0.8400000000000001,
     "cashFlowRisk": 4.036260000000001,
-    "verdict": "caution",
+    "verdict": "go",
     "costs": {
      "purchase": 8900000,
      "logistics": 664200,
-     "operating": 4200000,
+     "operating": 1240000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 0
+     "tax": 309160
     },
     "payDay": 65,
     "deliveryDay": 20,
     "minBalance": 136545800,
     "reasons": [
-     "lowMargin"
+     "thinMargin"
     ]
    }
   },
@@ -2228,9 +2227,9 @@
    "twin": "general",
    "scenario": "all3",
    "expect": {
-    "tos": 57.6,
-    "netProfit": -2344052,
-    "marginPct": -18.90364516129032,
+    "tos": 64.6,
+    "netProfit": 492758.4000000004,
+    "marginPct": 3.9738580645161323,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -2242,11 +2241,11 @@
     "costs": {
      "purchase": 9790000,
      "logistics": 704052,
-     "operating": 4200000,
+     "operating": 1240000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 0
+     "tax": 123189.6
     },
     "payDay": 65,
     "deliveryDay": 20,
@@ -2261,9 +2260,9 @@
    "twin": "general",
    "scenario": "late7",
    "expect": {
-    "tos": 57.8,
-    "netProfit": -121000,
-    "marginPct": -0.9758064516129032,
+    "tos": 74.3,
+    "netProfit": 1167200,
+    "marginPct": 9.412903225806451,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -2271,21 +2270,21 @@
     "trucks": 1,
     "legalRisk": 0.8400000000000001,
     "cashFlowRisk": 3.6483,
-    "verdict": "caution",
+    "verdict": "go",
     "costs": {
      "purchase": 8900000,
      "logistics": 664200,
-     "operating": 2820000,
+     "operating": 1240000,
      "penalty": 86800,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 0
+     "tax": 291800
     },
     "payDay": 42,
     "deliveryDay": 27,
     "minBalance": 137839000,
     "reasons": [
-     "lowMargin",
+     "thinMargin",
      "lateScenario"
     ]
    }
@@ -2295,9 +2294,9 @@
    "twin": "general",
    "scenario": "extend_transport",
    "expect": {
-    "tos": 57.8,
-    "netProfit": -347040,
-    "marginPct": -2.798709677419355,
+    "tos": 73.8,
+    "netProfit": 1130368,
+    "marginPct": 9.115870967741936,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -2305,21 +2304,21 @@
     "trucks": 1,
     "legalRisk": 0.8400000000000001,
     "cashFlowRisk": 3.716111999999998,
-    "verdict": "caution",
+    "verdict": "go",
     "costs": {
      "purchase": 8900000,
      "logistics": 797040,
-     "operating": 3000000,
+     "operating": 1240000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 0
+     "tax": 282592
     },
     "payDay": 45,
     "deliveryDay": 30,
     "minBalance": 137612960,
     "reasons": [
-     "lowMargin"
+     "thinMargin"
     ]
    }
   },
@@ -2947,9 +2946,9 @@
    "twin": "general",
    "scenario": "pay30",
    "expect": {
-    "tos": 66.1,
-    "netProfit": 10748080,
-    "marginPct": 11.195916666666667,
+    "tos": 67,
+    "netProfit": 11228080,
+    "marginPct": 11.695916666666667,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -2961,11 +2960,11 @@
     "costs": {
      "purchase": 71000000,
      "logistics": 1314900,
-     "operating": 10200000,
+     "operating": 9600000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 2687020
+     "tax": 2807020
     },
     "payDay": 165,
     "deliveryDay": 45,
@@ -2981,9 +2980,9 @@
    "twin": "general",
    "scenario": "all3",
    "expect": {
-    "tos": 55,
-    "netProfit": 5004964.799999997,
-    "marginPct": 5.213504999999997,
+    "tos": 55.9,
+    "netProfit": 5484964.799999997,
+    "marginPct": 5.713504999999997,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -2995,11 +2994,11 @@
     "costs": {
      "purchase": 78100000,
      "logistics": 1393794,
-     "operating": 10200000,
+     "operating": 9600000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 1251241.2
+     "tax": 1371241.2000000002
     },
     "payDay": 165,
     "deliveryDay": 45,
@@ -3085,9 +3084,9 @@
    "twin": "demo",
    "scenario": "neutral",
    "expect": {
-    "tos": 60.1,
-    "netProfit": 7729465.517241381,
-    "marginPct": 13.326664684898933,
+    "tos": 71.5,
+    "netProfit": 11517465.517241381,
+    "marginPct": 19.857699167657554,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -3095,15 +3094,15 @@
     "trucks": 1,
     "legalRisk": 19.56,
     "cashFlowRisk": 38.77327644230769,
-    "verdict": "caution",
+    "verdict": "go",
     "costs": {
      "purchase": 34000000,
      "logistics": 513675,
-     "operating": 10535000,
+     "operating": 5800000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 5171859.482758621
+     "tax": 6118859.482758621
     },
     "payDay": 210,
     "deliveryDay": 180,
@@ -3118,9 +3117,9 @@
    "twin": "demo",
    "scenario": "fuel15",
    "expect": {
-    "tos": 60,
-    "netProfit": 7708210,
-    "marginPct": 13.29001724137931,
+    "tos": 71.5,
+    "netProfit": 11496210,
+    "marginPct": 19.82105172413793,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -3128,15 +3127,15 @@
     "trucks": 1,
     "legalRisk": 19.56,
     "cashFlowRisk": 38.79994759615385,
-    "verdict": "caution",
+    "verdict": "go",
     "costs": {
      "purchase": 34000000,
      "logistics": 544495.5,
-     "operating": 10535000,
+     "operating": 5800000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 5162294.5
+     "tax": 6109294.5
     },
     "payDay": 210,
     "deliveryDay": 180,
@@ -3151,9 +3150,9 @@
    "twin": "demo",
    "scenario": "supplier10",
    "expect": {
-    "tos": 52.1,
-    "netProfit": 5384637.931034483,
-    "marginPct": 9.283858501783591,
+    "tos": 63.6,
+    "netProfit": 9172637.931034483,
+    "marginPct": 15.814892984542212,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -3165,17 +3164,16 @@
     "costs": {
      "purchase": 37400000,
      "logistics": 513675,
-     "operating": 10535000,
+     "operating": 5800000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 4116687.0689655175
+     "tax": 5063687.068965517
     },
     "payDay": 210,
     "deliveryDay": 180,
     "minBalance": 3795325,
     "reasons": [
-     "thinMargin",
      "certs"
     ]
    }
@@ -3185,9 +3183,9 @@
    "twin": "demo",
    "scenario": "pay30",
    "expect": {
-    "tos": 56.2,
-    "netProfit": 6553465.517241381,
-    "marginPct": 11.29907847800238,
+    "tos": 71.1,
+    "netProfit": 11517465.517241381,
+    "marginPct": 19.857699167657554,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -3195,15 +3193,15 @@
     "trucks": 1,
     "legalRisk": 19.56,
     "cashFlowRisk": 40.04539182692307,
-    "verdict": "caution",
+    "verdict": "go",
     "costs": {
      "purchase": 34000000,
      "logistics": 513675,
-     "operating": 12005000,
+     "operating": 5800000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 4877859.482758621
+     "tax": 6118859.482758621
     },
     "payDay": 240,
     "deliveryDay": 180,
@@ -3218,9 +3216,9 @@
    "twin": "demo",
    "scenario": "all3",
    "expect": {
-    "tos": 48.1,
-    "netProfit": 4187382.413793102,
-    "marginPct": 7.219624851367418,
+    "tos": 63.1,
+    "netProfit": 9151382.413793102,
+    "marginPct": 15.77824554102259,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -3232,17 +3230,16 @@
     "costs": {
      "purchase": 37400000,
      "logistics": 544495.5,
-     "operating": 12005000,
+     "operating": 5800000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 3813122.086206897
+     "tax": 5054122.086206897
     },
     "payDay": 240,
     "deliveryDay": 180,
     "minBalance": 2294505,
     "reasons": [
-     "thinMargin",
      "certs"
     ]
    }
@@ -3252,9 +3249,9 @@
    "twin": "demo",
    "scenario": "late7",
    "expect": {
-    "tos": 58.1,
-    "netProfit": 7130265.517241381,
-    "marginPct": 12.293561236623072,
+    "tos": 70.3,
+    "netProfit": 11192665.517241381,
+    "marginPct": 19.29769916765755,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -3262,15 +3259,15 @@
     "trucks": 1,
     "legalRisk": 19.56,
     "cashFlowRisk": 39.42144951923077,
-    "verdict": "caution",
+    "verdict": "go",
     "costs": {
      "purchase": 34000000,
      "logistics": 513675,
-     "operating": 10878000,
+     "operating": 5800000,
      "penalty": 406000,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 5022059.482758621
+     "tax": 6037659.482758621
     },
     "payDay": 217,
     "deliveryDay": 187,
@@ -3286,9 +3283,9 @@
    "twin": "demo",
    "scenario": "extend_transport",
    "expect": {
-    "tos": 58.5,
-    "netProfit": 7266613.793103449,
-    "marginPct": 12.528644470868016,
+    "tos": 71.2,
+    "netProfit": 11446613.793103449,
+    "marginPct": 19.735541022592155,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -3296,15 +3293,15 @@
     "trucks": 1,
     "legalRisk": 19.56,
     "cashFlowRisk": 39.286220192307695,
-    "verdict": "caution",
+    "verdict": "go",
     "costs": {
      "purchase": 34000000,
      "logistics": 616410,
-     "operating": 11025000,
+     "operating": 5800000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 5041976.206896552
+     "tax": 6086976.206896552
     },
     "payDay": 220,
     "deliveryDay": 190,
@@ -3566,9 +3563,9 @@
    "twin": "general",
    "scenario": "neutral",
    "expect": {
-    "tos": 75.2,
-    "netProfit": 8249240,
-    "marginPct": 14.222827586206895,
+    "tos": 85.3,
+    "netProfit": 13929240,
+    "marginPct": 24.015931034482758,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -3580,11 +3577,11 @@
     "costs": {
      "purchase": 34000000,
      "logistics": 738450,
-     "operating": 12900000,
+     "operating": 5800000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 2062310
+     "tax": 3482310
     },
     "payDay": 210,
     "deliveryDay": 180,
@@ -3599,9 +3596,9 @@
    "twin": "general",
    "scenario": "fuel15",
    "expect": {
-    "tos": 75,
-    "netProfit": 8213794.3999999985,
-    "marginPct": 14.161714482758619,
+    "tos": 85.3,
+    "netProfit": 13893794.399999999,
+    "marginPct": 23.95481793103448,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -3613,11 +3610,11 @@
     "costs": {
      "purchase": 34000000,
      "logistics": 782757,
-     "operating": 12900000,
+     "operating": 5800000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 2053448.6
+     "tax": 3473448.6
     },
     "payDay": 210,
     "deliveryDay": 180,
@@ -3632,9 +3629,9 @@
    "twin": "general",
    "scenario": "supplier10",
    "expect": {
-    "tos": 66.6,
-    "netProfit": 5529240,
-    "marginPct": 9.533172413793103,
+    "tos": 83.8,
+    "netProfit": 11209240,
+    "marginPct": 19.326275862068965,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -3642,21 +3639,20 @@
     "trucks": 1,
     "legalRisk": 19.56,
     "cashFlowRisk": 15.218535000000003,
-    "verdict": "caution",
+    "verdict": "go",
     "costs": {
      "purchase": 37400000,
      "logistics": 738450,
-     "operating": 12900000,
+     "operating": 5800000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 1382310
+     "tax": 2802310
     },
     "payDay": 210,
     "deliveryDay": 180,
     "minBalance": 99271550,
     "reasons": [
-     "thinMargin",
      "certs"
     ]
    }
@@ -3666,9 +3662,9 @@
    "twin": "general",
    "scenario": "pay30",
    "expect": {
-    "tos": 70.6,
-    "netProfit": 6809240,
-    "marginPct": 11.740068965517242,
+    "tos": 85.1,
+    "netProfit": 13929240,
+    "marginPct": 24.015931034482758,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -3680,11 +3676,11 @@
     "costs": {
      "purchase": 34000000,
      "logistics": 738450,
-     "operating": 14700000,
+     "operating": 5800000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 1702310
+     "tax": 3482310
     },
     "payDay": 240,
     "deliveryDay": 180,
@@ -3699,9 +3695,9 @@
    "twin": "general",
    "scenario": "all3",
    "expect": {
-    "tos": 62,
-    "netProfit": 4053794.3999999985,
-    "marginPct": 6.98930068965517,
+    "tos": 83.5,
+    "netProfit": 11173794.399999999,
+    "marginPct": 19.265162758620686,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -3709,21 +3705,20 @@
     "trucks": 1,
     "legalRisk": 19.56,
     "cashFlowRisk": 15.771827100000001,
-    "verdict": "caution",
+    "verdict": "go",
     "costs": {
      "purchase": 37400000,
      "logistics": 782757,
-     "operating": 14700000,
+     "operating": 5800000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 1013448.6000000001
+     "tax": 2793448.6
     },
     "payDay": 240,
     "deliveryDay": 180,
     "minBalance": 97427243,
     "reasons": [
-     "thinMargin",
      "certs"
     ]
    }
@@ -3733,9 +3728,9 @@
    "twin": "general",
    "scenario": "late7",
    "expect": {
-    "tos": 73.1,
-    "netProfit": 7588440,
-    "marginPct": 13.083517241379312,
+    "tos": 85.2,
+    "netProfit": 13604440,
+    "marginPct": 23.45593103448276,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -3747,11 +3742,11 @@
     "costs": {
      "purchase": 34000000,
      "logistics": 738450,
-     "operating": 13320000,
+     "operating": 5800000,
      "penalty": 406000,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 1897110
+     "tax": 3401110
     },
     "payDay": 217,
     "deliveryDay": 187,
@@ -3767,9 +3762,9 @@
    "twin": "general",
    "scenario": "extend_transport",
    "expect": {
-    "tos": 73.3,
-    "netProfit": 7651088,
-    "marginPct": 13.19153103448276,
+    "tos": 85.2,
+    "netProfit": 13811088,
+    "marginPct": 23.812220689655174,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -3781,11 +3776,11 @@
     "costs": {
      "purchase": 34000000,
      "logistics": 886140,
-     "operating": 13500000,
+     "operating": 5800000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 1912772
+     "tax": 3452772
     },
     "payDay": 220,
     "deliveryDay": 190,
@@ -3800,9 +3795,9 @@
    "twin": "demo",
    "scenario": "neutral",
    "expect": {
-    "tos": 40.2,
-    "netProfit": 492965.5172413811,
-    "marginPct": 1.5649698960043843,
+    "tos": 42.5,
+    "netProfit": 912965.5172413811,
+    "marginPct": 2.898303229337718,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -3814,11 +3809,11 @@
     "costs": {
      "purchase": 25800000,
      "logistics": 664200,
-     "operating": 3675000,
+     "operating": 3150000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 817834.4827586208
+     "tax": 922834.4827586208
     },
     "payDay": 70,
     "deliveryDay": 25,
@@ -3835,9 +3830,9 @@
    "twin": "demo",
    "scenario": "fuel15",
    "expect": {
-    "tos": 40,
-    "netProfit": 465481.3793103434,
-    "marginPct": 1.4777186644772808,
+    "tos": 42.4,
+    "netProfit": 885481.3793103434,
+    "marginPct": 2.811051997810614,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -3849,11 +3844,11 @@
     "costs": {
      "purchase": 25800000,
      "logistics": 704052,
-     "operating": 3675000,
+     "operating": 3150000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 805466.6206896553
+     "tax": 910466.6206896553
     },
     "payDay": 70,
     "deliveryDay": 25,
@@ -3871,8 +3866,8 @@
    "scenario": "supplier10",
    "expect": {
     "tos": 36.8,
-    "netProfit": -1607931.0344827622,
-    "marginPct": -5.104542966611944,
+    "netProfit": -1082931.0344827622,
+    "marginPct": -3.437876299945277,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -3884,7 +3879,7 @@
     "costs": {
      "purchase": 28380000.000000004,
      "logistics": 664200,
-     "operating": 3675000,
+     "operating": 3150000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
@@ -3905,9 +3900,9 @@
    "twin": "demo",
    "scenario": "pay30",
    "expect": {
-    "tos": 37.1,
-    "netProfit": -853793.1034482755,
-    "marginPct": -2.710454296661192,
+    "tos": 42.2,
+    "netProfit": 912965.5172413811,
+    "marginPct": 2.898303229337718,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -3919,11 +3914,11 @@
     "costs": {
      "purchase": 25800000,
      "logistics": 664200,
-     "operating": 5145000,
+     "operating": 3150000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 694593.103448276
+     "tax": 922834.4827586208
     },
     "payDay": 100,
     "deliveryDay": 25,
@@ -3941,8 +3936,8 @@
    "scenario": "all3",
    "expect": {
     "tos": 36.4,
-    "netProfit": -3112286.206896551,
-    "marginPct": -9.880273672687464,
+    "netProfit": -1117286.2068965547,
+    "marginPct": -3.546940339354142,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -3954,7 +3949,7 @@
     "costs": {
      "purchase": 28380000.000000004,
      "logistics": 704052,
-     "operating": 5145000,
+     "operating": 3150000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
@@ -3975,9 +3970,9 @@
    "twin": "demo",
    "scenario": "late7",
    "expect": {
-    "tos": 37.3,
-    "netProfit": -57543.10344827548,
-    "marginPct": -0.1826765188834142,
+    "tos": 40.9,
+    "netProfit": 648365.5172413811,
+    "marginPct": 2.0583032293377177,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -3989,11 +3984,11 @@
     "costs": {
      "purchase": 25800000,
      "logistics": 664200,
-     "operating": 4018000,
+     "operating": 3150000,
      "penalty": 330750,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 694593.103448276
+     "tax": 856684.4827586208
     },
     "payDay": 77,
     "deliveryDay": 32,
@@ -4011,9 +4006,9 @@
    "twin": "demo",
    "scenario": "extend_transport",
    "expect": {
-    "tos": 37.4,
-    "netProfit": 9351.724137932062,
-    "marginPct": 0.02968801313629226,
+    "tos": 41.9,
+    "netProfit": 821351.7241379321,
+    "marginPct": 2.60746579091407,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -4025,11 +4020,11 @@
     "costs": {
      "purchase": 25800000,
      "logistics": 797040,
-     "operating": 4165000,
+     "operating": 3150000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 678608.275862069
+     "tax": 881608.275862069
     },
     "payDay": 80,
     "deliveryDay": 35,
@@ -4311,9 +4306,9 @@
    "twin": "general",
    "scenario": "neutral",
    "expect": {
-    "tos": 59.9,
-    "netProfit": 872000,
-    "marginPct": 2.768253968253968,
+    "tos": 65.9,
+    "netProfit": 1952000,
+    "marginPct": 6.196825396825397,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -4325,17 +4320,17 @@
     "costs": {
      "purchase": 25800000,
      "logistics": 60000,
-     "operating": 4500000,
+     "operating": 3150000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 218000
+     "tax": 488000
     },
     "payDay": 70,
     "deliveryDay": 25,
     "minBalance": 119950000,
     "reasons": [
-     "lowMargin",
+     "thinMargin",
      "certs",
      "hidden"
     ]
@@ -4346,9 +4341,9 @@
    "twin": "general",
    "scenario": "fuel15",
    "expect": {
-    "tos": 59.9,
-    "netProfit": 872000,
-    "marginPct": 2.768253968253968,
+    "tos": 65.9,
+    "netProfit": 1952000,
+    "marginPct": 6.196825396825397,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -4360,17 +4355,17 @@
     "costs": {
      "purchase": 25800000,
      "logistics": 60000,
-     "operating": 4500000,
+     "operating": 3150000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 218000
+     "tax": 488000
     },
     "payDay": 70,
     "deliveryDay": 25,
     "minBalance": 119950000,
     "reasons": [
-     "lowMargin",
+     "thinMargin",
      "certs",
      "hidden"
     ]
@@ -4382,8 +4377,8 @@
    "scenario": "supplier10",
    "expect": {
     "tos": 54.8,
-    "netProfit": -1490000.0000000037,
-    "marginPct": -4.730158730158742,
+    "netProfit": -140000.00000000373,
+    "marginPct": -0.44444444444445624,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -4391,11 +4386,11 @@
     "trucks": 1,
     "legalRisk": 35.89,
     "cashFlowRisk": 9.789000000000001,
-    "verdict": "caution",
+    "verdict": "no-go",
     "costs": {
      "purchase": 28380000.000000004,
      "logistics": 60000,
-     "operating": 4500000,
+     "operating": 3150000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
@@ -4416,9 +4411,9 @@
    "twin": "general",
    "scenario": "pay30",
    "expect": {
-    "tos": 54.9,
-    "netProfit": -710000,
-    "marginPct": -2.253968253968254,
+    "tos": 65.7,
+    "netProfit": 1952000,
+    "marginPct": 6.196825396825397,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -4430,17 +4425,17 @@
     "costs": {
      "purchase": 25800000,
      "logistics": 60000,
-     "operating": 6300000,
+     "operating": 3150000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 0
+     "tax": 488000
     },
     "payDay": 100,
     "deliveryDay": 25,
     "minBalance": 118150000,
     "reasons": [
-     "lowMargin",
+     "thinMargin",
      "certs",
      "hidden"
     ]
@@ -4452,8 +4447,8 @@
    "scenario": "all3",
    "expect": {
     "tos": 54.6,
-    "netProfit": -3290000,
-    "marginPct": -10.444444444444445,
+    "netProfit": -140000.00000000373,
+    "marginPct": -0.44444444444445624,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -4461,11 +4456,11 @@
     "trucks": 1,
     "legalRisk": 35.89,
     "cashFlowRisk": 10.329,
-    "verdict": "caution",
+    "verdict": "no-go",
     "costs": {
      "purchase": 28380000.000000004,
      "logistics": 60000,
-     "operating": 6300000,
+     "operating": 3150000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
@@ -4486,9 +4481,9 @@
    "twin": "general",
    "scenario": "late7",
    "expect": {
-    "tos": 56.5,
-    "netProfit": 271400,
-    "marginPct": 0.8615873015873016,
+    "tos": 64.3,
+    "netProfit": 1687400,
+    "marginPct": 5.356825396825396,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -4500,17 +4495,17 @@
     "costs": {
      "purchase": 25800000,
      "logistics": 60000,
-     "operating": 4920000,
+     "operating": 3150000,
      "penalty": 330750,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 67850
+     "tax": 421850
     },
     "payDay": 77,
     "deliveryDay": 32,
     "minBalance": 119199250,
     "reasons": [
-     "lowMargin",
+     "thinMargin",
      "certs",
      "hidden",
      "lateScenario"
@@ -4522,9 +4517,9 @@
    "twin": "general",
    "scenario": "extend_transport",
    "expect": {
-    "tos": 57.2,
-    "netProfit": 392000,
-    "marginPct": 1.2444444444444445,
+    "tos": 65.8,
+    "netProfit": 1952000,
+    "marginPct": 6.196825396825397,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -4536,17 +4531,17 @@
     "costs": {
      "purchase": 25800000,
      "logistics": 60000,
-     "operating": 5100000,
+     "operating": 3150000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 98000
+     "tax": 488000
     },
     "payDay": 80,
     "deliveryDay": 35,
     "minBalance": 119350000,
     "reasons": [
-     "lowMargin",
+     "thinMargin",
      "certs",
      "hidden"
     ]
@@ -6172,9 +6167,9 @@
    "twin": "demo",
    "scenario": "pay30",
    "expect": {
-    "tos": 30.9,
-    "netProfit": 667327.1950873882,
-    "marginPct": 1.0346158063370359,
+    "tos": 31.2,
+    "netProfit": 799327.1950873882,
+    "marginPct": 1.2392669691277336,
     "cashFlowGap": true,
     "gapDay": 24,
     "maxDeficit": 9651850,
@@ -6186,11 +6181,11 @@
     "costs": {
      "purchase": 51000000,
      "logistics": 4280850,
-     "operating": 6615000,
+     "operating": 6450000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 448384.1095890411,
-     "tax": 1438438.695323571
+     "tax": 1471438.695323571
     },
     "payDay": 130,
     "deliveryDay": 40,
@@ -6209,8 +6204,8 @@
    "scenario": "all3",
    "expect": {
     "tos": 28,
-    "netProfit": -4154478.969428435,
-    "marginPct": -6.44105266578052,
+    "netProfit": -3989478.969428435,
+    "marginPct": -6.185238712292147,
     "cashFlowGap": true,
     "gapDay": 24,
     "maxDeficit": 15008701,
@@ -6222,7 +6217,7 @@
     "costs": {
      "purchase": 56100000.00000001,
      "logistics": 4537701,
-     "operating": 6615000,
+     "operating": 6450000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 819047.0728767123,
@@ -6653,7 +6648,7 @@
     "trucks": 3,
     "legalRisk": 2.5199999999999996,
     "cashFlowRisk": 19.489649999999997,
-    "verdict": "caution",
+    "verdict": "no-go",
     "costs": {
      "purchase": 56100000.00000001,
      "logistics": 2875500,
@@ -6676,9 +6671,9 @@
    "twin": "general",
    "scenario": "pay30",
    "expect": {
-    "tos": 55.8,
-    "netProfit": 1979600,
-    "marginPct": 3.0691472868217056,
+    "tos": 59.4,
+    "netProfit": 3299600,
+    "marginPct": 5.115658914728682,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -6690,17 +6685,17 @@
     "costs": {
      "purchase": 51000000,
      "logistics": 2875500,
-     "operating": 8100000,
+     "operating": 6450000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 494900
+     "tax": 824900
     },
     "payDay": 130,
     "deliveryDay": 40,
     "minBalance": 88334500,
     "reasons": [
-     "lowMargin"
+     "thinMargin"
     ]
    }
   },
@@ -6710,8 +6705,8 @@
    "scenario": "all3",
    "expect": {
     "tos": 50,
-    "netProfit": -2798030,
-    "marginPct": -4.338031007751938,
+    "netProfit": -1148030.0000000075,
+    "marginPct": -1.7798914728682287,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -6719,11 +6714,11 @@
     "trucks": 3,
     "legalRisk": 2.5199999999999996,
     "cashFlowRisk": 20.081408999999997,
-    "verdict": "caution",
+    "verdict": "no-go",
     "costs": {
      "purchase": 56100000.00000001,
      "logistics": 3048030,
-     "operating": 8100000,
+     "operating": 6450000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
@@ -6742,9 +6737,9 @@
    "twin": "general",
    "scenario": "late7",
    "expect": {
-    "tos": 57.4,
-    "netProfit": 2541800,
-    "marginPct": 3.940775193798449,
+    "tos": 58,
+    "netProfit": 2757800,
+    "marginPct": 4.275658914728682,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -6756,11 +6751,11 @@
     "costs": {
      "purchase": 51000000,
      "logistics": 2875500,
-     "operating": 6720000,
+     "operating": 6450000,
      "penalty": 677250,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 635450
+     "tax": 689450
     },
     "payDay": 107,
     "deliveryDay": 47,
@@ -6776,9 +6771,9 @@
    "twin": "general",
    "scenario": "extend_transport",
    "expect": {
-    "tos": 57.2,
-    "netProfit": 2479520,
-    "marginPct": 3.8442170542635656,
+    "tos": 58.2,
+    "netProfit": 2839520,
+    "marginPct": 4.402356589147287,
     "cashFlowGap": false,
     "gapDay": null,
     "maxDeficit": 0,
@@ -6790,11 +6785,11 @@
     "costs": {
      "purchase": 51000000,
      "logistics": 3450600,
-     "operating": 6900000,
+     "operating": 6450000,
      "penalty": 0,
      "guarantee": 50000,
      "bank": 0,
-     "tax": 619880
+     "tax": 709880
     },
     "payDay": 110,
     "deliveryDay": 50,
@@ -7398,7 +7393,7 @@
     "trucks": 21,
     "legalRisk": 13.26,
     "cashFlowRisk": 33.469094999999996,
-    "verdict": "caution",
+    "verdict": "no-go",
     "costs": {
      "purchase": 133100000.00000001,
      "logistics": 3373650,
@@ -7466,7 +7461,7 @@
     "trucks": 21,
     "legalRisk": 13.26,
     "cashFlowRisk": 34.0698207,
-    "verdict": "caution",
+    "verdict": "no-go",
     "costs": {
      "purchase": 133100000.00000001,
      "logistics": 3576069,

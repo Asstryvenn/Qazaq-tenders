@@ -128,9 +128,13 @@ const goszakup: SourceAdapter = {
 // months ago, so those lots are real but already closed. A paid token returns current lots.
 const TENDERPLUS_URL = "https://api.tenderplus.kz/graphql";
 
+// E-shop micro purchases (paper for 23 000 ₸) are not what an SME bids on and make the
+// simulator meaningless — only lots from this amount are requested.
+const TP_MIN_SUM = 500_000;
+
 const TP_QUERY = `
-  query Lots($limit: Int) {
-    lot(pagination: { limit: $limit }) {
+  query Lots($limit: Int, $filter: LotFilter) {
+    lot(pagination: { limit: $limit }, filter: $filter) {
       id
       lot
       lot_source_id
@@ -243,7 +247,7 @@ async function tpRequest(token: string) {
   return fetch(TENDERPLUS_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ query: TP_QUERY, variables: { limit: 100 } }),
+    body: JSON.stringify({ query: TP_QUERY, variables: { limit: 100, filter: { beginSum: TP_MIN_SUM } } }),
     next: { revalidate: 300 },
   });
 }

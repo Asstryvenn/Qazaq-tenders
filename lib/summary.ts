@@ -16,8 +16,12 @@ export function plainSummary(r: AnalysisResult, t: TenderSpec, lang: Lang): Plai
   const kz = lang === "kz";
   const points: string[] = [];
 
-  const headline =
-    r.verdict === "go"
+  const loss = r.netProfit <= 0;
+  const headline = loss
+    ? kz
+      ? `Бұл тендер шығынды: ${k(r.netProfit)}. Қатыспаған дұрыс.`
+      : `Тендер убыточный: ${k(r.netProfit)}. Лучше не участвовать.`
+    : r.verdict === "go"
       ? kz
         ? `Бұл тендер пайдалы: ${k(r.netProfit)} таза пайда әкеледі және ақша жетеді.`
         : `Тендер выгоден: принесёт ${k(r.netProfit)} чистой прибыли, и денег хватает.`
@@ -53,9 +57,13 @@ export function plainSummary(r: AnalysisResult, t: TenderSpec, lang: Lang): Plai
 
   // Where the money goes.
   points.push(
-    kz
-      ? `Әр 100 теңгенің ${Math.round((r.costs.purchase / t.contractAmount) * 100)} теңгесі тауарға кетеді, сізде ${Math.max(0, Math.round(r.marginPct))} теңге қалады.`
-      : `Из каждых 100 тенге ${Math.round((r.costs.purchase / t.contractAmount) * 100)} уходят на товар, у вас остаётся ${Math.max(0, Math.round(r.marginPct))}.`
+    loss
+      ? kz
+        ? `Шығындар шарт сомасынан (${k(t.contractAmount)}) асады: тауар, жеткізу, салық пен банк бірге ${k(t.contractAmount - r.netProfit)} тұрады.`
+        : `Расходы больше суммы договора (${k(t.contractAmount)}): товар, доставка, налоги и банк вместе стоят ${k(t.contractAmount - r.netProfit)}.`
+      : kz
+        ? `Әр 100 теңгенің ${Math.round((r.costs.purchase / t.contractAmount) * 100)} теңгесі тауарға кетеді, сізде ${Math.max(0, Math.round(r.marginPct))} теңге қалады.`
+        : `Из каждых 100 тенге ${Math.round((r.costs.purchase / t.contractAmount) * 100)} уходят на товар, у вас остаётся ${Math.max(0, Math.round(r.marginPct))}.`
   );
 
   points.push(

@@ -62,6 +62,10 @@ TOS_WEIGHTS: Dict[str, float] = {"w1": 0.35, "w2": 0.30, "w3": 0.15, "w4": 0.20}
 # Маржа, которая считается «отличной»: 20 % → оценка маржи 100.
 TARGET_MARGIN_PCT = 20.0
 
+# Постоянные расходы, отнесённые на один договор, — не больше этой доли его суммы:
+# компания ведёт много договоров, и лот на 300 000 ₸ не может нести недели всего OPEX.
+MAX_OPEX_SHARE = 0.10
+
 # День подписания договора: в этот день возвращается обеспечение заявки.
 SIGNING_DAY = 5
 
@@ -402,7 +406,7 @@ def analyze_tender(tender: TenderSpec, company: CompanyTwin, scenario: Optional[
     costs: Dict[str, float] = {
         "purchase": tender.purchase_cost * (1 + sc.supplier_delta_pct / 100),
         "logistics": freight.cost,
-        "operating": (company.monthly_opex / 30) * company.opex_allocation * horizon,
+        "operating": min((company.monthly_opex / 30) * company.opex_allocation * horizon, s * MAX_OPEX_SHARE),
         "penalty": statutory_penalty(s, tender.penalty_rate, sc.late_days),
         # Гарантия исполнения должна быть открыта, пока заказчик не заплатит
         "guarantee": bank_guarantee_fee(performance_security, pay_day - SIGNING_DAY),
@@ -484,7 +488,8 @@ def analyze_tender(tender: TenderSpec, company: CompanyTwin, scenario: Optional[
     if not reasons:
         reasons.append(Reason(code="safe", data={"min": float(sim.rounded.min())}))
 
-    verdict = "go" if tos >= 70 and gap_day is None else "caution" if tos >= 45 else "no-go"
+    # Убыточный договор никогда не рекомендуем, как бы хорошо ни выглядели остальные компоненты
+    verdict = "no-go" if profit <= 0 else "go" if tos >= 70 and gap_day is None else "caution" if tos >= 45 else "no-go"
 
     return AnalysisResult(
         tender_id=tender.id,

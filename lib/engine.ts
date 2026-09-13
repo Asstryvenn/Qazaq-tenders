@@ -22,6 +22,12 @@ export const TOS_WEIGHTS = { w1: 0.35, w2: 0.3, w3: 0.15, w4: 0.2 } as const;
 /** Margin considered "excellent" — maps to a margin score of 100. */
 export const TARGET_MARGIN_PCT = 20;
 
+/**
+ * Overhead charged to one contract is capped at this share of its amount: a firm runs many
+ * contracts at once, so a 300 000 ₸ lot cannot carry weeks of the whole company's OPEX.
+ */
+export const MAX_OPEX_SHARE = 0.1;
+
 /** Bid security is returned once the contract is signed. */
 const SIGNING_DAY = 5;
 
@@ -151,7 +157,7 @@ export function analyzeTender(
   const costs: CostBreakdown = {
     purchase: tender.purchaseCost * (1 + scenario.supplierDeltaPct / 100),
     logistics: freight.cost,
-    operating: (company.monthlyOpex / 30) * company.opexAllocation * horizon,
+    operating: Math.min((company.monthlyOpex / 30) * company.opexAllocation * horizon, S * MAX_OPEX_SHARE),
     penalty: statutoryPenalty(S, tender.penaltyRate, scenario.lateDays),
     // Guarantee must stay open until the customer has paid.
     guarantee: bankGuaranteeFee(performanceSecurity, payDay - SIGNING_DAY),
@@ -223,7 +229,9 @@ export function analyzeTender(
   reasons.push(...legal.reasons);
   if (!reasons.length) reasons.push({ code: "safe", min: Math.min(...timeline.map((p) => p.balance)) });
 
-  const verdict: AnalysisResult["verdict"] = tos >= 70 && cf.gapDay === null ? "go" : tos >= 45 ? "caution" : "no-go";
+  // A loss-making contract is never recommended, however healthy the other components are.
+  const verdict: AnalysisResult["verdict"] =
+    netProfit <= 0 ? "no-go" : tos >= 70 && cf.gapDay === null ? "go" : tos >= 45 ? "caution" : "no-go";
 
   return {
     tenderId: tender.id,
