@@ -5,18 +5,28 @@ export type Severity = "low" | "medium" | "high";
 
 export interface ExtractedRisk {
   title: string;
+  titleKz?: string;
+  titleRu?: string;
   /** Verbatim clause from the document */
   clause: string;
+  clauseKz?: string;
+  clauseRu?: string;
   page: number | null;
   severity: Severity;
   why: string;
+  whyKz?: string;
+  whyRu?: string;
 }
 
 export interface ExtractedRequirement {
   text: string;
+  textKz?: string;
+  textRu?: string;
   page: number | null;
   kind: RequirementKind;
   proof: string;
+  proofKz?: string;
+  proofRu?: string;
   isBase: boolean;
 }
 
@@ -53,6 +63,8 @@ export interface Assumptions {
 
 export interface UploadAnalysis {
   id: string;
+  /** 2 = AI-generated Kazakh and Russian display copies are present. */
+  localizationVersion?: 2;
   /** Source lot this PDF was attached to from its document checklist. */
   linkedTenderId?: string;
   fileName: string;

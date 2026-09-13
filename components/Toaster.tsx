@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { useNotifications } from "@/lib/notifications";
 import { KIND_META } from "./NotificationBell";
+import { useI18n } from "@/lib/i18n";
 
 const EXTRA = {
   info: { icon: "ℹ️", color: "#60a5fa" },
@@ -15,6 +16,7 @@ const EXTRA = {
 /** Floating toasts, top-right under the navbar. */
 export function Toaster() {
   const { toasts, dismissToast } = useNotifications();
+  const { tr } = useI18n();
   return (
     <div className="pointer-events-none fixed right-4 top-20 z-[100] flex w-[min(92vw,360px)] flex-col gap-2.5" aria-live="polite">
       <AnimatePresence initial={false}>
@@ -48,7 +50,7 @@ export function Toaster() {
               ) : (
                 inner
               )}
-              <button onClick={() => dismissToast(t.id)} aria-label="Close" className="absolute right-2 top-2 rounded p-1 text-slate-400 hover:text-white">
+              <button onClick={() => dismissToast(t.id)} aria-label={tr({ kz: "Жабу", ru: "Закрыть" })} className="absolute right-2 top-2 rounded p-1 text-slate-400 hover:text-white">
                 <X className="h-3.5 w-3.5" />
               </button>
             </motion.div>

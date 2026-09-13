@@ -101,21 +101,23 @@ function PdfSheet() {
   return (
     <div className="relative mx-auto max-w-lg rotate-[-0.6deg] rounded-md bg-[#f8f6f0] px-6 py-5 font-serif text-[13.5px] leading-relaxed text-slate-700 shadow-[0_20px_40px_-18px_rgba(0,0,0,0.8)]">
       <span className="absolute right-4 top-3 rounded border border-slate-300 px-1.5 font-sans text-[10px] font-semibold text-slate-500">PDF · 1/12</span>
-      <p className="mb-3 text-center font-sans text-[12px] font-bold uppercase tracking-wider text-slate-800">Техническая спецификация № 0417</p>
-      <p>
-        Сумма закупки: <Mark>84 000 000 тенге</Mark>.
+      <p className="mb-3 text-center font-sans text-[12px] font-bold uppercase tracking-wider text-slate-800">
+        {tr({ kz: "№ 0417 техникалық ерекшелік", ru: "Техническая спецификация № 0417" })}
       </p>
       <p>
-        Срок поставки: <Mark>30 календарных дней</Mark> с даты заключения договора.
+        {tr({ kz: "Сатып алу сомасы", ru: "Сумма закупки" })}: <Mark>84 000 000 {tr({ kz: "теңге", ru: "тенге" })}</Mark>.
       </p>
       <p>
-        Оплата: в течение <Mark>30 дней</Mark> после подписания акта приёмки.
+        {tr({ kz: "Жеткізу мерзімі", ru: "Срок поставки" })}: <Mark>30 {tr({ kz: "күнтізбелік күн", ru: "календарных дней" })}</Mark> {tr({ kz: "шарт жасалған күннен бастап", ru: "с даты заключения договора" })}.
       </p>
       <p>
-        Неустойка: <Mark>0,1%</Mark> за каждый день просрочки, не более 10%.
+        {tr({ kz: "Төлем", ru: "Оплата" })}: {tr({ kz: "қабылдау актісіне қол қойылғаннан кейін", ru: "в течение" })} <Mark>30 {tr({ kz: "күн ішінде", ru: "дней" })}</Mark>{tr({ kz: "", ru: " после подписания акта приёмки" })}.
       </p>
       <p>
-        Требуется: <Mark>ISO 9001</Mark>, опыт <Mark>от 3 лет</Mark>.
+        {tr({ kz: "Тұрақсыздық айыбы", ru: "Неустойка" })}: <Mark>0,1%</Mark> {tr({ kz: "әрбір кешіктірілген күн үшін, бірақ 10%-дан аспайды", ru: "за каждый день просрочки, не более 10%" })}.
+      </p>
+      <p>
+        {tr({ kz: "Талап етіледі", ru: "Требуется" })}: <Mark>ISO 9001</Mark>, {tr({ kz: "тәжірибе", ru: "опыт" })} <Mark>{tr({ kz: "кемінде 3 жыл", ru: "от 3 лет" })}</Mark>.
       </p>
       <p className="mt-3 border-t border-dashed border-slate-300 pt-2 font-sans text-[11px] text-slate-500">
         {tr({ kz: "Сары түспен — AI шығаратын фактілер", ru: "Жёлтым — факты, которые извлечёт AI" })}

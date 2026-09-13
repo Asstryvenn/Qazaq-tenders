@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Bar, BarChart, Cell, CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AlertTriangle, CheckCircle2, ChevronDown, CircleHelp, FileText, Sparkles, Trash2, XCircle } from "lucide-react";
@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { SupplierPanel } from "@/components/SupplierPanel";
 import { ActionGuide } from "@/components/ActionGuide";
 import type { SupplierOffer } from "@/lib/suppliers";
+import { useBilling } from "@/lib/billing-client";
 
 const SEV = {
   high: { tone: "crimson" as const, color: "#f43f5e", kz: "Жоғары қауіп", ru: "Высокий риск" },
@@ -32,11 +33,65 @@ const SEV = {
 export function AnalysisDashboard({ upload, onUpdate, onDelete }: { upload: UploadAnalysis; onUpdate: (u: UploadAnalysis) => void; onDelete: () => void }) {
   const { tr, kzt, lang } = useI18n();
   const { company } = useProfile();
+  const billing = useBilling();
   const spec = upload.spec;
   const S = spec.contractAmount;
   const ready = S > 0;
   const [scenario, setScenario] = useState(NEUTRAL_SCENARIO);
   const [selectedSupplierId, setSelectedSupplierId] = useState<string>();
+  const localizationAttempt = useRef<string | null>(null);
+
+  // Analyses saved before the bilingual contract are upgraded once, in place.
+  // New analyses already carry both languages and never make this extra request.
+  useEffect(() => {
+    if (upload.localizationVersion === 2 || localizationAttempt.current === upload.id) return;
+    localizationAttempt.current = upload.id;
+    const localize = async () => {
+      try {
+        const response = await fetch("/api/localize-analysis", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...billing.headers() },
+          body: JSON.stringify({
+            title: spec.title,
+            requirements: upload.requirements.map(({ text, proof }) => ({ text, proof })),
+            risks: upload.risks.map(({ title, clause, why }) => ({ title, clause, why })),
+          }),
+        });
+        if (!response.ok) return;
+        const data = await response.json();
+        if (data.requirements?.length !== upload.requirements.length || data.risks?.length !== upload.risks.length) return;
+        const requirements = upload.requirements.map((item, index) => ({ ...item, ...data.requirements[index] }));
+        const risks = upload.risks.map((item, index) => ({ ...item, ...data.risks[index] }));
+        onUpdate({
+          ...upload,
+          localizationVersion: 2,
+          requirements,
+          risks,
+          spec: {
+            ...spec,
+            title: data.titleRu || spec.title,
+            titleKz: data.titleKz || spec.titleKz,
+            qualificationRequirements: requirements.filter((requirement) => !requirement.isBase),
+            hiddenRequirements: risks
+              .filter((risk) => risk.severity !== "low" && risk.page != null)
+              .map((risk) => ({
+                clause: risk.clause,
+                clauseKz: risk.clauseKz,
+                clauseRu: risk.clauseRu,
+                page: risk.page as number,
+                severity: risk.severity,
+                reason: risk.why,
+                reasonKz: risk.whyKz,
+                reasonRu: risk.whyRu,
+              })),
+          },
+        });
+      } catch {
+        // Keep the original source text if translation is temporarily unavailable.
+      }
+    };
+    void localize();
+  }, [billing, onUpdate, spec, upload]);
 
   const result = useMemo(() => (ready ? analyzeTender(spec, company, scenario) : null), [spec, company, ready, scenario]);
 
@@ -79,6 +134,8 @@ export function AnalysisDashboard({ upload, onUpdate, onDelete }: { upload: Uplo
     : [];
 
   const certOk = (c: string) => company.certificates.some((x) => x.toLowerCase().includes(c.toLowerCase()) || c.toLowerCase().includes(x.toLowerCase()));
+  const requirementText = (r: UploadAnalysis["requirements"][number]) =>
+    lang === "kz" ? r.textKz || r.text : r.textRu || r.text;
 
   return (
     <div className="space-y-6">
@@ -106,7 +163,7 @@ export function AnalysisDashboard({ upload, onUpdate, onDelete }: { upload: Uplo
           >
             <Sparkles className="h-4 w-4" /> {tr({ kz: "AI Studio-да сұрау", ru: "Спросить в AI Studio" })}
           </Link>
-          <button onClick={onDelete} className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3.5 py-2 text-sm text-slate-300 hover:bg-white/10" aria-label="Delete">
+          <button onClick={onDelete} className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3.5 py-2 text-sm text-slate-300 hover:bg-white/10" aria-label={tr({ kz: "Талдауды жою", ru: "Удалить анализ" })}>
             <Trash2 className="h-4 w-4" />
           </button>
         </div>
@@ -313,7 +370,7 @@ export function AnalysisDashboard({ upload, onUpdate, onDelete }: { upload: Uplo
             {upload.requirements
               .filter((r) => !r.isBase && r.kind !== "certificate" && r.kind !== "experience")
               .map((r, i) => (
-                <Req key={i} ok={null} text={r.text} page={r.page} />
+                <Req key={i} ok={null} text={requirementText(r)} page={r.page} />
               ))}
             {upload.facts.requiredExperienceYears == null && !spec.requiredCertificates.length && !upload.requirements.some((r) => !r.isBase) && (
               <li className="text-sm text-slate-400">{tr({ kz: "Талаптар табылмады.", ru: "Требования не найдены." })}</li>
@@ -374,14 +431,17 @@ function Tile({ label, value, sub, note, page, color }: { label: string; value: 
 }
 
 function RiskCard({ risk, defaultOpen }: { risk: UploadAnalysis["risks"][number]; defaultOpen?: boolean }) {
-  const { tr } = useI18n();
+  const { tr, lang } = useI18n();
   const [open, setOpen] = useState(!!defaultOpen);
   const m = SEV[risk.severity];
+  const title = lang === "kz" ? risk.titleKz || risk.title : risk.titleRu || risk.title;
+  const clause = lang === "kz" ? risk.clauseKz || risk.clause : risk.clauseRu || risk.clause;
+  const why = lang === "kz" ? risk.whyKz || risk.why : risk.whyRu || risk.why;
   return (
     <div className="overflow-hidden rounded-xl border" style={{ borderColor: `${m.color}55`, background: `${m.color}0f` }}>
       <button onClick={() => setOpen((o) => !o)} aria-expanded={open} className="flex w-full items-center gap-3 px-4 py-3 text-left">
         <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: m.color, boxShadow: `0 0 10px ${m.color}` }} />
-        <span className="min-w-0 flex-1 text-sm font-medium text-slate-100">{risk.title}</span>
+        <span className="min-w-0 flex-1 text-sm font-medium text-slate-100">{title}</span>
         {risk.page != null && <span className="shrink-0 rounded bg-white/10 px-1.5 py-0.5 font-mono text-[11px] text-sky-200">{tr({ kz: `бет ${risk.page}`, ru: `стр. ${risk.page}` })}</span>}
         <Badge tone={m.tone} className="shrink-0">
           {tr(m)}
@@ -390,8 +450,8 @@ function RiskCard({ risk, defaultOpen }: { risk: UploadAnalysis["risks"][number]
       </button>
       {open && (
         <div className="space-y-2 border-t border-white/10 px-4 py-3">
-          <blockquote className="border-l-2 border-white/20 pl-3 font-serif text-sm italic text-slate-300">«{risk.clause}»</blockquote>
-          <p className="text-sm leading-relaxed text-slate-200">{risk.why}</p>
+          <blockquote className="border-l-2 border-white/20 pl-3 font-serif text-sm italic text-slate-300">«{clause}»</blockquote>
+          <p className="text-sm leading-relaxed text-slate-200">{why}</p>
         </div>
       )}
     </div>

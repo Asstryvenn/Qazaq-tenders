@@ -19,7 +19,7 @@ function LangToggle() {
     { v: "ru", label: "RU" },
   ];
   return (
-    <div role="group" aria-label="Language" className="relative flex rounded-lg border border-white/10 bg-white/5 p-0.5">
+    <div role="group" aria-label={lang === "kz" ? "Тіл" : "Язык"} className="relative flex rounded-lg border border-white/10 bg-white/5 p-0.5">
       {opts.map((o) => (
         <button
           key={o.v}
@@ -47,7 +47,7 @@ function LangToggle() {
 function ThemeToggle() {
   const { theme, toggle } = useTheme();
   const { tr } = useI18n();
-  const label = theme === "dark" ? tr({ kz: "Жарық тема", ru: "Светлая тема" }) : tr({ kz: "Қараңғы тема", ru: "Тёмная тема" });
+  const label = theme === "dark" ? tr({ kz: "Жарық режим", ru: "Светлая тема" }) : tr({ kz: "Қараңғы режим", ru: "Тёмная тема" });
   return (
     <button
       onClick={toggle}

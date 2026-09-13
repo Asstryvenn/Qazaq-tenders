@@ -101,7 +101,9 @@ export function TenderCard({
             {t.dash.gapShort} · {result.gapDay}
           </Badge>
         )}
-        {tender.advancePercentage > 0 && <Badge tone="blue">{tr({ kz: "аванс", ru: "аванс" })} {tender.advancePercentage}%</Badge>}
+        {tender.advancePercentage > 0 && (
+          <Badge tone="blue">{tr({ kz: "алдын ала төлем", ru: "аванс" })} {tender.advancePercentage}%</Badge>
+        )}
         {tender.estimated && <Badge tone="neutral">{t.feed.estimated}</Badge>}
         <div className="ml-auto flex items-center gap-1">
           {onTelegram && (

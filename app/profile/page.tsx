@@ -33,12 +33,11 @@ function Toggle({ on, onChange, label }: { on: boolean; onChange: (v: boolean) =
 }
 
 export default function ProfilePage() {
-  const { t, tr, kzt, city } = useI18n();
+  const { t, tr, kzt, city, lang } = useI18n();
   const { company, openModal, isDemo, session, signOut } = useProfile();
   const { feed, results, toast } = useNotifications();
   const tg = useTelegramLink();
   const billing = useBilling();
-  const { lang } = useI18n();
   const { settings, loading } = tg;
   const [sending, setSending] = useState(false);
 
@@ -94,7 +93,7 @@ export default function ProfilePage() {
     ["Telegram", company.telegramUsername || "—"],
     [tr({ kz: "Салық режимі", ru: "Налоговый режим" }), t.onb.regimes[company.taxRegime].title],
     [tr({ kz: "Айналым капиталы", ru: "Оборотный капитал" }), kzt(company.workingCapital)],
-    [tr({ kz: "База", ru: "База" }), `${city(company.baseCityId)} · ${company.maxDistanceKm} km`],
+    [tr({ kz: "База", ru: "База" }), `${city(company.baseCityId)} · ${company.maxDistanceKm} ${t.units.km}`],
     [tr({ kz: "Сертификаттар", ru: "Сертификаты" }), company.certificates.join(", ") || "—"],
   ];
 
@@ -216,7 +215,7 @@ export default function ProfilePage() {
                       ru: `AI: осталось ${billing.status.remaining}/${billing.status.limit} (${billing.status.period === "day" ? "сегодня" : "в этом месяце"})`,
                     })
                   : ""}
-                {billing.status?.until ? ` · ${tr({ kz: "дейін", ru: "до" })} ${new Date(billing.status.until).toLocaleDateString()}` : ""}
+                {billing.status?.until ? ` · ${tr({ kz: "дейін", ru: "до" })} ${new Date(billing.status.until).toLocaleDateString(lang === "kz" ? "kk-KZ" : "ru-RU")}` : ""}
               </p>
             </div>
             {billing.plan !== "max" && (

@@ -160,7 +160,7 @@ export function CheckoutModal() {
               <dd className="font-mono text-white">{priceLabel(selected, lang)}</dd>
             </div>
             <div className="mt-2 flex justify-between">
-              <dt className="text-slate-400">Invoice</dt>
+              <dt className="text-slate-400">{tr({ kz: "Төлем шоты", ru: "Счёт" })}</dt>
               <dd className="font-mono text-xs text-slate-300">{test.invoiceId}</dd>
             </div>
           </dl>

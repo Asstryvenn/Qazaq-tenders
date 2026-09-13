@@ -164,7 +164,7 @@ export function RegisterWizard() {
       <motion.div key={step} initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.18 }} className="space-y-4">
           {step === 0 && (
             <>
-              <Field label="Email" error={show("email")}>
+              <Field label={tr({ kz: "Электрондық пошта", ru: "Электронная почта" })} error={show("email")}>
                 <input type="email" autoComplete="email" className={inputCls} value={f.email} onChange={(e) => set("email", e.target.value)} onBlur={() => touch("email")} />
               </Field>
               <Field label={t.auth.password} error={show("password")} hint={t.auth.passwordHint}>
@@ -177,7 +177,7 @@ export function RegisterWizard() {
                     onChange={(e) => set("password", e.target.value)}
                     onBlur={() => touch("password")}
                   />
-                  <button type="button" onClick={() => setShowPw((v) => !v)} aria-label="toggle password" className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white">
+                  <button type="button" onClick={() => setShowPw((v) => !v)} aria-label={tr({ kz: "Құпиясөзді көрсету немесе жасыру", ru: "Показать или скрыть пароль" })} className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white">
                     {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
@@ -222,7 +222,7 @@ export function RegisterWizard() {
                 </div>
               </Field>
               <Field label={t.onb.name} error={show("name")}>
-                <input placeholder='ТОО "Алтын Логистик"' className={inputCls} value={f.name} onChange={(e) => set("name", e.target.value)} onBlur={() => touch("name")} />
+                <input placeholder={tr({ kz: '"Алтын Логистик" ЖШС', ru: 'ТОО "Алтын Логистик"' })} className={inputCls} value={f.name} onChange={(e) => set("name", e.target.value)} onBlur={() => touch("name")} />
               </Field>
               <Field label={tr({ kz: "Заңды мекенжай", ru: "Юридический адрес" })} error={show("legalAddress")}>
                 <input

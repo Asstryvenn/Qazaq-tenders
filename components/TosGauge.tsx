@@ -16,7 +16,7 @@ export function TosGauge({
   verdict?: Verdict;
   size?: number;
 }) {
-  const { t } = useI18n();
+  const { t, tr } = useI18n();
   const tone = tosTone(verdict ?? value);
   const stroke = 12;
   const r = (size - stroke) / 2;
@@ -72,7 +72,7 @@ export function TosGauge({
         >
           {display}
         </motion.span>
-        <span className="mt-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-400">TOS Index</span>
+        <span className="mt-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-400">{tr({ kz: "TOS индексі", ru: "Индекс TOS" })}</span>
         <span
           className="mt-2.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold"
           style={{ color: tone.text, borderColor: `${tone.color}80`, background: `${tone.color}26` }}

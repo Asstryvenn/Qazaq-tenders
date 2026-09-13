@@ -10,7 +10,7 @@ const severityTone = { high: "crimson", medium: "amber", low: "blue" } as const;
 
 /** "Why is this tender risky?" — engine reasons + RAG sieve findings. */
 export function RiskAlerts({ result, tender }: { result: AnalysisResult; tender: TenderSpec }) {
-  const { t, reason } = useI18n();
+  const { t, reason, lang } = useI18n();
   const safe = result.verdict === "go" && !result.cashFlowGap;
   const dot = safe ? "#10b981" : "#f43f5e";
 
@@ -52,20 +52,24 @@ export function RiskAlerts({ result, tender }: { result: AnalysisResult; tender:
           <h4 className="text-sm font-semibold text-white">{t.dash.hiddenTitle}</h4>
         </div>
         {tender.hiddenRequirements.length ? (
-          tender.hiddenRequirements.map((hr) => (
-            <div key={hr.clause} className="rounded-xl border border-amber-400/20 bg-amber-400/[0.05] p-3.5">
-              <div className="mb-1.5 flex items-start justify-between gap-3">
-                <p className="text-sm leading-snug text-slate-100">«{hr.clause}»</p>
-                <Badge tone={severityTone[hr.severity]} className="shrink-0">
-                  {t.dash.severity[hr.severity]}
-                </Badge>
+          tender.hiddenRequirements.map((hr) => {
+            const clause = lang === "kz" ? hr.clauseKz || hr.clause : hr.clauseRu || hr.clause;
+            const explanation = lang === "kz" ? hr.reasonKz || hr.reason : hr.reasonRu || hr.reason;
+            return (
+              <div key={`${hr.page}:${hr.clause}`} className="rounded-xl border border-amber-400/20 bg-amber-400/[0.05] p-3.5">
+                <div className="mb-1.5 flex items-start justify-between gap-3">
+                  <p className="text-sm leading-snug text-slate-100">«{clause}»</p>
+                  <Badge tone={severityTone[hr.severity]} className="shrink-0">
+                    {t.dash.severity[hr.severity]}
+                  </Badge>
+                </div>
+                <p className="text-xs leading-relaxed text-slate-400">
+                  <span className="mr-1.5 font-mono text-amber-300">{lang === "kz" ? "бет" : "стр."} {hr.page}</span>
+                  {explanation}
+                </p>
               </div>
-              <p className="text-xs leading-relaxed text-slate-400">
-                <span className="mr-1.5 font-mono text-amber-300">p.{hr.page}</span>
-                {hr.reason}
-              </p>
-            </div>
-          ))
+            );
+          })
         ) : (
           <p className="rounded-xl border border-emerald-400/20 bg-emerald-400/[0.05] p-3.5 text-sm text-emerald-200">
             {t.dash.hiddenNone}

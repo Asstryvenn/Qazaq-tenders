@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { useEffect } from "react";
+import { useI18n } from "@/lib/i18n";
 
 /** Glass modal shell with backdrop, Escape-to-close and focus-friendly layout. */
 export function Modal({
@@ -20,6 +21,7 @@ export function Modal({
   children: React.ReactNode;
   width?: string;
 }) {
+  const { tr } = useI18n();
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -49,7 +51,7 @@ export function Modal({
           >
             <button
               onClick={onClose}
-              aria-label="Close"
+              aria-label={tr({ kz: "Жабу", ru: "Закрыть" })}
               className="absolute right-4 top-4 rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-white/10 hover:text-white"
             >
               <X className="h-4 w-4" />

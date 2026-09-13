@@ -212,7 +212,7 @@ export default function AiStudioPage() {
       {/* Sidebar */}
       <aside className={cn("relative z-10 flex shrink-0 flex-col border-r border-white/10 bg-ink-900/85 backdrop-blur-xl transition-[width] duration-300", sidebar ? "w-72" : "w-16")}>
         <div className="flex items-center gap-2 p-3">
-          <button onClick={() => setSidebar((v) => !v)} aria-label="Toggle sidebar" className="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-slate-300 transition-colors hover:bg-white/10 hover:text-white">
+          <button onClick={() => setSidebar((v) => !v)} aria-label={tr({ kz: "Бүйір панельді ашу немесе жабу", ru: "Открыть или закрыть боковую панель" })} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-slate-300 transition-colors hover:bg-white/10 hover:text-white">
             {sidebar ? <PanelLeftClose className="h-5 w-5" /> : <PanelLeftOpen className="h-5 w-5" />}
           </button>
           {sidebar && <span className="bg-gradient-to-r from-sky-300 via-violet-300 to-pink-300 bg-clip-text text-sm font-semibold text-transparent">AI Studio</span>}
@@ -259,7 +259,7 @@ export default function AiStudioPage() {
                         setSessions((x) => x.filter((y) => y.id !== s.id));
                         if (activeId === s.id) setActiveId(null);
                       }}
-                      aria-label="Delete"
+                      aria-label={tr({ kz: "Чатты жою", ru: "Удалить чат" })}
                       className="absolute right-1.5 top-2 hidden rounded-lg p-1 text-slate-500 hover:bg-white/10 hover:text-rose-300 group-hover:block"
                     >
                       <Trash2 className="h-3.5 w-3.5" />

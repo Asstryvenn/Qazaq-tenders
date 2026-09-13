@@ -38,9 +38,9 @@ export function Hero() {
         >
           <span className="text-gradient">Qazaq Tenders:</span>{" "}
           <span className="bg-gradient-to-r from-blue-400 via-sky-300 to-emerald-400 bg-clip-text text-transparent">
-            Intelligent Economic Simulator
+            {t.hero.titleMid}
           </span>{" "}
-          <span className="text-gradient">for SME Procurement</span>
+          <span className="text-gradient">{t.hero.titleTail}</span>
         </motion.h1>
 
         <motion.p

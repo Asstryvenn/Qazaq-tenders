@@ -180,19 +180,22 @@ export function requiredDocs(t: TenderSpec, c: CompanyProfile): DocItem[] {
   };
   const existing = new Set(docs.map((d) => `${d.title.ru} ${d.where.ru}`.toLowerCase()));
   specific.forEach((requirement, index) => {
-    const normalized = requirement.text.toLowerCase();
+    const textKz = requirement.textKz?.trim() || requirement.text;
+    const textRu = requirement.textRu?.trim() || requirement.text;
+    const normalized = `${textKz} ${textRu}`.toLowerCase();
     if (Array.from(existing).some((value) => normalized.includes(value) || value.includes(normalized))) return;
     const meta = kindMeta[requirement.kind] ?? kindMeta.other;
-    const proof = requirement.proof?.trim() || "Подготовьте документальное подтверждение требования из технической спецификации.";
+    const proofKz = requirement.proofKz?.trim() || requirement.proof?.trim() || "Техникалық ерекшеліктегі талапты растайтын құжатты дайындаңыз.";
+    const proofRu = requirement.proofRu?.trim() || requirement.proof?.trim() || "Подготовьте документальное подтверждение требования из технической спецификации.";
     const owned =
       requirement.kind === "certificate" || requirement.kind === "license"
         ? c.certificates.some((cert) => normalized.includes(cert.toLowerCase()))
         : requirement.kind === "experience" && c.experienceYears >= t.requiredExperienceYears;
     docs.push({
       id: `req:${index}:${requirement.kind}`,
-      title: { kz: requirement.text, ru: requirement.text },
-      where: { kz: proof, ru: proof },
-      steps: [{ kz: proof, ru: proof }],
+      title: { kz: textKz, ru: textRu },
+      where: { kz: proofKz, ru: proofRu },
+      steps: [{ kz: proofKz, ru: proofRu }],
       links: meta.links,
       leadDays: meta.days,
       owned,
@@ -204,13 +207,17 @@ export function requiredDocs(t: TenderSpec, c: CompanyProfile): DocItem[] {
   });
 
   t.hiddenRequirements.forEach((requirement, index) => {
-    const normalized = requirement.clause.toLowerCase();
+    const clauseKz = requirement.clauseKz?.trim() || requirement.clause;
+    const clauseRu = requirement.clauseRu?.trim() || requirement.clause;
+    const reasonKz = requirement.reasonKz?.trim() || requirement.reason;
+    const reasonRu = requirement.reasonRu?.trim() || requirement.reason;
+    const normalized = `${clauseKz} ${clauseRu}`.toLowerCase();
     if (Array.from(existing).some((value) => normalized.includes(value) || value.includes(normalized))) return;
     docs.push({
       id: `risk:${index}`,
-      title: { kz: requirement.clause, ru: requirement.clause },
-      where: { kz: requirement.reason, ru: requirement.reason },
-      steps: [{ kz: requirement.reason, ru: requirement.reason }],
+      title: { kz: clauseKz, ru: clauseRu },
+      where: { kz: reasonKz, ru: reasonRu },
+      steps: [{ kz: reasonKz, ru: reasonRu }],
       links: [],
       leadDays: requirement.severity === "high" ? 5 : 2,
       owned: false,

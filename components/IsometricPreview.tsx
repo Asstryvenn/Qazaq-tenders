@@ -69,7 +69,7 @@ export function IsometricPreview() {
           {[
             { label: c.margin, value: "17.3%", color: "#6ee7b7" },
             { label: c.gap, value: c.none, color: "#93c5fd" },
-            { label: c.reach, value: "260 km", color: "#c7d2fe" },
+            { label: c.reach, value: `260 ${t.units.km}`, color: "#c7d2fe" },
           ].map((m) => (
             <div key={m.label} className="rounded-xl border border-white/5 bg-white/[0.03] py-2.5">
               <p className="font-mono text-sm font-medium" style={{ color: m.color }}>

@@ -209,7 +209,7 @@ export default function AnalyzePage() {
                 <span className="min-w-0">
                   <span className="block truncate text-sm font-medium text-white">{u.spec.title}</span>
                   <span className="block truncate text-xs text-slate-400">
-                    {u.fileName} · {u.numPages} {tr({ kz: "бет", ru: "стр." })} · {new Date(u.createdAt).toLocaleDateString()}
+                    {u.fileName} · {u.numPages} {tr({ kz: "бет", ru: "стр." })} · {new Date(u.createdAt).toLocaleDateString(lang === "kz" ? "kk-KZ" : "ru-RU")}
                   </span>
                 </span>
               </button>

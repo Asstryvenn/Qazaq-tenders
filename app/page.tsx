@@ -16,7 +16,7 @@ const FEATURE_ICONS = [Wallet, Calculator, Route, FileSearch, Layers, Brain];
 const FEATURE_GLOW = ["crimson", "blue", "blue", "blue", "emerald", "blue"] as const;
 
 export default function LandingPage() {
-  const { t, lang } = useI18n();
+  const { t, lang, tr } = useI18n();
   const L = t.landing;
 
   return (
@@ -31,12 +31,12 @@ export default function LandingPage() {
 
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
           <GlassCard glow="blue" className="p-8">
-            <Badge tone="blue" className="mb-4">Layer 1 · AI</Badge>
+            <Badge tone="blue" className="mb-4">{tr({ kz: "1-қабат · AI", ru: "Слой 1 · AI" })}</Badge>
             <h3 className="text-lg font-semibold text-white">{t.flow.steps[1].title}</h3>
             <p className="mt-3 text-sm leading-relaxed text-slate-300">{t.flow.steps[1].detail}</p>
           </GlassCard>
           <GlassCard glow="emerald" className="p-8">
-            <Badge tone="emerald" className="mb-4">Layer 2 · Economics</Badge>
+            <Badge tone="emerald" className="mb-4">{tr({ kz: "2-қабат · Экономика", ru: "Слой 2 · Экономика" })}</Badge>
             <h3 className="text-lg font-semibold text-white">{t.flow.steps[2].title}</h3>
             <p className="mt-3 text-sm leading-relaxed text-slate-300">{t.flow.steps[2].detail}</p>
             <div className="mt-5 rounded-xl border border-white/10 bg-black/30 px-4 py-1">

@@ -9,7 +9,7 @@ import { GlassCard } from "@/components/ui/GlassCard";
 import { useI18n } from "@/lib/i18n";
 
 export function SupplierPanel({ tender, selectedId, onSelect }: { tender: TenderSpec; selectedId?: string; onSelect: (offer: SupplierOffer) => void }) {
-  const { tr, kzt } = useI18n();
+  const { tr, kzt, lang } = useI18n();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [offers, setOffers] = useState<SupplierOffer[]>([]);
@@ -63,7 +63,7 @@ export function SupplierPanel({ tender, selectedId, onSelect }: { tender: Tender
                   </div>
                   <p className="shrink-0 font-mono text-sm text-emerald-300">{kzt(offer.totalPriceKzt)}</p>
                 </div>
-                <p className="mt-2 text-[11px] text-slate-500">{offer.city || "—"} · {offer.source} · {new Date(offer.updatedAt).toLocaleString()}</p>
+                <p className="mt-2 text-[11px] text-slate-500">{offer.city || "—"} · {offer.source} · {new Date(offer.updatedAt).toLocaleString(lang === "kz" ? "kk-KZ" : "ru-RU")}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button onClick={() => onSelect(offer)} className="rounded-lg bg-sky-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-400">
                     {selectedId === offer.id ? "✓ " : ""}{tr({ kz: "Есепке қолдану", ru: "Применить к расчёту" })}

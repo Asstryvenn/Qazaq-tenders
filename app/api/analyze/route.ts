@@ -40,11 +40,13 @@ const SCHEMA = {
   required: [
     "title", "customer", "city", "budgetKzt", "deliveryDays", "paymentDelayDays", "advancePct", "penaltyRatePctPerDay",
     "penaltyCapPct", "bidSecurityPct", "performanceSecurityPct", "bidDeadline", "cargoTonnes", "requiredExperienceYears",
-    "requiredCertificates", "requirements", "risks", "factPages",
+    "titleKz", "titleRu", "requiredCertificates", "requirements", "risks", "factPages",
     "category", "items", "smartDefaults",
   ],
   properties: {
     title: s,
+    titleKz: s,
+    titleRu: s,
     customer: s,
     city: s,
     budgetKzt: n,
@@ -86,12 +88,16 @@ const SCHEMA = {
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["text", "page", "kind", "proof", "isBase"],
+        required: ["text", "textKz", "textRu", "page", "kind", "proof", "proofKz", "proofRu", "isBase"],
         properties: {
           text: { type: "string" },
+          textKz: { type: "string" },
+          textRu: { type: "string" },
           page: i,
           kind: { type: "string", enum: ["certificate", "license", "experience", "staff", "equipment", "technical", "sample", "warranty", "delivery", "financial", "other"] },
           proof: { type: "string" },
+          proofKz: { type: "string" },
+          proofRu: { type: "string" },
           isBase: { type: "boolean" },
         },
       },
@@ -101,13 +107,19 @@ const SCHEMA = {
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["title", "clause", "page", "severity", "why"],
+        required: ["title", "titleKz", "titleRu", "clause", "clauseKz", "clauseRu", "page", "severity", "why", "whyKz", "whyRu"],
         properties: {
           title: { type: "string" },
+          titleKz: { type: "string" },
+          titleRu: { type: "string" },
           clause: { type: "string" },
+          clauseKz: { type: "string" },
+          clauseRu: { type: "string" },
           page: i,
           severity: { type: "string", enum: ["low", "medium", "high"] },
           why: { type: "string" },
+          whyKz: { type: "string" },
+          whyRu: { type: "string" },
         },
       },
     },
@@ -195,12 +207,15 @@ RULES
 - items: up to 20 principal nomenclature lines with quantity/unit. estimatedUnitWeightKg may be a conservative category estimate; never invent quantity.
 - smartDefaults.purchaseCostKzt: when there is no supplier quote, budget × category share: electronics .80, furniture .72, construction .78, medical .76, office .70, services .55, other .78. Mark isSmartDefault=true, confidence .70-.80 and explain evidence.
 - smartDefaults.cargoTonnes: use document weight with isSmartDefault=false/.98; otherwise sum quantity × estimatedUnitWeightKg or make a conservative category estimate, mark true and explain it.
-- risks: clauses that are dangerous for a small supplier — harsh or uncapped penalties, long payment deferral, no advance with large purchases, unrealistic deadlines, brand/article lock-in, regional or excessive experience demands, own-equipment demands, extra guarantees, one-sided termination. clause = short verbatim quote (≤ 200 chars). title and why in ${language}. Up to 8, most severe first.
+- title is the original document title. titleKz and titleRu are faithful Kazakh and Russian display versions.
+- risks: clauses that are dangerous for a small supplier — harsh or uncapped penalties, long payment deferral, no advance with large purchases, unrealistic deadlines, brand/article lock-in, regional or excessive experience demands, own-equipment demands, extra guarantees, one-sided termination. clause = short verbatim quote (≤ 200 chars). Keep title/clause/why in the source language; also produce faithful titleKz/clauseKz/whyKz and titleRu/clauseRu/whyRu. Up to 8, most severe first.
 - requirements: extract EVERY requirement imposed on the potential supplier in this exact specification: certificates/licences,
   analogous experience, named specialists and qualifications, owned or leased equipment/warehouse/transport, product parameters,
   samples/test reports, manufacturer authorisation, warranty/service centre, delivery schedule, financial security and other attachments.
-  Preserve concrete thresholds, quantities, standards, brands and deadlines. text is a concise faithful requirement in ${language};
-  page is the source page; proof says what document/evidence the bidder should attach. Set isBase=true only for universal portal
+  Preserve concrete thresholds, quantities, standards, brands and deadlines. text keeps the source-language wording;
+  textKz and textRu are faithful display versions. page is the source page; proof keeps the source language, while proofKz and
+  proofRu say in both UI languages what document/evidence the bidder should attach. Never return English unless it is an official
+  product, company or standard name. Set isBase=true only for universal portal
   boilerplate (application form, tax-debt statement, legal-entity registration, standard bid security). Lot-specific requirements,
   even if common in the industry, must be isBase=false. Do not invent requirements absent from the document.`,
         },
@@ -221,6 +236,8 @@ RULES
   const id = `upload-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
   const risks = (x.risks ?? []).slice(0, 8);
   const raw = x as typeof x & {
+    titleKz?: string | null;
+    titleRu?: string | null;
     category?: string;
     items?: Array<{ name: string; quantity: number; unit: string; estimatedUnitWeightKg: number | null }>;
     smartDefaults?: { purchaseCostKzt?: { value: number; confidence: number; evidence: string }; cargoTonnes?: { value: number; confidence: number; evidence: string } };
@@ -248,8 +265,8 @@ RULES
     sourceUrl: "",
     isDemo: false,
     estimated: true,
-    title: x.title || body.fileName,
-    titleKz: x.title || body.fileName,
+    title: raw.titleRu || x.title || body.fileName,
+    titleKz: raw.titleKz || x.title || body.fileName,
     customer: x.customer || "—",
     contractAmount: budget,
     advancePercentage: pct(x.advancePct) ?? 0,
@@ -263,7 +280,16 @@ RULES
     requiredCertificates: x.requiredCertificates ?? [],
     hiddenRequirements: risks
       .filter((r) => r.severity !== "low" && r.page != null)
-      .map((r) => ({ clause: r.clause, page: r.page as number, severity: r.severity, reason: r.why })),
+      .map((r) => ({
+        clause: r.clause,
+        clauseKz: r.clauseKz,
+        clauseRu: r.clauseRu,
+        page: r.page as number,
+        severity: r.severity,
+        reason: r.why,
+        reasonKz: r.whyKz,
+        reasonRu: r.whyRu,
+      })),
     qualificationRequirements: (x.requirements ?? []).filter((requirement) => !requirement.isBase),
     deadline,
     ...(pct(x.bidSecurityPct) != null && { bidSecurityRate: (x.bidSecurityPct as number) / 100 }),
@@ -370,6 +396,7 @@ RULES
 
   const response: AnalyzeResponse = {
     id,
+    localizationVersion: 2,
     spec,
     costShare: DEFAULT_COST_SHARE,
     facts,

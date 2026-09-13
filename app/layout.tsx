@@ -14,9 +14,8 @@ import { CheckoutModal } from "@/components/billing/CheckoutModal";
 import { AccountGate } from "@/components/AccountGate";
 
 export const metadata: Metadata = {
-  title: "Qazaq Tenders — Intelligent Economic Simulator for SME Procurement",
-  description:
-    "Simulate cash flow, analyze tender profitability, and detect liquidity risks before bidding.",
+  title: "Qazaq Tenders — бизнеске арналған тендер симуляторы",
+  description: "Тендердің табыстылығын, ақша ағынын және өтімділік тәуекелдерін өтінім бермес бұрын бағалау.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

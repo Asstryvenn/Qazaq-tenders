@@ -27,7 +27,7 @@ import { NEUTRAL_SCENARIO, Scenario, TenderSpec } from "@/lib/types";
 import type { SupplierOffer } from "@/lib/suppliers";
 
 export default function TenderPage({ params }: { params: { id: string } }) {
-  const { t, kzt, city, lotTitle } = useI18n();
+  const { t, tr, kzt, city, lotTitle } = useI18n();
   const { company } = useProfile();
   const [tender, setTender] = useState<TenderSpec | null | undefined>(undefined);
   const [scenario, setScenario] = useState<Scenario>(NEUTRAL_SCENARIO);
@@ -112,10 +112,17 @@ export default function TenderPage({ params }: { params: { id: string } }) {
           <Badge tone="neutral">
             {t.dash.deferral} {tender.paymentDelayDays} {t.units.days}
           </Badge>
-          {tender.advancePercentage > 0 && <Badge tone="blue">аванс {tender.advancePercentage}%</Badge>}
+          {tender.advancePercentage > 0 && (
+            <Badge tone="blue">
+              {tr({ kz: "алдын ала төлем", ru: "аванс" })} {tender.advancePercentage}%
+            </Badge>
+          )}
           {tender.estimated && <Badge tone="neutral">{t.feed.estimated}</Badge>}
           <Badge tone={result.confidenceLabel === "verified" ? "emerald" : "blue"}>
-            {result.confidenceLevel?.toFixed(0)}% {result.confidenceLabel === "verified" ? "verified" : "Smart AI"}
+            {result.confidenceLevel?.toFixed(0)}%{" "}
+            {result.confidenceLabel === "verified"
+              ? tr({ kz: "расталған", ru: "проверено" })
+              : tr({ kz: "AI бағалауы", ru: "AI-оценка" })}
           </Badge>
           <Badge tone={badgeTone}>{t.verdict[tone.key]}</Badge>
         </div>

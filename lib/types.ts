@@ -77,20 +77,30 @@ export type RequirementKind =
   | "other";
 
 export interface QualificationRequirement {
+  /** Faithful source-language wording kept for audit/history. */
   text: string;
+  /** Display translations generated together, so the language toggle is instant. */
+  textKz?: string;
+  textRu?: string;
   page: number | null;
   kind: RequirementKind;
   /** What evidence the bidder should attach or prepare. */
   proof: string;
+  proofKz?: string;
+  proofRu?: string;
   /** Universal portal boilerplate is kept out of the lot-specific UI. */
   isBase: boolean;
 }
 
 export interface HiddenRequirement {
   clause: string;
+  clauseKz?: string;
+  clauseRu?: string;
   page: number;
   severity: "low" | "medium" | "high";
   reason: string;
+  reasonKz?: string;
+  reasonRu?: string;
 }
 
 /** The SME "Digital Twin". */
