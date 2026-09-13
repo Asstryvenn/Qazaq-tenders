@@ -171,6 +171,14 @@ class CompanyTwin(BaseModel):
     credit_rate: float = 0.24
     experience_years: float = 3.0
     certificates: List[str] = Field(default_factory=list)
+    # Дистрибуция: доля закупки, оплачиваемая поставщику заранее, % (100 — полная предоплата)
+    supplier_prepay_pct: float = Field(100.0, ge=0, le=100)
+    # Данные реестров РК (company_fetcher)
+    bin: str = ""
+    rnu_listed: bool = False
+    vat_payer: Optional[bool] = None
+    registry_verified: bool = False
+    registry_checked_at: str = ""
 
     @classmethod
     def from_answers(

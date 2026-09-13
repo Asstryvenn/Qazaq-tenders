@@ -98,7 +98,7 @@ def main_risk(spec: TenderSpec, res: AnalysisResult, lang: str) -> str:
         h = hidden[0]
         return f"{esc(h.reason)} ({page} {h.page})"
     by_code = {r.code: r for r in res.reasons}
-    for code in ("certs", "experience", "penalty", "gap", "bankHeavy", "lowMargin", "hidden", "overRadius", "thinMargin"):
+    for code in ("rnu", "certs", "experience", "penalty", "gap", "bankHeavy", "lowMargin", "hidden", "overRadius", "thinMargin"):
         if code in by_code:
             return reason_text(code, by_code[code].data, lang)
     if hidden:
@@ -459,14 +459,20 @@ def twin_view(twin: CompanyTwin, lang: str) -> str:
         exp=num(twin.experience_years),
         certs=esc(", ".join(twin.certificates) or "—"),
     )
-    return f"{t('twin_title', lang)}\n\n{body}\n\n{t('twin_hint', lang)}"
+    extra = [t("prepay_line", lang, pct=pct(twin.supplier_prepay_pct, 0))]
+    if twin.rnu_listed:
+        extra.append(t("rnu_line", lang))
+    elif twin.registry_verified:
+        extra.append(t("registry_verified", lang) + (f" · {esc(twin.bin)}" if twin.bin else ""))
+    return f"{t('twin_title', lang)}\n\n{body}\n" + "\n".join(extra) + f"\n\n{t('twin_hint', lang)}"
 
 
 def twin_keyboard(lang: str) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
+    kb.button(text=t("btn_bin", lang), callback_data=MenuCB(action="bin"))
     kb.button(text=t("btn_edit", lang), callback_data=MenuCB(action="edit_twin"))
     kb.button(text=t("btn_menu", lang), callback_data=MenuCB(action="menu"))
-    kb.adjust(2)
+    kb.adjust(1, 2)
     return kb.as_markup()
 
 
@@ -506,3 +512,30 @@ def assumptions_note(items: List[str], lang: str) -> str:
     if not items:
         return ""
     return "\n\n" + t("assumptions", lang, items=", ".join(t(f"as_{i}", lang) for i in items))
+
+
+def registry_view(profile, lang: str) -> str:
+    """Итог проверки по БИН: что найдено, откуда и что осталось оценкой."""
+    from texts import SOURCE_ICON, SOURCE_LABELS
+
+    lines = [t("registry_verified", lang) if profile.verified and not profile.is_estimated else
+             t("registry_verified", lang) if profile.verified else t("registry_estimated", lang)]
+    if profile.name:
+        lines.append(f"🏢 <b>{esc(profile.name)}</b>")
+    if profile.director_name:
+        lines.append(f"👤 {esc(profile.director_name)}")
+    if profile.legal_address:
+        lines.append(f"📍 {esc(profile.legal_address)}")
+    if profile.registered_on:
+        lines.append(f"📅 {profile.registered_on} · {num(profile.experience_years, 1)} {'жыл' if lang == 'kz' else 'лет'}")
+    if profile.vat_payer is not None:
+        lines.append(f"🧾 {t('vat_yes' if profile.vat_payer else 'vat_no', lang)}")
+    if profile.rnu_listed:
+        lines.append(t("rnu_line", lang))
+    if profile.gov_contracts_count:
+        lines.append(f"📑 {profile.gov_contracts_count} · {money(profile.gov_contracts_sum_kzt or 0, lang)}")
+    if profile.estimated_fields:
+        lines.append(t("registry_fields", lang, items=", ".join(profile.estimated_fields)))
+    lines.append(t("registry_sources", lang, items=" · ".join(
+        f"{SOURCE_ICON.get(s.status, '⚠️')} {SOURCE_LABELS.get(s.id, s.id)}" for s in profile.sources)))
+    return "\n".join(lines)

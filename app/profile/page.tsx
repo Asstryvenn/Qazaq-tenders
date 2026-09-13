@@ -95,6 +95,15 @@ export default function ProfilePage() {
     [tr({ kz: "Айналым капиталы", ru: "Оборотный капитал" }), kzt(company.workingCapital)],
     [tr({ kz: "База", ru: "База" }), `${city(company.baseCityId)} · ${company.maxDistanceKm} ${t.units.km}`],
     [tr({ kz: "Сертификаттар", ru: "Сертификаты" }), company.certificates.join(", ") || "—"],
+    [tr({ kz: "Жеткізушіге алдын ала төлем", ru: "Предоплата поставщику" }), `${company.supplierPrepayPct ?? 100}%`],
+    [
+      tr({ kz: "ҚР тізілімдері", ru: "Реестры РК" }),
+      company.rnuListed
+        ? tr({ kz: "⛔ РНУ-да тұр", ru: "⛔ В реестре РНУ" })
+        : company.registryVerified
+          ? `✓ ${tr({ kz: "Тізілімдер бойынша расталды", ru: "Верифицировано по реестрам РК" })}${company.registryCheckedAt ? ` · ${new Date(company.registryCheckedAt).toLocaleDateString()}` : ""}`
+          : tr({ kz: "тексерілмеген", ru: "не проверено" }),
+    ],
   ];
 
   const statusLine =

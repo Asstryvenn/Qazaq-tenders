@@ -36,6 +36,7 @@ from aiogram.utils.chat_action import ChatActionSender
 from ai_engine import AIEngine, AIError
 from calculator import analyze_tender, meets_min_margin, rank_lots, scenario_from_mask, SUPPORTED_LEVERS_MASK
 from cards import (
+    registry_view,
     LogisticsCB,
     LotCB,
     MenuCB,
@@ -64,6 +65,7 @@ from cards import (
     twin_keyboard,
     twin_view,
 )
+from company_fetcher import RegistryError, fetch_company, is_valid_bin
 from config import Settings, load_settings
 from documents import MAX_FILE_BYTES, DocumentError, detect_kind, extract_pages, find_url, pages_from_url
 from models import AnalysisResult, CompanyTwin, Scenario, SearchQuery, SpecPage, TenderSpec
@@ -107,6 +109,7 @@ def create_app(settings: Settings) -> App:
 class TwinForm(StatesGroup):
     """Шаги FSM-анкеты цифрового двойника."""
 
+    bin = State()
     capital = State()
     city = State()
     margin = State()
@@ -264,6 +267,9 @@ async def on_menu(cb: CallbackQuery, callback_data: MenuCB, state: FSMContext, b
             await msg.answer(twin_view(twin, lang), reply_markup=twin_keyboard(lang))
     elif action == "edit_twin":
         await start_setup(msg, state, lang)
+    elif action == "bin":
+        await state.set_state(TwinForm.bin)
+        await msg.answer(t("ask_bin", lang))
     elif twin is None:  # остальным действиям нужен двойник
         await cb.answer(t("need_twin_short", lang), show_alert=True)
         await start_setup(msg, state, lang)
@@ -446,6 +452,7 @@ SET_FIELDS = {
     "radius": ("max_distance_km", 1, 10, 5000),
     "exp": ("experience_years", 1, 0, 60),
     "credit": ("credit_rate", 0.01, 0, 1),
+    "prepay": ("supplier_prepay_pct", 1, 0, 100),
 }
 
 
@@ -941,3 +948,75 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+
+
+# =========================================================================== #
+# Автозаполнение двойника по БИН/ИИН из реестров РК                            #
+# =========================================================================== #
+
+
+def apply_registry(twin: CompanyTwin, profile) -> CompanyTwin:  # noqa: ANN001
+    """Переносит найденные в реестрах факты в цифрового двойника; оценки не затирают данные пользователя."""
+    update: Dict[str, Any] = {
+        "bin": profile.bin,
+        "registry_verified": profile.verified,
+        "registry_checked_at": profile.checked_at,
+        "vat_payer": profile.vat_payer,
+    }
+    if profile.name:
+        update["name"] = profile.name
+    if profile.city_id and "city_id" not in profile.estimated_fields:
+        update["base_city_id"] = profile.city_id
+    if profile.registered_on and "registered_on" not in profile.estimated_fields:
+        update["experience_years"] = profile.experience_years
+    if profile.suggested_tax_regime and "tax_regime" not in profile.estimated_fields:
+        update["tax_regime"] = profile.suggested_tax_regime
+    if profile.rnu_listed is not None:
+        update["rnu_listed"] = profile.rnu_listed
+    return twin.model_copy(update=update)
+
+
+async def run_bin_lookup(message: Message, bot: Bot, app: App, raw: str) -> None:
+    user = await get_user(app, message.chat.id, message.from_user.language_code if message.from_user else None)
+    lang, twin = user["lang"], user["twin"]
+    if twin is None:
+        await message.answer(t("need_twin", lang))
+        return
+    if not is_valid_bin(re.sub(r"\D", "", raw or "")):
+        await message.answer(t("bin_invalid", lang))
+        return
+    status = await message.answer(t("bin_checking", lang))
+    try:
+        async with ChatActionSender.typing(bot=bot, chat_id=message.chat.id):
+            profile = await fetch_company(
+                raw,
+                egov_key=app.settings.data_egov_api_key,
+                kgd_token=app.settings.kgd_portal_token,
+                goszakup_token=app.settings.goszakup_token,
+            )
+    except RegistryError:
+        await safe_edit(status, t("bin_invalid", lang))
+        return
+    twin = apply_registry(twin, profile)
+    await app.storage.save_twin(message.chat.id, twin)
+    await safe_edit(status, registry_view(profile, lang))
+    await message.answer(twin_view(twin, lang), reply_markup=twin_keyboard(lang))
+
+
+@router.message(Command("bin"))
+async def cmd_bin(message: Message, command: CommandObject, state: FSMContext, bot: Bot, app: App) -> None:
+    """/bin 180540012343 — заполнить двойника по реестрам РК; без аргумента — спросить номер."""
+    if command.args:
+        await state.clear()
+        await run_bin_lookup(message, bot, app, command.args)
+        return
+    user = await get_user(app, message.chat.id, None)
+    await state.set_state(TwinForm.bin)
+    await message.answer(t("ask_bin", user["lang"]))
+
+
+@router.message(TwinForm.bin, F.text)
+async def form_bin(message: Message, state: FSMContext, bot: Bot, app: App) -> None:
+    await state.clear()
+    await run_bin_lookup(message, bot, app, message.text or "")

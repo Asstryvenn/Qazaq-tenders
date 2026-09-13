@@ -497,6 +497,10 @@ export function formatReason(r: Reason, lang: Lang): string {
         : `Опыт ${r.have} г. против требуемых ${r.need} г. — риск отклонения заявки`;
     case "certs":
       return kzLang ? `Сертификаттар жоқ: ${r.missing.join(", ")}` : `Нет сертификатов: ${r.missing.join(", ")}`;
+    case "rnu":
+      return kzLang
+        ? "Компания жосықсыз қатысушылар тізілімінде (РНУ) — мемлекеттік сатып алуға қатыса алмайды"
+        : "Компания в реестре недобросовестных участников (РНУ) — к госзакупкам не допускается";
     case "hidden":
       return kzLang ? `Бейімделген ТЕ (бет ${r.page}): ${r.reason}` : `Заточка ТЗ (стр. ${r.page}): ${r.reason}`;
     case "lateScenario":

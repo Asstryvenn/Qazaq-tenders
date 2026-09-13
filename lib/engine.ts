@@ -107,6 +107,12 @@ function legalRiskScore(tender: TenderSpec, company: CompanyProfile, scenario: S
   const reasons: Reason[] = [];
   let risk = 0;
 
+  // A supplier in the register of unscrupulous participants (РНУ) is barred from public procurement.
+  if (company.rnuListed) {
+    risk = 100;
+    reasons.push({ code: "rnu" });
+  }
+
   // Exposure if delivery slips by 10% of the deadline (statutory cap applies).
   const slip = Math.max(1, Math.round(tender.deliveryDays * 0.1));
   const exposure = statutoryPenalty(tender.contractAmount, tender.penaltyRate, slip) / Math.max(1, tender.contractAmount);
@@ -217,12 +223,17 @@ export function analyzeTender(
   const buildMovements = (): Movement[] => {
     const prepayDay = Math.max(SIGNING_DAY + 1, Math.round(deliveryDay * 0.15));
     const balanceDay = Math.max(prepayDay + 1, Math.round(deliveryDay * 0.6));
+    // Distributor terms: full prepayment is paid 60/40 before shipment; with a partial
+    // prepayment the rest is paid to the supplier on delivery.
+    const prepay = Math.min(100, Math.max(0, company.supplierPrepayPct ?? 100)) / 100;
+    const firstShare = prepay >= 1 ? 0.6 : prepay;
+    const secondDay = prepay >= 1 ? balanceDay : deliveryDay;
     const list: Movement[] = [
       { day: 0, amount: -bidSecurity, code: "bidSecurity" },
       { day: SIGNING_DAY, amount: bidSecurity, code: "bidSecurityBack" },
       { day: SIGNING_DAY, amount: -costs.guarantee, code: "guaranteeFee" },
-      { day: prepayDay, amount: -costs.purchase * 0.6, code: "prepay" },
-      { day: balanceDay, amount: -costs.purchase * 0.4, code: "balancePay" },
+      { day: prepayDay, amount: -costs.purchase * firstShare, code: "prepay" },
+      { day: secondDay, amount: -costs.purchase * (1 - firstShare), code: "balancePay" },
       { day: deliveryDay, amount: -costs.logistics, code: "logistics" },
       // Advance arrives at signing; the rest after delivery + deferral.
       ...(advance > 0 ? [{ day: SIGNING_DAY, amount: advance, code: "advance" } as Movement] : []),
@@ -277,10 +288,12 @@ export function analyzeTender(
     reasons.push({ code: "bankHeavy", bank: costs.bank, pct: (costs.bank / Math.max(1, netProfit)) * 100 });
   reasons.push(...legal.reasons);
   if (!reasons.length) reasons.push({ code: "safe", min: Math.min(...timeline.map((p) => p.balance)) });
+  // РНУ bars participation outright — it is always the first reason shown (stable sort).
+  reasons.sort((a, b) => Number(b.code === "rnu") - Number(a.code === "rnu"));
 
   // A loss-making contract is never recommended, however healthy the other components are.
   const verdict: AnalysisResult["verdict"] =
-    netProfit <= 0 ? "no-go" : tos >= 70 && cf.gapDay === null ? "go" : tos >= 45 ? "caution" : "no-go";
+    netProfit <= 0 || company.rnuListed ? "no-go" : tos >= 70 && cf.gapDay === null ? "go" : tos >= 45 ? "caution" : "no-go";
 
   const confidenceLevel = Math.round(inputConfidence(tender, scenario, freight.rateKind === "live") * 10) / 10;
   return {

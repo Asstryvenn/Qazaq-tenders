@@ -37,6 +37,16 @@ const twins = {
     name: "general", workingCapital: 150_000_000, maxDistanceKm: 2500, staffSize: 60, baseCityId: "karaganda", taxRegime: "general",
     monthlyOpex: 9_000_000, opexAllocation: 0.2, creditRate: 0.18, experienceYears: 10, certificates: ["ISO 9001"],
   },
+  // Distributor: 50% supplier prepayment, the rest on delivery
+  reseller: {
+    name: "reseller", workingCapital: 25_000_000, maxDistanceKm: 1500, staffSize: 8, baseCityId: "almaty", taxRegime: "vat",
+    monthlyOpex: 1_800_000, opexAllocation: 0.35, creditRate: 0.24, experienceYears: 3, certificates: ["ISO 9001"], supplierPrepayPct: 50,
+  },
+  // Listed in the register of unscrupulous participants (РНУ)
+  blacklisted: {
+    name: "blacklisted", workingCapital: 52_000_000, maxDistanceKm: 900, staffSize: 24, baseCityId: "almaty", taxRegime: "vat",
+    monthlyOpex: 4_200_000, opexAllocation: 0.35, creditRate: 0.24, experienceYears: 4, certificates: ["ISO 9001", "СТ РК"], rnuListed: true,
+  },
 };
 
 const neutral = { fuelDeltaPct: 0, transportDeltaPct: 0, supplierDeltaPct: 0, paymentDelayDelta: 0, lateDays: 0, deliveryDeltaDays: 0 };

@@ -136,6 +136,15 @@ export interface CompanyProfile {
   telegramUsername: string;
   /** e.g. "Астана, Есіл ауданы, ..." */
   legalAddress: string;
+  /** Distributor terms: share of the purchase paid to the supplier upfront, % (100 = full prepayment). */
+  supplierPrepayPct?: number;
+  /** In the register of unscrupulous public-procurement participants (РНУ) */
+  rnuListed?: boolean;
+  /** VAT registration from the KGD registry; null — unknown */
+  vatPayer?: boolean | null;
+  /** Company card filled from Kazakhstan registries by BIN */
+  registryVerified?: boolean;
+  registryCheckedAt?: string;
 }
 
 /** Levers of the What-If sensitivity simulator (and of the chatbot's run_scenario tool). */
@@ -215,6 +224,7 @@ export type Reason =
   | { code: "certs"; missing: string[] }
   | { code: "hidden"; reason: string; page: number }
   | { code: "lateScenario"; days: number; penalty: number; capped: boolean }
+  | { code: "rnu" }
   | { code: "safe"; min: number };
 
 export interface CostBreakdown {

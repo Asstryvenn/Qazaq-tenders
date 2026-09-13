@@ -289,6 +289,11 @@ def legal_risk_score(tender: TenderSpec, company: CompanyTwin, scenario: Scenari
         risk += min(25, len(missing) * 12)
         reasons.append(Reason(code="certs", data={"missing": missing}))
 
+    # Участник реестра недобросовестных поставщиков (РНУ) к госзакупкам не допускается
+    if company.rnu_listed:
+        risk = 100.0
+        reasons.insert(0, Reason(code="rnu"))
+
     weight = {"low": 5, "medium": 12, "high": 22}
     for hr in tender.hidden_requirements:
         risk += weight[hr.severity]
@@ -416,12 +421,16 @@ def analyze_tender(tender: TenderSpec, company: CompanyTwin, scenario: Optional[
         # Поставщику: 60 % предоплата, 40 % перед отгрузкой
         prepay_day = max(SIGNING_DAY + 1, js_round(delivery_day * 0.15))
         balance_day = max(prepay_day + 1, js_round(delivery_day * 0.6))
+        # Дистрибуция: полная предоплата — 60/40 до отгрузки; при частичной остаток платится при поставке
+        prepay = min(100.0, max(0.0, company.supplier_prepay_pct)) / 100
+        first_share = 0.6 if prepay >= 1 else prepay
+        second_day = balance_day if prepay >= 1 else delivery_day
         items = [
             _Movement(0, -bid_security, "bidSecurity"),
             _Movement(SIGNING_DAY, bid_security, "bidSecurityBack"),
             _Movement(SIGNING_DAY, -costs["guarantee"], "guaranteeFee"),
-            _Movement(prepay_day, -costs["purchase"] * 0.6, "prepay"),
-            _Movement(balance_day, -costs["purchase"] * 0.4, "balancePay"),
+            _Movement(prepay_day, -costs["purchase"] * first_share, "prepay"),
+            _Movement(second_day, -costs["purchase"] * (1 - first_share), "balancePay"),
             _Movement(delivery_day, -costs["logistics"], "logistics"),
         ]
         if advance > 0:
@@ -486,9 +495,11 @@ def analyze_tender(tender: TenderSpec, company: CompanyTwin, scenario: Optional[
     reasons += legal_reasons
     if not reasons:
         reasons.append(Reason(code="safe", data={"min": float(sim.rounded.min())}))
+    # РНУ исключает участие — эта причина всегда первая (стабильная сортировка, как на сайте)
+    reasons.sort(key=lambda r: r.code != "rnu")
 
     # Убыточный договор никогда не рекомендуем, как бы хорошо ни выглядели остальные компоненты
-    verdict = "no-go" if profit <= 0 else "go" if tos >= 70 and gap_day is None else "caution" if tos >= 45 else "no-go"
+    verdict = "no-go" if profit <= 0 or company.rnu_listed else "go" if tos >= 70 and gap_day is None else "caution" if tos >= 45 else "no-go"
 
     confidence = input_confidence(tender, sc, live_logistics=freight.rate_kind == "live")
     return AnalysisResult(

@@ -43,6 +43,39 @@
    "certificates": [
     "ISO 9001"
    ]
+  },
+  "reseller": {
+   "name": "reseller",
+   "workingCapital": 25000000,
+   "maxDistanceKm": 1500,
+   "staffSize": 8,
+   "baseCityId": "almaty",
+   "taxRegime": "vat",
+   "monthlyOpex": 1800000,
+   "opexAllocation": 0.35,
+   "creditRate": 0.24,
+   "experienceYears": 3,
+   "certificates": [
+    "ISO 9001"
+   ],
+   "supplierPrepayPct": 50
+  },
+  "blacklisted": {
+   "name": "blacklisted",
+   "workingCapital": 52000000,
+   "maxDistanceKm": 900,
+   "staffSize": 24,
+   "baseCityId": "almaty",
+   "taxRegime": "vat",
+   "monthlyOpex": 4200000,
+   "opexAllocation": 0.35,
+   "creditRate": 0.24,
+   "experienceYears": 4,
+   "certificates": [
+    "ISO 9001",
+    "СТ РК"
+   ],
+   "rnuListed": true
   }
  },
  "scenarios": {
@@ -814,6 +847,481 @@
     "minBalance": 83518630,
     "reasons": [
      "safe"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700417-ОК1",
+   "twin": "reseller",
+   "scenario": "neutral",
+   "expect": {
+    "tos": 60.7,
+    "netProfit": 13245569.278911665,
+    "marginPct": 15.768534855847221,
+    "cashFlowGap": true,
+    "gapDay": 6,
+    "maxDeficit": 38451168,
+    "distanceKm": 251,
+    "trucks": 1,
+    "legalRisk": 1.2599999999999998,
+    "cashFlowRisk": 97.27272727272728,
+    "verdict": "caution",
+    "costs": {
+     "purchase": 62000000,
+     "logistics": 162168,
+     "operating": 1365000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 853755.642739726,
+     "tax": 6323507.078348607
+    },
+    "payDay": 60,
+    "deliveryDay": 30,
+    "minBalance": -38451168,
+    "reasons": [
+     "gap"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700417-ОК1",
+   "twin": "reseller",
+   "scenario": "fuel15",
+   "expect": {
+    "tos": 60.7,
+    "netProfit": 13245569.278911665,
+    "marginPct": 15.768534855847221,
+    "cashFlowGap": true,
+    "gapDay": 6,
+    "maxDeficit": 38451168,
+    "distanceKm": 251,
+    "trucks": 1,
+    "legalRisk": 1.2599999999999998,
+    "cashFlowRisk": 97.27272727272728,
+    "verdict": "caution",
+    "costs": {
+     "purchase": 62000000,
+     "logistics": 162168,
+     "operating": 1365000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 853755.642739726,
+     "tax": 6323507.078348607
+    },
+    "payDay": 60,
+    "deliveryDay": 30,
+    "minBalance": -38451168,
+    "reasons": [
+     "gap"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700417-ОК1",
+   "twin": "reseller",
+   "scenario": "supplier10",
+   "expect": {
+    "tos": 51.5,
+    "netProfit": 8832729.675699577,
+    "marginPct": 10.515154375832829,
+    "cashFlowGap": true,
+    "gapDay": 6,
+    "maxDeficit": 44651168,
+    "distanceKm": 251,
+    "trucks": 1,
+    "legalRisk": 1.2599999999999998,
+    "cashFlowRisk": 97.27272727272728,
+    "verdict": "caution",
+    "costs": {
+     "purchase": 68200000,
+     "logistics": 162168,
+     "operating": 1365000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 1024977.5605479453,
+     "tax": 4365124.76375248
+    },
+    "payDay": 60,
+    "deliveryDay": 30,
+    "minBalance": -44651168,
+    "reasons": [
+     "gap"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700417-ОК1",
+   "twin": "reseller",
+   "scenario": "pay30",
+   "expect": {
+    "tos": 58.1,
+    "netProfit": 12129641.586637706,
+    "marginPct": 14.440049507902032,
+    "cashFlowGap": true,
+    "gapDay": 6,
+    "maxDeficit": 39081168,
+    "distanceKm": 251,
+    "trucks": 1,
+    "legalRisk": 1.2599999999999998,
+    "cashFlowRisk": 98.125,
+    "verdict": "caution",
+    "costs": {
+     "purchase": 62000000,
+     "logistics": 162168,
+     "operating": 1995000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 1618665.2580821917,
+     "tax": 6044525.155280113
+    },
+    "payDay": 90,
+    "deliveryDay": 30,
+    "minBalance": -39081168,
+    "reasons": [
+     "gap"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700417-ОК1",
+   "twin": "reseller",
+   "scenario": "all3",
+   "expect": {
+    "tos": 48.7,
+    "netProfit": 7618960.8875351995,
+    "marginPct": 9.07019153278,
+    "cashFlowGap": true,
+    "gapDay": 6,
+    "maxDeficit": 45281168,
+    "distanceKm": 251,
+    "trucks": 1,
+    "legalRisk": 1.2599999999999998,
+    "cashFlowRisk": 98.125,
+    "verdict": "caution",
+    "costs": {
+     "purchase": 68200000,
+     "logistics": 162168,
+     "operating": 1995000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 1912188.5457534248,
+     "tax": 4061682.566711384
+    },
+    "payDay": 90,
+    "deliveryDay": 30,
+    "minBalance": -45281168,
+    "reasons": [
+     "gap",
+     "thinMargin",
+     "bankHeavy"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700417-ОК1",
+   "twin": "reseller",
+   "scenario": "late7",
+   "expect": {
+    "tos": 59.3,
+    "netProfit": 12621141.35562399,
+    "marginPct": 15.025168280504749,
+    "cashFlowGap": true,
+    "gapDay": 6,
+    "maxDeficit": 39186168,
+    "distanceKm": 251,
+    "trucks": 1,
+    "legalRisk": 1.2599999999999998,
+    "cashFlowRisk": 97.53424657534246,
+    "verdict": "caution",
+    "costs": {
+     "purchase": 62000000,
+     "logistics": 162168,
+     "operating": 1512000,
+     "penalty": 588000,
+     "guarantee": 50000,
+     "bank": 899290.5468493152,
+     "tax": 6167400.09752669
+    },
+    "payDay": 67,
+    "deliveryDay": 37,
+    "minBalance": -39186168,
+    "reasons": [
+     "gap",
+     "lateScenario"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700417-ОК1",
+   "twin": "reseller",
+   "scenario": "extend_transport",
+   "expect": {
+    "tos": 60.1,
+    "netProfit": 13015739.745103449,
+    "marginPct": 15.494928267980296,
+    "cashFlowGap": true,
+    "gapDay": 6,
+    "maxDeficit": 38693602,
+    "distanceKm": 251,
+    "trucks": 1,
+    "legalRisk": 1.2599999999999998,
+    "cashFlowRisk": 97.63157894736842,
+    "verdict": "caution",
+    "costs": {
+     "purchase": 62000000,
+     "logistics": 194601.6,
+     "operating": 1575000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 903082.5599999999,
+     "tax": 6261576.094896552
+    },
+    "payDay": 70,
+    "deliveryDay": 40,
+    "minBalance": -38693602,
+    "reasons": [
+     "gap"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700417-ОК1",
+   "twin": "blacklisted",
+   "scenario": "neutral",
+   "expect": {
+    "tos": 45.7,
+    "netProfit": 12206299.755623996,
+    "marginPct": 14.53130923288571,
+    "cashFlowGap": true,
+    "gapDay": 18,
+    "maxDeficit": 13103168,
+    "distanceKm": 251,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 68.36489454545455,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 62000000,
+     "logistics": 162168,
+     "operating": 3185000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 332842.5468493152,
+     "tax": 6063689.69752669
+    },
+    "payDay": 60,
+    "deliveryDay": 30,
+    "minBalance": -13103168,
+    "reasons": [
+     "rnu",
+     "gap"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700417-ОК1",
+   "twin": "blacklisted",
+   "scenario": "fuel15",
+   "expect": {
+    "tos": 45.7,
+    "netProfit": 12206299.755623996,
+    "marginPct": 14.53130923288571,
+    "cashFlowGap": true,
+    "gapDay": 18,
+    "maxDeficit": 13103168,
+    "distanceKm": 251,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 68.36489454545455,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 62000000,
+     "logistics": 162168,
+     "operating": 3185000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 332842.5468493152,
+     "tax": 6063689.69752669
+    },
+    "payDay": 60,
+    "deliveryDay": 30,
+    "minBalance": -13103168,
+    "reasons": [
+     "rnu",
+     "gap"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700417-ОК1",
+   "twin": "blacklisted",
+   "scenario": "supplier10",
+   "expect": {
+    "tos": 35.3,
+    "netProfit": 7793460.152411908,
+    "marginPct": 9.277928752871318,
+    "cashFlowGap": true,
+    "gapDay": 18,
+    "maxDeficit": 19303168,
+    "distanceKm": 251,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 72.53797146853147,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 68200000,
+     "logistics": 162168,
+     "operating": 3185000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 504064.46465753426,
+     "tax": 4105307.3829305624
+    },
+    "payDay": 60,
+    "deliveryDay": 30,
+    "minBalance": -19303168,
+    "reasons": [
+     "rnu",
+     "gap",
+     "thinMargin"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700417-ОК1",
+   "twin": "blacklisted",
+   "scenario": "pay30",
+   "expect": {
+    "tos": 42,
+    "netProfit": 10811535.4606103,
+    "marginPct": 12.870875548345595,
+    "cashFlowGap": true,
+    "gapDay": 18,
+    "maxDeficit": 14573168,
+    "distanceKm": 251,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 71.05886307692307,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 62000000,
+     "logistics": 162168,
+     "operating": 4655000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 606297.9156164381,
+     "tax": 5714998.623773265
+    },
+    "payDay": 90,
+    "deliveryDay": 30,
+    "minBalance": -14573168,
+    "reasons": [
+     "rnu",
+     "gap"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700417-ОК1",
+   "twin": "blacklisted",
+   "scenario": "all3",
+   "expect": {
+    "tos": 31.4,
+    "netProfit": 6300854.761507794,
+    "marginPct": 7.501017573223565,
+    "cashFlowGap": true,
+    "gapDay": 18,
+    "maxDeficit": 20773168,
+    "distanceKm": 251,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 75.23194000000001,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 68200000,
+     "logistics": 162168,
+     "operating": 4655000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 899821.2032876713,
+     "tax": 3732156.0352045344
+    },
+    "payDay": 90,
+    "deliveryDay": 30,
+    "minBalance": -20773168,
+    "reasons": [
+     "rnu",
+     "gap",
+     "thinMargin"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700417-ОК1",
+   "twin": "blacklisted",
+   "scenario": "late7",
+   "expect": {
+    "tos": 44,
+    "netProfit": 11427004.456993863,
+    "marginPct": 13.603576734516503,
+    "cashFlowGap": true,
+    "gapDay": 22,
+    "maxDeficit": 14034168,
+    "distanceKm": 251,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 68.69264995785036,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 62000000,
+     "logistics": 162168,
+     "operating": 3528000,
+     "penalty": 588000,
+     "guarantee": 50000,
+     "bank": 375961.6701369864,
+     "tax": 5868865.872869154
+    },
+    "payDay": 67,
+    "deliveryDay": 37,
+    "minBalance": -14034168,
+    "reasons": [
+     "rnu",
+     "gap",
+     "lateScenario"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700417-ОК1",
+   "twin": "blacklisted",
+   "scenario": "extend_transport",
+   "expect": {
+    "tos": 44.8,
+    "netProfit": 11756818.890308917,
+    "marginPct": 13.996212964653473,
+    "cashFlowGap": true,
+    "gapDay": 24,
+    "maxDeficit": 13625602,
+    "distanceKm": 251,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 68.25002563765182,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 62000000,
+     "logistics": 194601.6,
+     "operating": 3675000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 376733.6284931506,
+     "tax": 5946845.881197922
+    },
+    "payDay": 70,
+    "deliveryDay": 40,
+    "minBalance": -13625602,
+    "reasons": [
+     "rnu",
+     "gap"
     ]
    }
   },
@@ -1620,6 +2128,575 @@
    }
   },
   {
+   "lot": "goszakup-700388-ОК1",
+   "twin": "reseller",
+   "scenario": "neutral",
+   "expect": {
+    "tos": 17.4,
+    "netProfit": 12798074.395087391,
+    "marginPct": 8.826258203508546,
+    "cashFlowGap": true,
+    "gapDay": 11,
+    "maxDeficit": 94961600,
+    "distanceKm": 1860,
+    "trucks": 9,
+    "legalRisk": 93.08,
+    "cashFlowRisk": 98.19148936170212,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 112000000,
+     "logistics": 5097600,
+     "operating": 2940000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 5066200.109589041,
+     "tax": 7048125.495323572
+    },
+    "payDay": 135,
+    "deliveryDay": 75,
+    "minBalance": -94961600,
+    "reasons": [
+     "gap",
+     "thinMargin",
+     "overRadius",
+     "bankHeavy",
+     "experience",
+     "certs",
+     "hidden",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700388-ОК1",
+   "twin": "reseller",
+   "scenario": "fuel15",
+   "expect": {
+    "tos": 17.4,
+    "netProfit": 12798074.395087391,
+    "marginPct": 8.826258203508546,
+    "cashFlowGap": true,
+    "gapDay": 11,
+    "maxDeficit": 94961600,
+    "distanceKm": 1860,
+    "trucks": 9,
+    "legalRisk": 93.08,
+    "cashFlowRisk": 98.19148936170212,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 112000000,
+     "logistics": 5097600,
+     "operating": 2940000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 5066200.109589041,
+     "tax": 7048125.495323572
+    },
+    "payDay": 135,
+    "deliveryDay": 75,
+    "minBalance": -94961600,
+    "reasons": [
+     "gap",
+     "thinMargin",
+     "overRadius",
+     "bankHeavy",
+     "experience",
+     "certs",
+     "hidden",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700388-ОК1",
+   "twin": "reseller",
+   "scenario": "supplier10",
+   "expect": {
+    "tos": 7.4,
+    "netProfit": 4531917.833915919,
+    "marginPct": 3.125460575114427,
+    "cashFlowGap": true,
+    "gapDay": 11,
+    "maxDeficit": 106161600,
+    "distanceKm": 1860,
+    "trucks": 9,
+    "legalRisk": 93.08,
+    "cashFlowRisk": 98.19148936170212,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 123200000.00000001,
+     "logistics": 5097600,
+     "operating": 2940000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 5743723.397260274,
+     "tax": 3436758.7688238034
+    },
+    "payDay": 135,
+    "deliveryDay": 75,
+    "minBalance": -106161600,
+    "reasons": [
+     "gap",
+     "lowMargin",
+     "overRadius",
+     "bankHeavy",
+     "experience",
+     "certs",
+     "hidden",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700388-ОК1",
+   "twin": "reseller",
+   "scenario": "pay30",
+   "expect": {
+    "tos": 14.9,
+    "netProfit": 10790365.638923004,
+    "marginPct": 7.441631475119313,
+    "cashFlowGap": true,
+    "gapDay": 11,
+    "maxDeficit": 95591600,
+    "distanceKm": 1860,
+    "trucks": 9,
+    "legalRisk": 93.08,
+    "cashFlowRisk": 98.50877192982456,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 112000000,
+     "logistics": 5097600,
+     "operating": 3570000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 6945836.05479452,
+     "tax": 6546198.306282476
+    },
+    "payDay": 165,
+    "deliveryDay": 75,
+    "minBalance": -95591600,
+    "reasons": [
+     "gap",
+     "thinMargin",
+     "overRadius",
+     "bankHeavy",
+     "experience",
+     "certs",
+     "hidden",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700388-ОК1",
+   "twin": "reseller",
+   "scenario": "all3",
+   "expect": {
+    "tos": 4.7,
+    "netProfit": 2347463.872272074,
+    "marginPct": 1.6189406015669476,
+    "cashFlowGap": true,
+    "gapDay": 11,
+    "maxDeficit": 106791600,
+    "distanceKm": 1860,
+    "trucks": 9,
+    "legalRisk": 93.08,
+    "cashFlowRisk": 98.50877192982456,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 123200000.00000001,
+     "logistics": 5097600,
+     "operating": 3570000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 7844290.849315069,
+     "tax": 2890645.278412844
+    },
+    "payDay": 165,
+    "deliveryDay": 75,
+    "minBalance": -106791600,
+    "reasons": [
+     "gap",
+     "lowMargin",
+     "overRadius",
+     "bankHeavy",
+     "experience",
+     "certs",
+     "hidden",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700388-ОК1",
+   "twin": "reseller",
+   "scenario": "late7",
+   "expect": {
+    "tos": 14,
+    "netProfit": 10039820.806046307,
+    "marginPct": 6.924014348997454,
+    "cashFlowGap": true,
+    "gapDay": 12,
+    "maxDeficit": 98153600,
+    "distanceKm": 1860,
+    "trucks": 9,
+    "legalRisk": 93.08,
+    "cashFlowRisk": 98.17567567567568,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 112000000,
+     "logistics": 5097600,
+     "operating": 3087000,
+     "penalty": 3045000,
+     "guarantee": 50000,
+     "bank": 5322017.09589041,
+     "tax": 6358562.098063298
+    },
+    "payDay": 142,
+    "deliveryDay": 82,
+    "minBalance": -98153600,
+    "reasons": [
+     "gap",
+     "thinMargin",
+     "overRadius",
+     "bankHeavy",
+     "experience",
+     "certs",
+     "hidden",
+     "hidden",
+     "lateScenario"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700388-ОК1",
+   "twin": "reseller",
+   "scenario": "extend_transport",
+   "expect": {
+    "tos": 16.1,
+    "netProfit": 11748958.319735467,
+    "marginPct": 8.102729875679634,
+    "cashFlowGap": true,
+    "gapDay": 13,
+    "maxDeficit": 96191120,
+    "distanceKm": 1860,
+    "trucks": 9,
+    "legalRisk": 93.08,
+    "cashFlowRisk": 98.11258278145695,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 112000000,
+     "logistics": 6117120,
+     "operating": 3150000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 5288698.652054795,
+     "tax": 6645223.028209731
+    },
+    "payDay": 145,
+    "deliveryDay": 85,
+    "minBalance": -96191120,
+    "reasons": [
+     "gap",
+     "thinMargin",
+     "overRadius",
+     "bankHeavy",
+     "experience",
+     "certs",
+     "hidden",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700388-ОК1",
+   "twin": "blacklisted",
+   "scenario": "neutral",
+   "expect": {
+    "tos": 12.9,
+    "netProfit": 10206765.244402468,
+    "marginPct": 7.0391484444154955,
+    "cashFlowGap": true,
+    "gapDay": 11,
+    "maxDeficit": 71713600,
+    "distanceKm": 1860,
+    "trucks": 9,
+    "legalRisk": 100,
+    "cashFlowRisk": 98.19148936170212,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 112000000,
+     "logistics": 5097600,
+     "operating": 6860000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 4385336.547945204,
+     "tax": 6400298.207652339
+    },
+    "payDay": 135,
+    "deliveryDay": 75,
+    "minBalance": -71713600,
+    "reasons": [
+     "rnu",
+     "gap",
+     "thinMargin",
+     "overRadius",
+     "bankHeavy",
+     "experience",
+     "certs",
+     "hidden",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700388-ОК1",
+   "twin": "blacklisted",
+   "scenario": "fuel15",
+   "expect": {
+    "tos": 12.9,
+    "netProfit": 10206765.244402468,
+    "marginPct": 7.0391484444154955,
+    "cashFlowGap": true,
+    "gapDay": 11,
+    "maxDeficit": 71713600,
+    "distanceKm": 1860,
+    "trucks": 9,
+    "legalRisk": 100,
+    "cashFlowRisk": 98.19148936170212,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 112000000,
+     "logistics": 5097600,
+     "operating": 6860000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 4385336.547945204,
+     "tax": 6400298.207652339
+    },
+    "payDay": 135,
+    "deliveryDay": 75,
+    "minBalance": -71713600,
+    "reasons": [
+     "rnu",
+     "gap",
+     "thinMargin",
+     "overRadius",
+     "bankHeavy",
+     "experience",
+     "certs",
+     "hidden",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700388-ОК1",
+   "twin": "blacklisted",
+   "scenario": "supplier10",
+   "expect": {
+    "tos": 2.8,
+    "netProfit": 1832204.9572035968,
+    "marginPct": 1.2635896256576529,
+    "cashFlowGap": true,
+    "gapDay": 11,
+    "maxDeficit": 82913600,
+    "distanceKm": 1860,
+    "trucks": 9,
+    "legalRisk": 100,
+    "cashFlowRisk": 98.19148936170212,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 123200000.00000001,
+     "logistics": 5097600,
+     "operating": 6860000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 5198364.493150686,
+     "tax": 2761830.5496457205
+    },
+    "payDay": 135,
+    "deliveryDay": 75,
+    "minBalance": -82913600,
+    "reasons": [
+     "rnu",
+     "gap",
+     "lowMargin",
+     "overRadius",
+     "bankHeavy",
+     "experience",
+     "certs",
+     "hidden",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700388-ОК1",
+   "twin": "blacklisted",
+   "scenario": "pay30",
+   "expect": {
+    "tos": 10,
+    "netProfit": 7887080.159470946,
+    "marginPct": 5.439365627221342,
+    "cashFlowGap": true,
+    "gapDay": 11,
+    "maxDeficit": 73183600,
+    "distanceKm": 1860,
+    "trucks": 9,
+    "legalRisk": 100,
+    "cashFlowRisk": 98.50877192982456,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 112000000,
+     "logistics": 5097600,
+     "operating": 8330000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 5814942.904109589,
+     "tax": 5820376.936419462
+    },
+    "payDay": 165,
+    "deliveryDay": 75,
+    "minBalance": -73183600,
+    "reasons": [
+     "rnu",
+     "gap",
+     "thinMargin",
+     "overRadius",
+     "bankHeavy",
+     "experience",
+     "certs",
+     "hidden",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700388-ОК1",
+   "twin": "blacklisted",
+   "scenario": "all3",
+   "expect": {
+    "tos": 0.4,
+    "netProfit": -830281.6665092111,
+    "marginPct": -0.5726080458684214,
+    "cashFlowGap": true,
+    "gapDay": 11,
+    "maxDeficit": 84383600,
+    "distanceKm": 1860,
+    "trucks": 9,
+    "legalRisk": 100,
+    "cashFlowRisk": 98.50877192982456,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 123200000.00000001,
+     "logistics": 5097600,
+     "operating": 8330000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 6848902.356164384,
+     "tax": 2303779.310344826
+    },
+    "payDay": 165,
+    "deliveryDay": 75,
+    "minBalance": -84383600,
+    "reasons": [
+     "rnu",
+     "gap",
+     "lowMargin",
+     "overRadius",
+     "bankHeavy",
+     "experience",
+     "certs",
+     "hidden",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700388-ОК1",
+   "twin": "blacklisted",
+   "scenario": "late7",
+   "expect": {
+    "tos": 9.3,
+    "netProfit": 7256814.997827113,
+    "marginPct": 5.004699998501457,
+    "cashFlowGap": true,
+    "gapDay": 12,
+    "maxDeficit": 75101600,
+    "distanceKm": 1860,
+    "trucks": 9,
+    "legalRisk": 100,
+    "cashFlowRisk": 98.17567567567568,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 112000000,
+     "logistics": 5097600,
+     "operating": 7203000,
+     "penalty": 3045000,
+     "guarantee": 50000,
+     "bank": 4684774.356164385,
+     "tax": 5662810.646008503
+    },
+    "payDay": 142,
+    "deliveryDay": 82,
+    "minBalance": -75101600,
+    "reasons": [
+     "rnu",
+     "gap",
+     "thinMargin",
+     "overRadius",
+     "bankHeavy",
+     "experience",
+     "certs",
+     "hidden",
+     "hidden",
+     "lateScenario"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700388-ОК1",
+   "twin": "blacklisted",
+   "scenario": "extend_transport",
+   "expect": {
+    "tos": 11.3,
+    "netProfit": 8885667.05398205,
+    "marginPct": 6.128046244125551,
+    "cashFlowGap": true,
+    "gapDay": 13,
+    "maxDeficit": 73223120,
+    "distanceKm": 1860,
+    "trucks": 9,
+    "legalRisk": 100,
+    "cashFlowRisk": 98.11258278145695,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 112000000,
+     "logistics": 6117120,
+     "operating": 7350000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 4667812.734246576,
+     "tax": 5929400.211771375
+    },
+    "payDay": 145,
+    "deliveryDay": 85,
+    "minBalance": -73223120,
+    "reasons": [
+     "rnu",
+     "gap",
+     "thinMargin",
+     "overRadius",
+     "bankHeavy",
+     "experience",
+     "certs",
+     "hidden",
+     "hidden"
+    ]
+   }
+  },
+  {
    "lot": "goszakup-700451-ОК1",
    "twin": "demo",
    "scenario": "neutral",
@@ -2310,6 +3387,471 @@
     "minBalance": 138197456,
     "reasons": [
      "safe"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700451-ОК1",
+   "twin": "reseller",
+   "scenario": "neutral",
+   "expect": {
+    "tos": 83.2,
+    "netProfit": 1684551.7241379302,
+    "marginPct": 13.585094549499438,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 15,
+    "trucks": 1,
+    "legalRisk": 0.8400000000000001,
+    "cashFlowRisk": 17.4402,
+    "verdict": "go",
+    "costs": {
+     "purchase": 8900000,
+     "logistics": 25000,
+     "operating": 840000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 900448.2758620691
+    },
+    "payDay": 35,
+    "deliveryDay": 20,
+    "minBalance": 15311000,
+    "reasons": [
+     "safe"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700451-ОК1",
+   "twin": "reseller",
+   "scenario": "fuel15",
+   "expect": {
+    "tos": 83.2,
+    "netProfit": 1684551.7241379302,
+    "marginPct": 13.585094549499438,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 15,
+    "trucks": 1,
+    "legalRisk": 0.8400000000000001,
+    "cashFlowRisk": 17.4402,
+    "verdict": "go",
+    "costs": {
+     "purchase": 8900000,
+     "logistics": 25000,
+     "operating": 840000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 900448.2758620691
+    },
+    "payDay": 35,
+    "deliveryDay": 20,
+    "minBalance": 15311000,
+    "reasons": [
+     "safe"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700451-ОК1",
+   "twin": "reseller",
+   "scenario": "supplier10",
+   "expect": {
+    "tos": 74.1,
+    "netProfit": 1070758.6206896547,
+    "marginPct": 8.635150166852053,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 15,
+    "trucks": 1,
+    "legalRisk": 0.8400000000000001,
+    "cashFlowRisk": 19.042199999999998,
+    "verdict": "go",
+    "costs": {
+     "purchase": 9790000,
+     "logistics": 25000,
+     "operating": 840000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 624241.3793103448
+    },
+    "payDay": 35,
+    "deliveryDay": 20,
+    "minBalance": 14421000,
+    "reasons": [
+     "thinMargin"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700451-ОК1",
+   "twin": "reseller",
+   "scenario": "pay30",
+   "expect": {
+    "tos": 78.4,
+    "netProfit": 1364551.7241379302,
+    "marginPct": 11.004449388209114,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 15,
+    "trucks": 1,
+    "legalRisk": 0.8400000000000001,
+    "cashFlowRisk": 18.5742,
+    "verdict": "go",
+    "costs": {
+     "purchase": 8900000,
+     "logistics": 25000,
+     "operating": 1240000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 820448.2758620691
+    },
+    "payDay": 65,
+    "deliveryDay": 20,
+    "minBalance": 14681000,
+    "reasons": [
+     "safe"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700451-ОК1",
+   "twin": "reseller",
+   "scenario": "all3",
+   "expect": {
+    "tos": 69.2,
+    "netProfit": 750758.6206896547,
+    "marginPct": 6.054505005561732,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 15,
+    "trucks": 1,
+    "legalRisk": 0.8400000000000001,
+    "cashFlowRisk": 20.176199999999998,
+    "verdict": "caution",
+    "costs": {
+     "purchase": 9790000,
+     "logistics": 25000,
+     "operating": 1240000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 544241.3793103448
+    },
+    "payDay": 65,
+    "deliveryDay": 20,
+    "minBalance": 13791000,
+    "reasons": [
+     "thinMargin"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700451-ОК1",
+   "twin": "reseller",
+   "scenario": "late7",
+   "expect": {
+    "tos": 80.5,
+    "netProfit": 1497511.7241379302,
+    "marginPct": 12.076707452725245,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 15,
+    "trucks": 1,
+    "legalRisk": 0.8400000000000001,
+    "cashFlowRisk": 17.861040000000003,
+    "verdict": "go",
+    "costs": {
+     "purchase": 8900000,
+     "logistics": 25000,
+     "operating": 987000,
+     "penalty": 86800,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 853688.2758620691
+    },
+    "payDay": 42,
+    "deliveryDay": 27,
+    "minBalance": 15077200,
+    "reasons": [
+     "lateScenario"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700451-ОК1",
+   "twin": "reseller",
+   "scenario": "extend_transport",
+   "expect": {
+    "tos": 80.7,
+    "netProfit": 1513103.4482758623,
+    "marginPct": 12.202447163515018,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 15,
+    "trucks": 1,
+    "legalRisk": 0.8400000000000001,
+    "cashFlowRisk": 17.827199999999998,
+    "verdict": "go",
+    "costs": {
+     "purchase": 8900000,
+     "logistics": 30000,
+     "operating": 1050000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 856896.551724138
+    },
+    "payDay": 45,
+    "deliveryDay": 30,
+    "minBalance": 15096000,
+    "reasons": [
+     "safe"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700451-ОК1",
+   "twin": "blacklisted",
+   "scenario": "neutral",
+   "expect": {
+    "tos": 61.2,
+    "netProfit": 1364551.7241379302,
+    "marginPct": 11.004449388209114,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 15,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 9.208557692307691,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 8900000,
+     "logistics": 25000,
+     "operating": 1240000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 820448.2758620691
+    },
+    "payDay": 35,
+    "deliveryDay": 20,
+    "minBalance": 41359000,
+    "reasons": [
+     "rnu"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700451-ОК1",
+   "twin": "blacklisted",
+   "scenario": "fuel15",
+   "expect": {
+    "tos": 61.2,
+    "netProfit": 1364551.7241379302,
+    "marginPct": 11.004449388209114,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 15,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 9.208557692307691,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 8900000,
+     "logistics": 25000,
+     "operating": 1240000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 820448.2758620691
+    },
+    "payDay": 35,
+    "deliveryDay": 20,
+    "minBalance": 41359000,
+    "reasons": [
+     "rnu"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700451-ОК1",
+   "twin": "blacklisted",
+   "scenario": "supplier10",
+   "expect": {
+    "tos": 52.4,
+    "netProfit": 750758.6206896547,
+    "marginPct": 6.054505005561732,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 15,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 9.97875,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 9790000,
+     "logistics": 25000,
+     "operating": 1240000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 544241.3793103448
+    },
+    "payDay": 35,
+    "deliveryDay": 20,
+    "minBalance": 40469000,
+    "reasons": [
+     "rnu",
+     "thinMargin"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700451-ОК1",
+   "twin": "blacklisted",
+   "scenario": "pay30",
+   "expect": {
+    "tos": 60.9,
+    "netProfit": 1364551.7241379302,
+    "marginPct": 11.004449388209114,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 15,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 10.480673076923079,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 8900000,
+     "logistics": 25000,
+     "operating": 1240000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 820448.2758620691
+    },
+    "payDay": 65,
+    "deliveryDay": 20,
+    "minBalance": 39889000,
+    "reasons": [
+     "rnu"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700451-ОК1",
+   "twin": "blacklisted",
+   "scenario": "all3",
+   "expect": {
+    "tos": 52,
+    "netProfit": 750758.6206896547,
+    "marginPct": 6.054505005561732,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 15,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 11.250865384615382,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 9790000,
+     "logistics": 25000,
+     "operating": 1240000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 544241.3793103448
+    },
+    "payDay": 65,
+    "deliveryDay": 20,
+    "minBalance": 38999000,
+    "reasons": [
+     "rnu",
+     "thinMargin"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700451-ОК1",
+   "twin": "blacklisted",
+   "scenario": "late7",
+   "expect": {
+    "tos": 60.2,
+    "netProfit": 1295111.7241379302,
+    "marginPct": 10.444449388209115,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 15,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 9.580499999999999,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 8900000,
+     "logistics": 25000,
+     "operating": 1240000,
+     "penalty": 86800,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 803088.2758620691
+    },
+    "payDay": 42,
+    "deliveryDay": 27,
+    "minBalance": 40929200,
+    "reasons": [
+     "rnu",
+     "lateScenario"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700451-ОК1",
+   "twin": "blacklisted",
+   "scenario": "extend_transport",
+   "expect": {
+    "tos": 61.1,
+    "netProfit": 1361103.4482758623,
+    "marginPct": 10.976640711902116,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 15,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 9.636923076923075,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 8900000,
+     "logistics": 30000,
+     "operating": 1240000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 818896.551724138
+    },
+    "payDay": 45,
+    "deliveryDay": 30,
+    "minBalance": 40864000,
+    "reasons": [
+     "rnu"
     ]
    }
   },
@@ -3070,6 +4612,521 @@
    }
   },
   {
+   "lot": "goszakup-700402-ОК1",
+   "twin": "reseller",
+   "scenario": "neutral",
+   "expect": {
+    "tos": 47.2,
+    "netProfit": 12084526.961549357,
+    "marginPct": 12.588048918280581,
+    "cashFlowGap": true,
+    "gapDay": 7,
+    "maxDeficit": 49236000,
+    "distanceKm": 500,
+    "trucks": 2,
+    "legalRisk": 26.1,
+    "cashFlowRisk": 98.61702127659575,
+    "verdict": "caution",
+    "costs": {
+     "purchase": 71000000,
+     "logistics": 372000,
+     "operating": 2940000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 3135375.780821918,
+     "tax": 6418097.25762872
+    },
+    "payDay": 135,
+    "deliveryDay": 45,
+    "minBalance": -49236000,
+    "reasons": [
+     "gap",
+     "bankHeavy",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700402-ОК1",
+   "twin": "reseller",
+   "scenario": "fuel15",
+   "expect": {
+    "tos": 47.2,
+    "netProfit": 12084526.961549357,
+    "marginPct": 12.588048918280581,
+    "cashFlowGap": true,
+    "gapDay": 7,
+    "maxDeficit": 49236000,
+    "distanceKm": 500,
+    "trucks": 2,
+    "legalRisk": 26.1,
+    "cashFlowRisk": 98.61702127659575,
+    "verdict": "caution",
+    "costs": {
+     "purchase": 71000000,
+     "logistics": 372000,
+     "operating": 2940000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 3135375.780821918,
+     "tax": 6418097.25762872
+    },
+    "payDay": 135,
+    "deliveryDay": 45,
+    "minBalance": -49236000,
+    "reasons": [
+     "gap",
+     "bankHeavy",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700402-ОК1",
+   "twin": "reseller",
+   "scenario": "supplier10",
+   "expect": {
+    "tos": 37.6,
+    "netProfit": 6780882.634671703,
+    "marginPct": 7.0634194111163575,
+    "cashFlowGap": true,
+    "gapDay": 7,
+    "maxDeficit": 56336000,
+    "distanceKm": 500,
+    "trucks": 2,
+    "legalRisk": 26.1,
+    "cashFlowRisk": 98.61702127659575,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 78100000,
+     "logistics": 372000,
+     "operating": 2940000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 3644241.5342465756,
+     "tax": 4112875.83108172
+    },
+    "payDay": 135,
+    "deliveryDay": 45,
+    "minBalance": -56336000,
+    "reasons": [
+     "gap",
+     "thinMargin",
+     "bankHeavy",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700402-ОК1",
+   "twin": "reseller",
+   "scenario": "pay30",
+   "expect": {
+    "tos": 44.8,
+    "netProfit": 10798405.756069899,
+    "marginPct": 11.248339329239478,
+    "cashFlowGap": true,
+    "gapDay": 7,
+    "maxDeficit": 49866000,
+    "distanceKm": 500,
+    "trucks": 2,
+    "legalRisk": 26.1,
+    "cashFlowRisk": 98.85964912280701,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 71000000,
+     "logistics": 372000,
+     "operating": 3570000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 4113027.287671233,
+     "tax": 6096566.956258858
+    },
+    "payDay": 165,
+    "deliveryDay": 45,
+    "minBalance": -49866000,
+    "reasons": [
+     "gap",
+     "bankHeavy",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700402-ОК1",
+   "twin": "reseller",
+   "scenario": "all3",
+   "expect": {
+    "tos": 34.9,
+    "netProfit": 5382717.59357582,
+    "marginPct": 5.606997493308146,
+    "cashFlowGap": true,
+    "gapDay": 7,
+    "maxDeficit": 56966000,
+    "distanceKm": 500,
+    "trucks": 2,
+    "legalRisk": 26.1,
+    "cashFlowRisk": 98.85964912280701,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 78100000,
+     "logistics": 372000,
+     "operating": 3570000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 4761947.835616439,
+     "tax": 3763334.5708077466
+    },
+    "payDay": 165,
+    "deliveryDay": 45,
+    "minBalance": -56966000,
+    "reasons": [
+     "gap",
+     "thinMargin",
+     "bankHeavy",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700402-ОК1",
+   "twin": "reseller",
+   "scenario": "late7",
+   "expect": {
+    "tos": 45.9,
+    "netProfit": 11353621.624563053,
+    "marginPct": 11.82668919225318,
+    "cashFlowGap": true,
+    "gapDay": 8,
+    "maxDeficit": 50055000,
+    "distanceKm": 500,
+    "trucks": 2,
+    "legalRisk": 26.1,
+    "cashFlowRisk": 98.58108108108108,
+    "verdict": "caution",
+    "costs": {
+     "purchase": 71000000,
+     "logistics": 372000,
+     "operating": 3087000,
+     "penalty": 672000,
+     "guarantee": 50000,
+     "bank": 3230007.4520547944,
+     "tax": 6235370.923382144
+    },
+    "payDay": 142,
+    "deliveryDay": 52,
+    "minBalance": -50055000,
+    "reasons": [
+     "gap",
+     "bankHeavy",
+     "certs",
+     "hidden",
+     "lateScenario"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700402-ОК1",
+   "twin": "reseller",
+   "scenario": "extend_transport",
+   "expect": {
+    "tos": 46.7,
+    "netProfit": 11796415.389324516,
+    "marginPct": 12.287932697213037,
+    "cashFlowGap": true,
+    "gapDay": 8,
+    "maxDeficit": 49520400,
+    "distanceKm": 500,
+    "trucks": 2,
+    "legalRisk": 26.1,
+    "cashFlowRisk": 98.6092715231788,
+    "verdict": "caution",
+    "costs": {
+     "purchase": 71000000,
+     "logistics": 446400,
+     "operating": 3150000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 3221377.315068494,
+     "tax": 6335807.295606991
+    },
+    "payDay": 145,
+    "deliveryDay": 55,
+    "minBalance": -49520400,
+    "reasons": [
+     "gap",
+     "bankHeavy",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700402-ОК1",
+   "twin": "blacklisted",
+   "scenario": "neutral",
+   "expect": {
+    "tos": 31.4,
+    "netProfit": 10132876.594426066,
+    "marginPct": 10.555079785860485,
+    "cashFlowGap": true,
+    "gapDay": 27,
+    "maxDeficit": 25988000,
+    "distanceKm": 500,
+    "trucks": 2,
+    "legalRisk": 100,
+    "cashFlowRisk": 78.98128477905072,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 71000000,
+     "logistics": 372000,
+     "operating": 6860000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 1654938.7397260296,
+     "tax": 5930184.6658478975
+    },
+    "payDay": 135,
+    "deliveryDay": 45,
+    "minBalance": -25988000,
+    "reasons": [
+     "rnu",
+     "gap",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700402-ОК1",
+   "twin": "blacklisted",
+   "scenario": "fuel15",
+   "expect": {
+    "tos": 31.4,
+    "netProfit": 10132876.594426066,
+    "marginPct": 10.555079785860485,
+    "cashFlowGap": true,
+    "gapDay": 27,
+    "maxDeficit": 25988000,
+    "distanceKm": 500,
+    "trucks": 2,
+    "legalRisk": 100,
+    "cashFlowRisk": 78.98128477905072,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 71000000,
+     "logistics": 372000,
+     "operating": 6860000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 1654938.7397260296,
+     "tax": 5930184.6658478975
+    },
+    "payDay": 135,
+    "deliveryDay": 45,
+    "minBalance": -25988000,
+    "reasons": [
+     "rnu",
+     "gap",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700402-ОК1",
+   "twin": "blacklisted",
+   "scenario": "supplier10",
+   "expect": {
+    "tos": 20.3,
+    "netProfit": 4832967.062068969,
+    "marginPct": 5.034340689655177,
+    "cashFlowGap": true,
+    "gapDay": 27,
+    "maxDeficit": 33088000,
+    "distanceKm": 500,
+    "trucks": 2,
+    "legalRisk": 100,
+    "cashFlowRisk": 83.76013093289689,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 78100000,
+     "logistics": 372000,
+     "operating": 6860000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 2159135.9999999995,
+     "tax": 3625896.9379310347
+    },
+    "payDay": 135,
+    "deliveryDay": 45,
+    "minBalance": -33088000,
+    "reasons": [
+     "rnu",
+     "gap",
+     "thinMargin",
+     "bankHeavy",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700402-ОК1",
+   "twin": "blacklisted",
+   "scenario": "pay30",
+   "expect": {
+    "tos": 28,
+    "netProfit": 8534779.060179502,
+    "marginPct": 8.890394854353648,
+    "cashFlowGap": true,
+    "gapDay": 27,
+    "maxDeficit": 27458000,
+    "distanceKm": 500,
+    "trucks": 2,
+    "legalRisk": 100,
+    "cashFlowRisk": 80.58660931174089,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 71000000,
+     "logistics": 372000,
+     "operating": 8330000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 2182560.6575342477,
+     "tax": 5530660.282286255
+    },
+    "payDay": 165,
+    "deliveryDay": 45,
+    "minBalance": -27458000,
+    "reasons": [
+     "rnu",
+     "gap",
+     "thinMargin",
+     "bankHeavy",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700402-ОК1",
+   "twin": "blacklisted",
+   "scenario": "all3",
+   "expect": {
+    "tos": 16.7,
+    "netProfit": 3122825.6922059506,
+    "marginPct": 3.2529434293811983,
+    "cashFlowGap": true,
+    "gapDay": 27,
+    "maxDeficit": 34558000,
+    "distanceKm": 500,
+    "trucks": 2,
+    "legalRisk": 100,
+    "cashFlowRisk": 85.36545546558705,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 78100000,
+     "logistics": 372000,
+     "operating": 8330000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 2826812.7123287665,
+     "tax": 3198361.5954652815
+    },
+    "payDay": 165,
+    "deliveryDay": 45,
+    "minBalance": -34558000,
+    "reasons": [
+     "rnu",
+     "gap",
+     "lowMargin",
+     "bankHeavy",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700402-ОК1",
+   "twin": "blacklisted",
+   "scenario": "late7",
+   "expect": {
+    "tos": 29.7,
+    "netProfit": 9237039.399905518,
+    "marginPct": 9.621916041568248,
+    "cashFlowGap": true,
+    "gapDay": 31,
+    "maxDeficit": 27003000,
+    "distanceKm": 500,
+    "trucks": 2,
+    "legalRisk": 100,
+    "cashFlowRisk": 79.42509615384616,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 71000000,
+     "logistics": 372000,
+     "operating": 7203000,
+     "penalty": 672000,
+     "guarantee": 50000,
+     "bank": 1759735.232876712,
+     "tax": 5706225.367217761
+    },
+    "payDay": 142,
+    "deliveryDay": 52,
+    "minBalance": -27003000,
+    "reasons": [
+     "rnu",
+     "gap",
+     "thinMargin",
+     "certs",
+     "hidden",
+     "lateScenario"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700402-ОК1",
+   "twin": "blacklisted",
+   "scenario": "extend_transport",
+   "expect": {
+    "tos": 30.5,
+    "netProfit": 9614566.315351918,
+    "marginPct": 10.015173245158248,
+    "cashFlowGap": true,
+    "gapDay": 33,
+    "maxDeficit": 26552400,
+    "distanceKm": 500,
+    "trucks": 2,
+    "legalRisk": 100,
+    "cashFlowRisk": 78.99763550687723,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 71000000,
+     "logistics": 446400,
+     "operating": 7350000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 1748688.6575342473,
+     "tax": 5790345.02711384
+    },
+    "payDay": 145,
+    "deliveryDay": 55,
+    "minBalance": -26552400,
+    "reasons": [
+     "rnu",
+     "gap",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
    "lot": "goszakup-700433-ОК1",
    "twin": "demo",
    "scenario": "neutral",
@@ -3776,6 +5833,484 @@
     "deliveryDay": 190,
     "minBalance": 102388656,
     "reasons": [
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700433-ОК1",
+   "twin": "reseller",
+   "scenario": "neutral",
+   "expect": {
+    "tos": 68,
+    "netProfit": 12494364.505243264,
+    "marginPct": 21.542007767660802,
+    "cashFlowGap": true,
+    "gapDay": 180,
+    "maxDeficit": 13719800,
+    "distanceKm": 670,
+    "trucks": 1,
+    "legalRisk": 19.56,
+    "cashFlowRisk": 71.29105333333332,
+    "verdict": "caution",
+    "costs": {
+     "purchase": 34000000,
+     "logistics": 280800,
+     "operating": 4515000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 264630.5753424658,
+     "tax": 6395204.919414266
+    },
+    "payDay": 210,
+    "deliveryDay": 180,
+    "minBalance": -13719800,
+    "reasons": [
+     "gap",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700433-ОК1",
+   "twin": "reseller",
+   "scenario": "fuel15",
+   "expect": {
+    "tos": 68,
+    "netProfit": 12494364.505243264,
+    "marginPct": 21.542007767660802,
+    "cashFlowGap": true,
+    "gapDay": 180,
+    "maxDeficit": 13719800,
+    "distanceKm": 670,
+    "trucks": 1,
+    "legalRisk": 19.56,
+    "cashFlowRisk": 71.29105333333332,
+    "verdict": "caution",
+    "costs": {
+     "purchase": 34000000,
+     "logistics": 280800,
+     "operating": 4515000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 264630.5753424658,
+     "tax": 6395204.919414266
+    },
+    "payDay": 210,
+    "deliveryDay": 180,
+    "minBalance": -13719800,
+    "reasons": [
+     "gap",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700433-ОК1",
+   "twin": "reseller",
+   "scenario": "supplier10",
+   "expect": {
+    "tos": 62,
+    "netProfit": 10095882.124515824,
+    "marginPct": 17.40669331813073,
+    "cashFlowGap": true,
+    "gapDay": 180,
+    "maxDeficit": 17119800,
+    "distanceKm": 670,
+    "trucks": 1,
+    "legalRisk": 19.56,
+    "cashFlowRisk": 76.05105333333333,
+    "verdict": "caution",
+    "costs": {
+     "purchase": 37400000,
+     "logistics": 280800,
+     "operating": 4515000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 331699.0684931507,
+     "tax": 5326618.806991026
+    },
+    "payDay": 210,
+    "deliveryDay": 180,
+    "minBalance": -17119800,
+    "reasons": [
+     "gap",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700433-ОК1",
+   "twin": "reseller",
+   "scenario": "pay30",
+   "expect": {
+    "tos": 67.3,
+    "netProfit": 11768718.12716107,
+    "marginPct": 20.2908933226915,
+    "cashFlowGap": true,
+    "gapDay": 180,
+    "maxDeficit": 14349800,
+    "distanceKm": 670,
+    "trucks": 1,
+    "legalRisk": 19.56,
+    "cashFlowRisk": 73.74825658536585,
+    "verdict": "caution",
+    "costs": {
+     "purchase": 34000000,
+     "logistics": 280800,
+     "operating": 5145000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 541688.5479452055,
+     "tax": 6213793.324893719
+    },
+    "payDay": 240,
+    "deliveryDay": 180,
+    "minBalance": -14349800,
+    "reasons": [
+     "gap",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700433-ОК1",
+   "twin": "reseller",
+   "scenario": "all3",
+   "expect": {
+    "tos": 58.9,
+    "netProfit": 9316580.951913081,
+    "marginPct": 16.06307060674669,
+    "cashFlowGap": true,
+    "gapDay": 180,
+    "maxDeficit": 17749800,
+    "distanceKm": 670,
+    "trucks": 1,
+    "legalRisk": 19.56,
+    "cashFlowRisk": 78.50825658536584,
+    "verdict": "caution",
+    "costs": {
+     "purchase": 37400000,
+     "logistics": 280800,
+     "operating": 5145000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 675825.5342465753,
+     "tax": 5131793.51384034
+    },
+    "payDay": 240,
+    "deliveryDay": 180,
+    "minBalance": -17749800,
+    "reasons": [
+     "gap",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700433-ОК1",
+   "twin": "reseller",
+   "scenario": "late7",
+   "expect": {
+    "tos": 67.8,
+    "netProfit": 12043237.710722722,
+    "marginPct": 20.764202949521934,
+    "cashFlowGap": true,
+    "gapDay": 187,
+    "maxDeficit": 14272800,
+    "distanceKm": 670,
+    "trucks": 1,
+    "legalRisk": 19.56,
+    "cashFlowRisk": 71.99985721973094,
+    "verdict": "caution",
+    "costs": {
+     "purchase": 34000000,
+     "logistics": 280800,
+     "operating": 4662000,
+     "penalty": 406000,
+     "guarantee": 50000,
+     "bank": 275539.0684931507,
+     "tax": 6282423.22078413
+    },
+    "payDay": 217,
+    "deliveryDay": 187,
+    "minBalance": -14272800,
+    "reasons": [
+     "gap",
+     "certs",
+     "lateScenario"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700433-ОК1",
+   "twin": "reseller",
+   "scenario": "extend_transport",
+   "expect": {
+    "tos": 67.9,
+    "netProfit": 12283433.247198872,
+    "marginPct": 21.178333184825643,
+    "cashFlowGap": true,
+    "gapDay": 190,
+    "maxDeficit": 13985960,
+    "distanceKm": 670,
+    "trucks": 1,
+    "legalRisk": 19.56,
+    "cashFlowRisk": 71.57149444247787,
+    "verdict": "caution",
+    "costs": {
+     "purchase": 34000000,
+     "logistics": 336960,
+     "operating": 4725000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 269880.85479452054,
+     "tax": 6334725.898006613
+    },
+    "payDay": 220,
+    "deliveryDay": 190,
+    "minBalance": -13985960,
+    "reasons": [
+     "gap",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700433-ОК1",
+   "twin": "blacklisted",
+   "scenario": "neutral",
+   "expect": {
+    "tos": 57.3,
+    "netProfit": 11678068.965517238,
+    "marginPct": 20.134601664684894,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 670,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 38.57175,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 34000000,
+     "logistics": 280800,
+     "operating": 5800000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 6191131.0344827585
+    },
+    "payDay": 210,
+    "deliveryDay": 180,
+    "minBalance": 7428200,
+    "reasons": [
+     "rnu",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700433-ОК1",
+   "twin": "blacklisted",
+   "scenario": "fuel15",
+   "expect": {
+    "tos": 57.3,
+    "netProfit": 11678068.965517238,
+    "marginPct": 20.134601664684894,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 670,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 38.57175,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 34000000,
+     "logistics": 280800,
+     "operating": 5800000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 6191131.0344827585
+    },
+    "payDay": 210,
+    "deliveryDay": 180,
+    "minBalance": 7428200,
+    "reasons": [
+     "rnu",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700433-ОК1",
+   "twin": "blacklisted",
+   "scenario": "supplier10",
+   "expect": {
+    "tos": 49.5,
+    "netProfit": 9333241.379310347,
+    "marginPct": 16.091795481569566,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 670,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 41.51405769230769,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 37400000,
+     "logistics": 280800,
+     "operating": 5800000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 5135958.620689656
+    },
+    "payDay": 210,
+    "deliveryDay": 180,
+    "minBalance": 4028200,
+    "reasons": [
+     "rnu",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700433-ОК1",
+   "twin": "blacklisted",
+   "scenario": "pay30",
+   "expect": {
+    "tos": 56.9,
+    "netProfit": 11678068.965517238,
+    "marginPct": 20.134601664684894,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 670,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 39.843865384615384,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 34000000,
+     "logistics": 280800,
+     "operating": 5800000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 6191131.0344827585
+    },
+    "payDay": 240,
+    "deliveryDay": 180,
+    "minBalance": 5958200,
+    "reasons": [
+     "rnu",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700433-ОК1",
+   "twin": "blacklisted",
+   "scenario": "all3",
+   "expect": {
+    "tos": 49.2,
+    "netProfit": 9333241.379310347,
+    "marginPct": 16.091795481569566,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 670,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 42.78617307692308,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 37400000,
+     "logistics": 280800,
+     "operating": 5800000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 5135958.620689656
+    },
+    "payDay": 240,
+    "deliveryDay": 180,
+    "minBalance": 2558200,
+    "reasons": [
+     "rnu",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700433-ОК1",
+   "twin": "blacklisted",
+   "scenario": "late7",
+   "expect": {
+    "tos": 56.3,
+    "netProfit": 11353268.965517238,
+    "marginPct": 19.57460166468489,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 670,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 39.219923076923074,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 34000000,
+     "logistics": 280800,
+     "operating": 5800000,
+     "penalty": 406000,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 6109931.0344827585
+    },
+    "payDay": 217,
+    "deliveryDay": 187,
+    "minBalance": 6679200,
+    "reasons": [
+     "rnu",
+     "certs",
+     "lateScenario"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700433-ОК1",
+   "twin": "blacklisted",
+   "scenario": "extend_transport",
+   "expect": {
+    "tos": 57.1,
+    "netProfit": 11639337.931034483,
+    "marginPct": 20.06782401902497,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 670,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 39.04438846153846,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 34000000,
+     "logistics": 336960,
+     "operating": 5800000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 6173702.068965517
+    },
+    "payDay": 220,
+    "deliveryDay": 190,
+    "minBalance": 6882040,
+    "reasons": [
+     "rnu",
      "certs"
     ]
    }
@@ -4538,6 +7073,514 @@
    }
   },
   {
+   "lot": "goszakup-700460-ОК1",
+   "twin": "reseller",
+   "scenario": "neutral",
+   "expect": {
+    "tos": 40.8,
+    "netProfit": 2113759.0295701474,
+    "marginPct": 6.710346125619515,
+    "cashFlowGap": true,
+    "gapDay": 25,
+    "maxDeficit": 2963200,
+    "distanceKm": 984,
+    "trucks": 1,
+    "legalRisk": 35.89,
+    "cashFlowRisk": 63.03005894736842,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 25800000,
+     "logistics": 664200,
+     "operating": 1575000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 74008.10958904111,
+     "tax": 1223032.8608408126
+    },
+    "payDay": 70,
+    "deliveryDay": 25,
+    "minBalance": -2963200,
+    "reasons": [
+     "gap",
+     "thinMargin",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700460-ОК1",
+   "twin": "reseller",
+   "scenario": "fuel15",
+   "expect": {
+    "tos": 40.6,
+    "netProfit": 2085331.5456665084,
+    "marginPct": 6.620100144973043,
+    "cashFlowGap": true,
+    "gapDay": 25,
+    "maxDeficit": 3003052,
+    "distanceKm": 984,
+    "trucks": 1,
+    "legalRisk": 35.89,
+    "cashFlowRisk": 63.085851747368416,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 25800000,
+     "logistics": 704052,
+     "operating": 1575000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 75187.29205479454,
+     "tax": 1210429.1622786964
+    },
+    "payDay": 70,
+    "deliveryDay": 25,
+    "minBalance": -3003052,
+    "reasons": [
+     "gap",
+     "thinMargin",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700460-ОК1",
+   "twin": "reseller",
+   "scenario": "supplier10",
+   "expect": {
+    "tos": 29.5,
+    "netProfit": 273376.9039206393,
+    "marginPct": 0.8678631870496487,
+    "cashFlowGap": true,
+    "gapDay": 25,
+    "maxDeficit": 5543200,
+    "distanceKm": 984,
+    "trucks": 1,
+    "legalRisk": 35.89,
+    "cashFlowRisk": 66.64205894736843,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 28380000.000000004,
+     "logistics": 664200,
+     "operating": 1575000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 150347.83561643836,
+     "tax": 407075.2604629181
+    },
+    "payDay": 70,
+    "deliveryDay": 25,
+    "minBalance": -5543200,
+    "reasons": [
+     "gap",
+     "lowMargin",
+     "bankHeavy",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700460-ОК1",
+   "twin": "reseller",
+   "scenario": "pay30",
+   "expect": {
+    "tos": 36.9,
+    "netProfit": 1557860.6405290514,
+    "marginPct": 4.945589335012861,
+    "cashFlowGap": true,
+    "gapDay": 25,
+    "maxDeficit": 3593200,
+    "distanceKm": 984,
+    "trucks": 1,
+    "legalRisk": 35.89,
+    "cashFlowRisk": 65.6436875471698,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 25800000,
+     "logistics": 664200,
+     "operating": 2205000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 138881.09589041097,
+     "tax": 1084058.2635805386
+    },
+    "payDay": 100,
+    "deliveryDay": 25,
+    "minBalance": -3593200,
+    "reasons": [
+     "gap",
+     "lowMargin",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700460-ОК1",
+   "twin": "reseller",
+   "scenario": "all3",
+   "expect": {
+    "tos": 27.2,
+    "netProfit": -440365.4836088829,
+    "marginPct": -1.3979856622504219,
+    "cashFlowGap": true,
+    "gapDay": 25,
+    "maxDeficit": 6213052,
+    "distanceKm": 984,
+    "trucks": 1,
+    "legalRisk": 35.89,
+    "cashFlowRisk": 69.3114803471698,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 28380000.000000004,
+     "logistics": 704052,
+     "operating": 2205000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 268079.2767123288,
+     "tax": 333234.20689655124
+    },
+    "payDay": 100,
+    "deliveryDay": 25,
+    "minBalance": -6213052,
+    "reasons": [
+     "gap",
+     "lowMargin",
+     "bankHeavy",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700460-ОК1",
+   "twin": "reseller",
+   "scenario": "late7",
+   "expect": {
+    "tos": 38.7,
+    "netProfit": 1720250.0980632938,
+    "marginPct": 5.461111422423155,
+    "cashFlowGap": true,
+    "gapDay": 32,
+    "maxDeficit": 3440950,
+    "distanceKm": 984,
+    "trucks": 1,
+    "legalRisk": 35.89,
+    "cashFlowRisk": 62.94986012048193,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 25800000,
+     "logistics": 664200,
+     "operating": 1722000,
+     "penalty": 330750,
+     "guarantee": 50000,
+     "bank": 88144.27397260275,
+     "tax": 1124655.6279641003
+    },
+    "payDay": 77,
+    "deliveryDay": 32,
+    "minBalance": -3440950,
+    "reasons": [
+     "gap",
+     "thinMargin",
+     "certs",
+     "hidden",
+     "lateScenario"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700460-ОК1",
+   "twin": "reseller",
+   "scenario": "extend_transport",
+   "expect": {
+    "tos": 39.5,
+    "netProfit": 1846029.7909872457,
+    "marginPct": 5.860412034880145,
+    "cashFlowGap": true,
+    "gapDay": 35,
+    "maxDeficit": 3306040,
+    "distanceKm": 984,
+    "trucks": 1,
+    "legalRisk": 35.89,
+    "cashFlowRisk": 62.477293209302324,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 25800000,
+     "logistics": 797040,
+     "operating": 1785000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 84152.41643835617,
+     "tax": 1137777.7925743978
+    },
+    "payDay": 80,
+    "deliveryDay": 35,
+    "minBalance": -3306040,
+    "reasons": [
+     "gap",
+     "thinMargin",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700460-ОК1",
+   "twin": "blacklisted",
+   "scenario": "neutral",
+   "expect": {
+    "tos": 27.3,
+    "netProfit": 912965.5172413811,
+    "marginPct": 2.898303229337718,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 984,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 25.870846153846156,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 25800000,
+     "logistics": 664200,
+     "operating": 3150000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 922834.4827586208
+    },
+    "payDay": 70,
+    "deliveryDay": 25,
+    "minBalance": 22104800,
+    "reasons": [
+     "rnu",
+     "lowMargin",
+     "overRadius",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700460-ОК1",
+   "twin": "blacklisted",
+   "scenario": "fuel15",
+   "expect": {
+    "tos": 27.1,
+    "netProfit": 885481.3793103434,
+    "marginPct": 2.811051997810614,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 984,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 25.90533346153846,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 25800000,
+     "logistics": 704052,
+     "operating": 3150000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 910466.6206896553
+    },
+    "payDay": 70,
+    "deliveryDay": 25,
+    "minBalance": 22064948,
+    "reasons": [
+     "rnu",
+     "lowMargin",
+     "overRadius",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700460-ОК1",
+   "twin": "blacklisted",
+   "scenario": "supplier10",
+   "expect": {
+    "tos": 21.6,
+    "netProfit": -1082931.0344827622,
+    "marginPct": -3.437876299945277,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 984,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 28.103538461538463,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 28380000.000000004,
+     "logistics": 664200,
+     "operating": 3150000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 338731.03448275814
+    },
+    "payDay": 70,
+    "deliveryDay": 25,
+    "minBalance": 19524800,
+    "reasons": [
+     "rnu",
+     "lowMargin",
+     "overRadius",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700460-ОК1",
+   "twin": "blacklisted",
+   "scenario": "pay30",
+   "expect": {
+    "tos": 26.9,
+    "netProfit": 912965.5172413811,
+    "marginPct": 2.898303229337718,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 984,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 27.142961538461538,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 25800000,
+     "logistics": 664200,
+     "operating": 3150000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 922834.4827586208
+    },
+    "payDay": 100,
+    "deliveryDay": 25,
+    "minBalance": 20634800,
+    "reasons": [
+     "rnu",
+     "lowMargin",
+     "overRadius",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700460-ОК1",
+   "twin": "blacklisted",
+   "scenario": "all3",
+   "expect": {
+    "tos": 21.2,
+    "netProfit": -1117286.2068965547,
+    "marginPct": -3.546940339354142,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 984,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 29.410141153846155,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 28380000.000000004,
+     "logistics": 704052,
+     "operating": 3150000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 333234.20689655124
+    },
+    "payDay": 100,
+    "deliveryDay": 25,
+    "minBalance": 18014948,
+    "reasons": [
+     "rnu",
+     "lowMargin",
+     "overRadius",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700460-ОК1",
+   "twin": "blacklisted",
+   "scenario": "late7",
+   "expect": {
+    "tos": 25.7,
+    "netProfit": 648365.5172413811,
+    "marginPct": 2.0583032293377177,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 984,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 26.45389903846154,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 25800000,
+     "logistics": 664200,
+     "operating": 3150000,
+     "penalty": 330750,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 856684.4827586208
+    },
+    "payDay": 77,
+    "deliveryDay": 32,
+    "minBalance": 21431050,
+    "reasons": [
+     "rnu",
+     "lowMargin",
+     "overRadius",
+     "hidden",
+     "lateScenario"
+    ]
+   }
+  },
+  {
+   "lot": "goszakup-700460-ОК1",
+   "twin": "blacklisted",
+   "scenario": "extend_transport",
+   "expect": {
+    "tos": 26.6,
+    "netProfit": 821351.7241379321,
+    "marginPct": 2.60746579091407,
+    "cashFlowGap": false,
+    "gapDay": null,
+    "maxDeficit": 0,
+    "distanceKm": 984,
+    "trucks": 1,
+    "legalRisk": 100,
+    "cashFlowRisk": 26.40984230769231,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 25800000,
+     "logistics": 797040,
+     "operating": 3150000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 0,
+     "tax": 881608.275862069
+    },
+    "payDay": 80,
+    "deliveryDay": 35,
+    "minBalance": 21481960,
+    "reasons": [
+     "rnu",
+     "lowMargin",
+     "overRadius",
+     "hidden"
+    ]
+   }
+  },
+  {
    "lot": "samruk-SK-2026-18844",
    "twin": "demo",
    "scenario": "neutral",
@@ -5269,6 +8312,507 @@
     "deliveryDay": 70,
     "minBalance": 36224440,
     "reasons": [
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "samruk-SK-2026-18844",
+   "twin": "reseller",
+   "scenario": "neutral",
+   "expect": {
+    "tos": 45,
+    "netProfit": 24818049.3365933,
+    "marginPct": 11.706627045562877,
+    "cashFlowGap": true,
+    "gapDay": 60,
+    "maxDeficit": 85022104,
+    "distanceKm": 1072,
+    "trucks": 2,
+    "legalRisk": 14.52,
+    "cashFlowRisk": 89.6875,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 171000000,
+     "logistics": 703104,
+     "operating": 1995000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 1671141.7775342464,
+     "tax": 11762704.88587246
+    },
+    "payDay": 90,
+    "deliveryDay": 60,
+    "minBalance": -85022104,
+    "reasons": [
+     "gap",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "samruk-SK-2026-18844",
+   "twin": "reseller",
+   "scenario": "fuel15",
+   "expect": {
+    "tos": 45,
+    "netProfit": 24818049.3365933,
+    "marginPct": 11.706627045562877,
+    "cashFlowGap": true,
+    "gapDay": 60,
+    "maxDeficit": 85022104,
+    "distanceKm": 1072,
+    "trucks": 2,
+    "legalRisk": 14.52,
+    "cashFlowRisk": 89.6875,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 171000000,
+     "logistics": 703104,
+     "operating": 1995000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 1671141.7775342464,
+     "tax": 11762704.88587246
+    },
+    "payDay": 90,
+    "deliveryDay": 60,
+    "minBalance": -85022104,
+    "reasons": [
+     "gap",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "samruk-SK-2026-18844",
+   "twin": "reseller",
+   "scenario": "supplier10",
+   "expect": {
+    "tos": 32.5,
+    "netProfit": 12588388.386947542,
+    "marginPct": 5.937919050446954,
+    "cashFlowGap": true,
+    "gapDay": 9,
+    "maxDeficit": 102122104,
+    "distanceKm": 1072,
+    "trucks": 2,
+    "legalRisk": 14.52,
+    "cashFlowRisk": 97.65625,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 188100000.00000003,
+     "logistics": 703104,
+     "operating": 1995000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 2216838.6542465757,
+     "tax": 6346668.958805848
+    },
+    "payDay": 90,
+    "deliveryDay": 60,
+    "minBalance": -102122104,
+    "reasons": [
+     "gap",
+     "thinMargin",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "samruk-SK-2026-18844",
+   "twin": "reseller",
+   "scenario": "pay30",
+   "expect": {
+    "tos": 42.7,
+    "netProfit": 22967114.254511088,
+    "marginPct": 10.833544459675041,
+    "cashFlowGap": true,
+    "gapDay": 60,
+    "maxDeficit": 85652200,
+    "distanceKm": 1072,
+    "trucks": 2,
+    "legalRisk": 14.52,
+    "cashFlowRisk": 92.14285714285714,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 171000000,
+     "logistics": 703104,
+     "operating": 2625000,
+     "penalty": 0,
+     "guarantee": 50095.8904109589,
+     "bank": 3354714.739726028,
+     "tax": 11299971.115351913
+    },
+    "payDay": 120,
+    "deliveryDay": 60,
+    "minBalance": -85652200,
+    "reasons": [
+     "gap",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "samruk-SK-2026-18844",
+   "twin": "reseller",
+   "scenario": "all3",
+   "expect": {
+    "tos": 30.6,
+    "netProfit": 10467598.674640685,
+    "marginPct": 4.937546544641832,
+    "cashFlowGap": true,
+    "gapDay": 9,
+    "maxDeficit": 102752200,
+    "distanceKm": 1072,
+    "trucks": 2,
+    "legalRisk": 14.52,
+    "cashFlowRisk": 98.21428571428571,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 188100000.00000003,
+     "logistics": 703104,
+     "operating": 2625000,
+     "penalty": 0,
+     "guarantee": 50095.8904109589,
+     "bank": 4237729.9042191785,
+     "tax": 5816471.5307291355
+    },
+    "payDay": 120,
+    "deliveryDay": 60,
+    "minBalance": -102752200,
+    "reasons": [
+     "gap",
+     "lowMargin",
+     "bankHeavy",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "samruk-SK-2026-18844",
+   "twin": "reseller",
+   "scenario": "late7",
+   "expect": {
+    "tos": 44,
+    "netProfit": 23487510.816045344,
+    "marginPct": 11.079014535870444,
+    "cashFlowGap": true,
+    "gapDay": 67,
+    "maxDeficit": 86653104,
+    "distanceKm": 1072,
+    "trucks": 2,
+    "legalRisk": 14.52,
+    "cashFlowRisk": 89.36893203883496,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 171000000,
+     "logistics": 703104,
+     "operating": 2142000,
+     "penalty": 1484000,
+     "guarantee": 50000,
+     "bank": 1703314.9282191778,
+     "tax": 11430070.255735476
+    },
+    "payDay": 97,
+    "deliveryDay": 67,
+    "minBalance": -86653104,
+    "reasons": [
+     "gap",
+     "certs",
+     "lateScenario"
+    ]
+   }
+  },
+  {
+   "lot": "samruk-SK-2026-18844",
+   "twin": "reseller",
+   "scenario": "extend_transport",
+   "expect": {
+    "tos": 44.9,
+    "netProfit": 24547536.386962652,
+    "marginPct": 11.579026597623892,
+    "cashFlowGap": true,
+    "gapDay": 70,
+    "maxDeficit": 85372725,
+    "distanceKm": 1072,
+    "trucks": 2,
+    "legalRisk": 14.52,
+    "cashFlowRisk": 89.24528301886792,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 171000000,
+     "logistics": 843724.7999999999,
+     "operating": 2205000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 1678058.1369863013,
+     "tax": 11675680.676051017
+    },
+    "payDay": 100,
+    "deliveryDay": 70,
+    "minBalance": -85372725,
+    "reasons": [
+     "gap",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "samruk-SK-2026-18844",
+   "twin": "blacklisted",
+   "scenario": "neutral",
+   "expect": {
+    "tos": 20.4,
+    "netProfit": 22353791.583168626,
+    "marginPct": 10.54424131281539,
+    "cashFlowGap": true,
+    "gapDay": 36,
+    "maxDeficit": 60514104,
+    "distanceKm": 1072,
+    "trucks": 2,
+    "legalRisk": 100,
+    "cashFlowRisk": 93.4375,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 171000000,
+     "logistics": 703104,
+     "operating": 4655000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 2091463.9693150693,
+     "tax": 11146640.447516296
+    },
+    "payDay": 90,
+    "deliveryDay": 60,
+    "minBalance": -60514104,
+    "reasons": [
+     "rnu",
+     "gap",
+     "overRadius",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "samruk-SK-2026-18844",
+   "twin": "blacklisted",
+   "scenario": "fuel15",
+   "expect": {
+    "tos": 20.4,
+    "netProfit": 22353791.583168626,
+    "marginPct": 10.54424131281539,
+    "cashFlowGap": true,
+    "gapDay": 36,
+    "maxDeficit": 60514104,
+    "distanceKm": 1072,
+    "trucks": 2,
+    "legalRisk": 100,
+    "cashFlowRisk": 93.4375,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 171000000,
+     "logistics": 703104,
+     "operating": 4655000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 2091463.9693150693,
+     "tax": 11146640.447516296
+    },
+    "payDay": 90,
+    "deliveryDay": 60,
+    "minBalance": -60514104,
+    "reasons": [
+     "rnu",
+     "gap",
+     "overRadius",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "samruk-SK-2026-18844",
+   "twin": "blacklisted",
+   "scenario": "supplier10",
+   "expect": {
+    "tos": 10.3,
+    "netProfit": 10074954.436262637,
+    "marginPct": 4.752336998237093,
+    "cashFlowGap": true,
+    "gapDay": 36,
+    "maxDeficit": 77614104,
+    "distanceKm": 1072,
+    "trucks": 2,
+    "legalRisk": 100,
+    "cashFlowRisk": 93.4375,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 188100000.00000003,
+     "logistics": 703104,
+     "operating": 4655000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 2698631.0926027386,
+     "tax": 5718310.471134616
+    },
+    "payDay": 90,
+    "deliveryDay": 60,
+    "minBalance": -77614104,
+    "reasons": [
+     "rnu",
+     "gap",
+     "lowMargin",
+     "overRadius",
+     "bankHeavy",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "samruk-SK-2026-18844",
+   "twin": "blacklisted",
+   "scenario": "pay30",
+   "expect": {
+    "tos": 18.2,
+    "netProfit": 20210762.795968622,
+    "marginPct": 9.53337867734369,
+    "cashFlowGap": true,
+    "gapDay": 36,
+    "maxDeficit": 61984200,
+    "distanceKm": 1072,
+    "trucks": 2,
+    "legalRisk": 100,
+    "cashFlowRisk": 95,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 171000000,
+     "logistics": 703104,
+     "operating": 6125000,
+     "penalty": 0,
+     "guarantee": 50095.8904109589,
+     "bank": 3300154.062904112,
+     "tax": 10610883.250716297
+    },
+    "payDay": 120,
+    "deliveryDay": 60,
+    "minBalance": -61984200,
+    "reasons": [
+     "rnu",
+     "gap",
+     "thinMargin",
+     "overRadius",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "samruk-SK-2026-18844",
+   "twin": "blacklisted",
+   "scenario": "all3",
+   "expect": {
+    "tos": 7.8,
+    "netProfit": 7662073.594268113,
+    "marginPct": 3.614185657673638,
+    "cashFlowGap": true,
+    "gapDay": 36,
+    "maxDeficit": 79084200,
+    "distanceKm": 1072,
+    "trucks": 2,
+    "legalRisk": 100,
+    "cashFlowRisk": 95,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 188100000.00000003,
+     "logistics": 703104,
+     "operating": 6125000,
+     "penalty": 0,
+     "guarantee": 50095.8904109589,
+     "bank": 4244636.254684929,
+     "tax": 5115090.260635986
+    },
+    "payDay": 120,
+    "deliveryDay": 60,
+    "minBalance": -79084200,
+    "reasons": [
+     "rnu",
+     "gap",
+     "lowMargin",
+     "overRadius",
+     "bankHeavy",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "samruk-SK-2026-18844",
+   "twin": "blacklisted",
+   "scenario": "late7",
+   "expect": {
+    "tos": 19.2,
+    "netProfit": 20768354.739333004,
+    "marginPct": 9.796393744968398,
+    "cashFlowGap": true,
+    "gapDay": 40,
+    "maxDeficit": 62341104,
+    "distanceKm": 1072,
+    "trucks": 2,
+    "legalRisk": 100,
+    "cashFlowRisk": 93.30097087378641,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 171000000,
+     "logistics": 703104,
+     "operating": 4998000,
+     "penalty": 1484000,
+     "guarantee": 50000,
+     "bank": 2246260.02410959,
+     "tax": 10750281.236557394
+    },
+    "payDay": 97,
+    "deliveryDay": 67,
+    "minBalance": -62341104,
+    "reasons": [
+     "rnu",
+     "gap",
+     "thinMargin",
+     "overRadius",
+     "certs",
+     "lateScenario"
+    ]
+   }
+  },
+  {
+   "lot": "samruk-SK-2026-18844",
+   "twin": "blacklisted",
+   "scenario": "extend_transport",
+   "expect": {
+    "tos": 20,
+    "netProfit": 21727516.13490787,
+    "marginPct": 10.24882836552258,
+    "cashFlowGap": true,
+    "gapDay": 42,
+    "maxDeficit": 61144725,
+    "distanceKm": 1072,
+    "trucks": 2,
+    "legalRisk": 100,
+    "cashFlowRisk": 93.20754716981132,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 171000000,
+     "logistics": 843724.7999999999,
+     "operating": 5145000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 2263083.4520547935,
+     "tax": 10970675.613037318
+    },
+    "payDay": 100,
+    "deliveryDay": 70,
+    "minBalance": -61144725,
+    "reasons": [
+     "rnu",
+     "gap",
+     "overRadius",
      "certs"
     ]
    }
@@ -6039,6 +9583,533 @@
    }
   },
   {
+   "lot": "nadloc-NL-2026-3317",
+   "twin": "reseller",
+   "scenario": "neutral",
+   "expect": {
+    "tos": 39.5,
+    "netProfit": 26195402.188793957,
+    "marginPct": 14.716518083592112,
+    "cashFlowGap": true,
+    "gapDay": 18,
+    "maxDeficit": 107486041,
+    "distanceKm": 866,
+    "trucks": 3,
+    "legalRisk": 66.03999999999999,
+    "cashFlowRisk": 97.89473684210526,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 128000000,
+     "logistics": 983520,
+     "operating": 3570000,
+     "penalty": 0,
+     "guarantee": 58520.54794520548,
+     "bank": 5882812.922958904,
+     "tax": 13309744.340301938
+    },
+    "payDay": 165,
+    "deliveryDay": 120,
+    "minBalance": -107486041,
+    "reasons": [
+     "gap",
+     "experience",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "nadloc-NL-2026-3317",
+   "twin": "reseller",
+   "scenario": "fuel15",
+   "expect": {
+    "tos": 39.5,
+    "netProfit": 26195402.188793957,
+    "marginPct": 14.716518083592112,
+    "cashFlowGap": true,
+    "gapDay": 18,
+    "maxDeficit": 107486041,
+    "distanceKm": 866,
+    "trucks": 3,
+    "legalRisk": 66.03999999999999,
+    "cashFlowRisk": 97.89473684210526,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 128000000,
+     "logistics": 983520,
+     "operating": 3570000,
+     "penalty": 0,
+     "guarantee": 58520.54794520548,
+     "bank": 5882812.922958904,
+     "tax": 13309744.340301938
+    },
+    "payDay": 165,
+    "deliveryDay": 120,
+    "minBalance": -107486041,
+    "reasons": [
+     "gap",
+     "experience",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "nadloc-NL-2026-3317",
+   "twin": "reseller",
+   "scenario": "supplier10",
+   "expect": {
+    "tos": 30.2,
+    "netProfit": 16721433.516143978,
+    "marginPct": 9.394063773114594,
+    "cashFlowGap": true,
+    "gapDay": 18,
+    "maxDeficit": 120286041,
+    "distanceKm": 866,
+    "trucks": 3,
+    "legalRisk": 66.03999999999999,
+    "cashFlowRisk": 97.89473684210526,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 140800000,
+     "logistics": 983520,
+     "operating": 3570000,
+     "penalty": 0,
+     "guarantee": 58520.54794520548,
+     "bank": 6690791.005150684,
+     "tax": 9175734.930760132
+    },
+    "payDay": 165,
+    "deliveryDay": 120,
+    "minBalance": -120286041,
+    "reasons": [
+     "gap",
+     "thinMargin",
+     "bankHeavy",
+     "experience",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "nadloc-NL-2026-3317",
+   "twin": "reseller",
+   "scenario": "pay30",
+   "expect": {
+    "tos": 37.2,
+    "netProfit": 23980247.809046,
+    "marginPct": 13.472049330924719,
+    "cashFlowGap": true,
+    "gapDay": 18,
+    "maxDeficit": 108127013,
+    "distanceKm": 866,
+    "trucks": 3,
+    "legalRisk": 66.03999999999999,
+    "cashFlowRisk": 98.2089552238806,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 128000000,
+     "logistics": 983520,
+     "operating": 4200000,
+     "penalty": 0,
+     "guarantee": 69493.1506849315,
+     "bank": 8010783.294904111,
+     "tax": 12755955.745364951
+    },
+    "payDay": 195,
+    "deliveryDay": 120,
+    "minBalance": -108127013,
+    "reasons": [
+     "gap",
+     "bankHeavy",
+     "experience",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "nadloc-NL-2026-3317",
+   "twin": "reseller",
+   "scenario": "all3",
+   "expect": {
+    "tos": 27.7,
+    "netProfit": 14304284.615848094,
+    "marginPct": 8.036114952723649,
+    "cashFlowGap": true,
+    "gapDay": 18,
+    "maxDeficit": 120927013,
+    "distanceKm": 866,
+    "trucks": 3,
+    "legalRisk": 66.03999999999999,
+    "cashFlowRisk": 98.2089552238806,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 140800000,
+     "logistics": 983520,
+     "operating": 4200000,
+     "penalty": 0,
+     "guarantee": 69493.1506849315,
+     "bank": 9071254.527780822,
+     "tax": 8571447.70568616
+    },
+    "payDay": 195,
+    "deliveryDay": 120,
+    "minBalance": -120927013,
+    "reasons": [
+     "gap",
+     "thinMargin",
+     "bankHeavy",
+     "experience",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "nadloc-NL-2026-3317",
+   "twin": "reseller",
+   "scenario": "late7",
+   "expect": {
+    "tos": 38.3,
+    "netProfit": 24913186.53193915,
+    "marginPct": 13.996172208954578,
+    "cashFlowGap": true,
+    "gapDay": 19,
+    "maxDeficit": 108881601,
+    "distanceKm": 866,
+    "trucks": 3,
+    "legalRisk": 66.03999999999999,
+    "cashFlowRisk": 97.8932584269663,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 128000000,
+     "logistics": 983520,
+     "operating": 3717000,
+     "penalty": 1246000,
+     "guarantee": 61080.82191780822,
+     "bank": 6090022.220054793,
+     "tax": 12989190.42608824
+    },
+    "payDay": 172,
+    "deliveryDay": 127,
+    "minBalance": -108881601,
+    "reasons": [
+     "gap",
+     "experience",
+     "certs",
+     "hidden",
+     "lateScenario"
+    ]
+   }
+  },
+  {
+   "lot": "nadloc-NL-2026-3317",
+   "twin": "reseller",
+   "scenario": "extend_transport",
+   "expect": {
+    "tos": 39,
+    "netProfit": 25701181.794373184,
+    "marginPct": 14.438866176614148,
+    "cashFlowGap": true,
+    "gapDay": 20,
+    "maxDeficit": 107896402,
+    "distanceKm": 866,
+    "trucks": 3,
+    "legalRisk": 66.03999999999999,
+    "cashFlowRisk": 97.84530386740332,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 128000000,
+     "logistics": 1180224,
+     "operating": 3780000,
+     "penalty": 0,
+     "guarantee": 62178.08219178082,
+     "bank": 6117358.467945205,
+     "tax": 13159057.655489845
+    },
+    "payDay": 175,
+    "deliveryDay": 130,
+    "minBalance": -107896402,
+    "reasons": [
+     "gap",
+     "experience",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "nadloc-NL-2026-3317",
+   "twin": "blacklisted",
+   "scenario": "neutral",
+   "expect": {
+    "tos": 23.1,
+    "netProfit": 22298631.90934193,
+    "marginPct": 12.527321297383107,
+    "cashFlowGap": true,
+    "gapDay": 18,
+    "maxDeficit": 85078041,
+    "distanceKm": 866,
+    "trucks": 3,
+    "legalRisk": 100,
+    "cashFlowRisk": 97.89473684210526,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 128000000,
+     "logistics": 983520,
+     "operating": 8330000,
+     "penalty": 0,
+     "guarantee": 58520.54794520548,
+     "bank": 5993775.772273972,
+     "tax": 12335551.770438924
+    },
+    "payDay": 165,
+    "deliveryDay": 120,
+    "minBalance": -85078041,
+    "reasons": [
+     "rnu",
+     "gap",
+     "bankHeavy",
+     "experience",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "nadloc-NL-2026-3317",
+   "twin": "blacklisted",
+   "scenario": "fuel15",
+   "expect": {
+    "tos": 23.1,
+    "netProfit": 22298631.90934193,
+    "marginPct": 12.527321297383107,
+    "cashFlowGap": true,
+    "gapDay": 18,
+    "maxDeficit": 85078041,
+    "distanceKm": 866,
+    "trucks": 3,
+    "legalRisk": 100,
+    "cashFlowRisk": 97.89473684210526,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 128000000,
+     "logistics": 983520,
+     "operating": 8330000,
+     "penalty": 0,
+     "guarantee": 58520.54794520548,
+     "bank": 5993775.772273972,
+     "tax": 12335551.770438924
+    },
+    "payDay": 165,
+    "deliveryDay": 120,
+    "minBalance": -85078041,
+    "reasons": [
+     "rnu",
+     "gap",
+     "bankHeavy",
+     "experience",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "nadloc-NL-2026-3317",
+   "twin": "blacklisted",
+   "scenario": "supplier10",
+   "expect": {
+    "tos": 13.6,
+    "netProfit": 12626708.606554925,
+    "marginPct": 7.0936565205364746,
+    "cashFlowGap": true,
+    "gapDay": 18,
+    "maxDeficit": 97878041,
+    "distanceKm": 866,
+    "trucks": 3,
+    "legalRisk": 100,
+    "cashFlowRisk": 97.89473684210526,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 140800000,
+     "logistics": 983520,
+     "operating": 8330000,
+     "penalty": 0,
+     "guarantee": 58520.54794520548,
+     "bank": 7049197.142136985,
+     "tax": 8152053.703362872
+    },
+    "payDay": 165,
+    "deliveryDay": 120,
+    "minBalance": -97878041,
+    "reasons": [
+     "rnu",
+     "gap",
+     "thinMargin",
+     "bankHeavy",
+     "experience",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "nadloc-NL-2026-3317",
+   "twin": "blacklisted",
+   "scenario": "pay30",
+   "expect": {
+    "tos": 20.5,
+    "netProfit": 19758245.310415864,
+    "marginPct": 11.100137814840373,
+    "cashFlowGap": true,
+    "gapDay": 18,
+    "maxDeficit": 86559013,
+    "distanceKm": 866,
+    "trucks": 3,
+    "legalRisk": 100,
+    "cashFlowRisk": 98.2089552238806,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 128000000,
+     "logistics": 983520,
+     "operating": 9800000,
+     "penalty": 0,
+     "guarantee": 69493.1506849315,
+     "bank": 7688286.418191779,
+     "tax": 11700455.120707419
+    },
+    "payDay": 195,
+    "deliveryDay": 120,
+    "minBalance": -86559013,
+    "reasons": [
+     "rnu",
+     "gap",
+     "bankHeavy",
+     "experience",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "nadloc-NL-2026-3317",
+   "twin": "blacklisted",
+   "scenario": "all3",
+   "expect": {
+    "tos": 10.8,
+    "netProfit": 9884327.487080991,
+    "marginPct": 5.55299297027022,
+    "cashFlowGap": true,
+    "gapDay": 18,
+    "maxDeficit": 99359013,
+    "distanceKm": 866,
+    "trucks": 3,
+    "legalRisk": 100,
+    "cashFlowRisk": 98.2089552238806,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 140800000,
+     "logistics": 983520,
+     "operating": 9800000,
+     "penalty": 0,
+     "guarantee": 69493.1506849315,
+     "bank": 8996200.938739726,
+     "tax": 7466458.42349438
+    },
+    "payDay": 195,
+    "deliveryDay": 120,
+    "minBalance": -99359013,
+    "reasons": [
+     "rnu",
+     "gap",
+     "thinMargin",
+     "bankHeavy",
+     "experience",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
+   "lot": "nadloc-NL-2026-3317",
+   "twin": "blacklisted",
+   "scenario": "late7",
+   "expect": {
+    "tos": 21.7,
+    "netProfit": 20806580.066185743,
+    "marginPct": 11.68908992482345,
+    "cashFlowGap": true,
+    "gapDay": 19,
+    "maxDeficit": 86669601,
+    "distanceKm": 866,
+    "trucks": 3,
+    "legalRisk": 100,
+    "cashFlowRisk": 97.8932584269663,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 128000000,
+     "logistics": 983520,
+     "operating": 8673000,
+     "penalty": 1246000,
+     "guarantee": 61080.82191780822,
+     "bank": 6267280.302246578,
+     "tax": 11962538.809649881
+    },
+    "payDay": 172,
+    "deliveryDay": 127,
+    "minBalance": -86669601,
+    "reasons": [
+     "rnu",
+     "gap",
+     "bankHeavy",
+     "experience",
+     "certs",
+     "hidden",
+     "lateScenario"
+    ]
+   }
+  },
+  {
+   "lot": "nadloc-NL-2026-3317",
+   "twin": "blacklisted",
+   "scenario": "extend_transport",
+   "expect": {
+    "tos": 22.4,
+    "netProfit": 21508017.520400554,
+    "marginPct": 12.08315591033739,
+    "cashFlowGap": true,
+    "gapDay": 20,
+    "maxDeficit": 85768402,
+    "distanceKm": 866,
+    "trucks": 3,
+    "legalRisk": 100,
+    "cashFlowRisk": 97.84530386740332,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 128000000,
+     "logistics": 1180224,
+     "operating": 8820000,
+     "penalty": 0,
+     "guarantee": 62178.08219178082,
+     "bank": 6318813.810410958,
+     "tax": 12110766.586996693
+    },
+    "payDay": 175,
+    "deliveryDay": 130,
+    "minBalance": -85768402,
+    "reasons": [
+     "rnu",
+     "gap",
+     "bankHeavy",
+     "experience",
+     "certs",
+     "hidden"
+    ]
+   }
+  },
+  {
    "lot": "erg-ERG-26-0912",
    "twin": "demo",
    "scenario": "neutral",
@@ -6773,6 +10844,510 @@
     "minBalance": 91114691,
     "reasons": [
      "thinMargin"
+    ]
+   }
+  },
+  {
+   "lot": "erg-ERG-26-0912",
+   "twin": "reseller",
+   "scenario": "neutral",
+   "expect": {
+    "tos": 35.2,
+    "netProfit": 5587491.541917808,
+    "marginPct": 8.662777584368696,
+    "cashFlowGap": true,
+    "gapDay": 6,
+    "maxDeficit": 29560360,
+    "distanceKm": 1860,
+    "trucks": 3,
+    "legalRisk": 2.5199999999999996,
+    "cashFlowRisk": 98.30188679245283,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 51000000,
+     "logistics": 1431360,
+     "operating": 2205000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 1164635.5726027398,
+     "tax": 3061512.885479452
+    },
+    "payDay": 100,
+    "deliveryDay": 40,
+    "minBalance": -29560360,
+    "reasons": [
+     "gap",
+     "thinMargin",
+     "overRadius"
+    ]
+   }
+  },
+  {
+   "lot": "erg-ERG-26-0912",
+   "twin": "reseller",
+   "scenario": "fuel15",
+   "expect": {
+    "tos": 35.2,
+    "netProfit": 5587491.541917808,
+    "marginPct": 8.662777584368696,
+    "cashFlowGap": true,
+    "gapDay": 6,
+    "maxDeficit": 29560360,
+    "distanceKm": 1860,
+    "trucks": 3,
+    "legalRisk": 2.5199999999999996,
+    "cashFlowRisk": 98.30188679245283,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 51000000,
+     "logistics": 1431360,
+     "operating": 2205000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 1164635.5726027398,
+     "tax": 3061512.885479452
+    },
+    "payDay": 100,
+    "deliveryDay": 40,
+    "minBalance": -29560360,
+    "reasons": [
+     "gap",
+     "thinMargin",
+     "overRadius"
+    ]
+   }
+  },
+  {
+   "lot": "erg-ERG-26-0912",
+   "twin": "reseller",
+   "scenario": "supplier10",
+   "expect": {
+    "tos": 25.1,
+    "netProfit": 1863679.2037033513,
+    "marginPct": 2.8894251220207,
+    "cashFlowGap": true,
+    "gapDay": 6,
+    "maxDeficit": 34660360,
+    "distanceKm": 1860,
+    "trucks": 3,
+    "legalRisk": 2.5199999999999996,
+    "cashFlowRisk": 98.30188679245283,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 56100000.00000001,
+     "logistics": 1431360,
+     "operating": 2205000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 1422849.2712328767,
+     "tax": 1427111.525063767
+    },
+    "payDay": 100,
+    "deliveryDay": 40,
+    "minBalance": -34660360,
+    "reasons": [
+     "gap",
+     "lowMargin",
+     "overRadius",
+     "bankHeavy"
+    ]
+   }
+  },
+  {
+   "lot": "erg-ERG-26-0912",
+   "twin": "reseller",
+   "scenario": "pay30",
+   "expect": {
+    "tos": 32.4,
+    "netProfit": 4611868.107397258,
+    "marginPct": 7.150183112243812,
+    "cashFlowGap": true,
+    "gapDay": 6,
+    "maxDeficit": 30190360,
+    "distanceKm": 1860,
+    "trucks": 3,
+    "legalRisk": 2.5199999999999996,
+    "cashFlowRisk": 98.67647058823529,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 51000000,
+     "logistics": 1431360,
+     "operating": 2835000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 1754164.8657534246,
+     "tax": 2817607.0268493155
+    },
+    "payDay": 130,
+    "deliveryDay": 40,
+    "minBalance": -30190360,
+    "reasons": [
+     "gap",
+     "thinMargin",
+     "overRadius",
+     "bankHeavy"
+    ]
+   }
+  },
+  {
+   "lot": "erg-ERG-26-0912",
+   "twin": "reseller",
+   "scenario": "all3",
+   "expect": {
+    "tos": 22.1,
+    "netProfit": 807573.5774019808,
+    "marginPct": 1.2520520579875671,
+    "cashFlowGap": true,
+    "gapDay": 6,
+    "maxDeficit": 35290360,
+    "distanceKm": 1860,
+    "trucks": 3,
+    "legalRisk": 2.5199999999999996,
+    "cashFlowRisk": 98.67647058823529,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 56100000.00000001,
+     "logistics": 1431360,
+     "operating": 2835000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 2112981.304109589,
+     "tax": 1163085.1184884247
+    },
+    "payDay": 130,
+    "deliveryDay": 40,
+    "minBalance": -35290360,
+    "reasons": [
+     "gap",
+     "lowMargin",
+     "overRadius",
+     "bankHeavy"
+    ]
+   }
+  },
+  {
+   "lot": "erg-ERG-26-0912",
+   "twin": "reseller",
+   "scenario": "late7",
+   "expect": {
+    "tos": 33.3,
+    "netProfit": 4897082.226849318,
+    "marginPct": 7.592375545502818,
+    "cashFlowGap": true,
+    "gapDay": 7,
+    "maxDeficit": 30384610,
+    "distanceKm": 1860,
+    "trucks": 3,
+    "legalRisk": 2.5199999999999996,
+    "cashFlowRisk": 98.27433628318585,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 51000000,
+     "logistics": 1431360,
+     "operating": 2352000,
+     "penalty": 677250,
+     "guarantee": 50000,
+     "bank": 1203397.216438356,
+     "tax": 2888910.5567123294
+    },
+    "payDay": 107,
+    "deliveryDay": 47,
+    "minBalance": -30384610,
+    "reasons": [
+     "gap",
+     "thinMargin",
+     "overRadius",
+     "lateScenario"
+    ]
+   }
+  },
+  {
+   "lot": "erg-ERG-26-0912",
+   "twin": "reseller",
+   "scenario": "extend_transport",
+   "expect": {
+    "tos": 34.1,
+    "netProfit": 5199312.7751950845,
+    "marginPct": 8.060950039062147,
+    "cashFlowGap": true,
+    "gapDay": 8,
+    "maxDeficit": 30056632,
+    "distanceKm": 1860,
+    "trucks": 3,
+    "legalRisk": 2.5199999999999996,
+    "cashFlowRisk": 98.1896551724138,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 51000000,
+     "logistics": 1717632,
+     "operating": 2415000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 1193072.824109589,
+     "tax": 2924982.400695324
+    },
+    "payDay": 110,
+    "deliveryDay": 50,
+    "minBalance": -30056632,
+    "reasons": [
+     "gap",
+     "thinMargin",
+     "overRadius"
+    ]
+   }
+  },
+  {
+   "lot": "erg-ERG-26-0912",
+   "twin": "blacklisted",
+   "scenario": "neutral",
+   "expect": {
+    "tos": 21.7,
+    "netProfit": 4039529.1528767124,
+    "marginPct": 6.262835895932888,
+    "cashFlowGap": true,
+    "gapDay": 24,
+    "maxDeficit": 5332360,
+    "distanceKm": 1860,
+    "trucks": 3,
+    "legalRisk": 100,
+    "cashFlowRisk": 64.34380544267053,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 51000000,
+     "logistics": 1431360,
+     "operating": 5145000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 159588.5589041096,
+     "tax": 2674522.288219178
+    },
+    "payDay": 100,
+    "deliveryDay": 40,
+    "minBalance": -5332360,
+    "reasons": [
+     "rnu",
+     "gap",
+     "thinMargin",
+     "overRadius"
+    ]
+   }
+  },
+  {
+   "lot": "erg-ERG-26-0912",
+   "twin": "blacklisted",
+   "scenario": "fuel15",
+   "expect": {
+    "tos": 21.7,
+    "netProfit": 4039529.1528767124,
+    "marginPct": 6.262835895932888,
+    "cashFlowGap": true,
+    "gapDay": 24,
+    "maxDeficit": 5332360,
+    "distanceKm": 1860,
+    "trucks": 3,
+    "legalRisk": 100,
+    "cashFlowRisk": 64.34380544267053,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 51000000,
+     "logistics": 1431360,
+     "operating": 5145000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 159588.5589041096,
+     "tax": 2674522.288219178
+    },
+    "payDay": 100,
+    "deliveryDay": 40,
+    "minBalance": -5332360,
+    "reasons": [
+     "rnu",
+     "gap",
+     "thinMargin",
+     "overRadius"
+    ]
+   }
+  },
+  {
+   "lot": "erg-ERG-26-0912",
+   "twin": "blacklisted",
+   "scenario": "supplier10",
+   "expect": {
+    "tos": 10.5,
+    "netProfit": 318399.55438827723,
+    "marginPct": 0.49364271998182513,
+    "cashFlowGap": true,
+    "gapDay": 24,
+    "maxDeficit": 10432360,
+    "distanceKm": 1860,
+    "trucks": 3,
+    "legalRisk": 100,
+    "cashFlowRisk": 67.77649775036284,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 56100000.00000001,
+     "logistics": 1431360,
+     "operating": 5145000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 414448.8328767123,
+     "tax": 1040791.612735
+    },
+    "payDay": 100,
+    "deliveryDay": 40,
+    "minBalance": -10432360,
+    "reasons": [
+     "rnu",
+     "gap",
+     "lowMargin",
+     "overRadius",
+     "bankHeavy"
+    ]
+   }
+  },
+  {
+   "lot": "erg-ERG-26-0912",
+   "twin": "blacklisted",
+   "scenario": "pay30",
+   "expect": {
+    "tos": 18,
+    "netProfit": 2899394.595068492,
+    "marginPct": 4.49518541871084,
+    "cashFlowGap": true,
+    "gapDay": 24,
+    "maxDeficit": 6802360,
+    "distanceKm": 1860,
+    "trucks": 3,
+    "legalRisk": 100,
+    "cashFlowRisk": 66.26968800904977,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 51000000,
+     "logistics": 1431360,
+     "operating": 6450000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 279756.7561643836,
+     "tax": 2389488.648767124
+    },
+    "payDay": 130,
+    "deliveryDay": 40,
+    "minBalance": -6802360,
+    "reasons": [
+     "rnu",
+     "gap",
+     "lowMargin",
+     "overRadius"
+    ]
+   }
+  },
+  {
+   "lot": "erg-ERG-26-0912",
+   "twin": "blacklisted",
+   "scenario": "all3",
+   "expect": {
+    "tos": 9.1,
+    "netProfit": -1127771.4940009564,
+    "marginPct": -1.7484829364355914,
+    "cashFlowGap": true,
+    "gapDay": 24,
+    "maxDeficit": 11902360,
+    "distanceKm": 1860,
+    "trucks": 3,
+    "legalRisk": 100,
+    "cashFlowRisk": 69.70238031674208,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 56100000.00000001,
+     "logistics": 1431360,
+     "operating": 6450000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 635219.7698630133,
+     "tax": 961191.72413793
+    },
+    "payDay": 130,
+    "deliveryDay": 40,
+    "minBalance": -11902360,
+    "reasons": [
+     "rnu",
+     "gap",
+     "lowMargin",
+     "overRadius",
+     "bankHeavy"
+    ]
+   }
+  },
+  {
+   "lot": "erg-ERG-26-0912",
+   "twin": "blacklisted",
+   "scenario": "late7",
+   "expect": {
+    "tos": 19.2,
+    "netProfit": 3187498.270684935,
+    "marginPct": 4.941857784007651,
+    "cashFlowGap": true,
+    "gapDay": 28,
+    "maxDeficit": 6352610,
+    "distanceKm": 1860,
+    "trucks": 3,
+    "legalRisk": 100,
+    "cashFlowRisk": 64.76252085602451,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 51000000,
+     "logistics": 1431360,
+     "operating": 5488000,
+     "penalty": 677250,
+     "guarantee": 50000,
+     "bank": 204377.1616438356,
+     "tax": 2461514.567671233
+    },
+    "payDay": 107,
+    "deliveryDay": 47,
+    "minBalance": -6352610,
+    "reasons": [
+     "rnu",
+     "gap",
+     "lowMargin",
+     "overRadius",
+     "lateScenario"
+    ]
+   }
+  },
+  {
+   "lot": "erg-ERG-26-0912",
+   "twin": "blacklisted",
+   "scenario": "extend_transport",
+   "expect": {
+    "tos": 19.9,
+    "netProfit": 3420226.923140295,
+    "marginPct": 5.302677400217512,
+    "cashFlowGap": true,
+    "gapDay": 30,
+    "maxDeficit": 6108632,
+    "distanceKm": 1860,
+    "trucks": 3,
+    "legalRisk": 100,
+    "cashFlowRisk": 64.45640681697613,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 51000000,
+     "logistics": 1717632,
+     "operating": 5635000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 196930.1391780822,
+     "tax": 2480210.937681625
+    },
+    "payDay": 110,
+    "deliveryDay": 50,
+    "minBalance": -6108632,
+    "reasons": [
+     "rnu",
+     "gap",
+     "thinMargin",
+     "overRadius"
     ]
    }
   },
@@ -7525,6 +12100,517 @@
     "reasons": [
      "thinMargin",
      "certs"
+    ]
+   }
+  },
+  {
+   "lot": "bi_group-BI-2026-5520",
+   "twin": "reseller",
+   "scenario": "neutral",
+   "expect": {
+    "tos": 28.5,
+    "netProfit": 4576441.968219176,
+    "marginPct": 3.316262295810997,
+    "cashFlowGap": true,
+    "gapDay": 6,
+    "maxDeficit": 77168240,
+    "distanceKm": 1072,
+    "trucks": 21,
+    "legalRisk": 13.26,
+    "cashFlowRisk": 96.47058823529412,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 121000000,
+     "logistics": 7794240,
+     "operating": 1050000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 1115447.5397260275,
+     "tax": 2413870.492054795
+    },
+    "payDay": 45,
+    "deliveryDay": 25,
+    "minBalance": -77168240,
+    "reasons": [
+     "gap",
+     "lowMargin",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "bi_group-BI-2026-5520",
+   "twin": "reseller",
+   "scenario": "fuel15",
+   "expect": {
+    "tos": 28.5,
+    "netProfit": 4576441.968219176,
+    "marginPct": 3.316262295810997,
+    "cashFlowGap": true,
+    "gapDay": 6,
+    "maxDeficit": 77168240,
+    "distanceKm": 1072,
+    "trucks": 21,
+    "legalRisk": 13.26,
+    "cashFlowRisk": 96.47058823529412,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 121000000,
+     "logistics": 7794240,
+     "operating": 1050000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 1115447.5397260275,
+     "tax": 2413870.492054795
+    },
+    "payDay": 45,
+    "deliveryDay": 25,
+    "minBalance": -77168240,
+    "reasons": [
+     "gap",
+     "lowMargin",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "bi_group-BI-2026-5520",
+   "twin": "reseller",
+   "scenario": "supplier10",
+   "expect": {
+    "tos": 22.7,
+    "netProfit": -5344394.389041096,
+    "marginPct": -3.872749557276157,
+    "cashFlowGap": true,
+    "gapDay": 6,
+    "maxDeficit": 89268240,
+    "distanceKm": 1072,
+    "trucks": 21,
+    "legalRisk": 13.26,
+    "cashFlowRisk": 96.47058823529412,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 133100000.00000001,
+     "logistics": 7794240,
+     "operating": 1050000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 1350154.389041096,
+     "tax": 0
+    },
+    "payDay": 45,
+    "deliveryDay": 25,
+    "minBalance": -89268240,
+    "reasons": [
+     "gap",
+     "lowMargin",
+     "bankHeavy",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "bi_group-BI-2026-5520",
+   "twin": "reseller",
+   "scenario": "pay30",
+   "expect": {
+    "tos": 25.9,
+    "netProfit": 2849527.0575342476,
+    "marginPct": 2.064874679372643,
+    "cashFlowGap": true,
+    "gapDay": 6,
+    "maxDeficit": 77798240,
+    "distanceKm": 1072,
+    "trucks": 21,
+    "legalRisk": 13.26,
+    "cashFlowRisk": 97.77777777777777,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 121000000,
+     "logistics": 7794240,
+     "operating": 1680000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 2644091.1780821914,
+     "tax": 1982141.764383562
+    },
+    "payDay": 75,
+    "deliveryDay": 25,
+    "minBalance": -77798240,
+    "reasons": [
+     "gap",
+     "lowMargin",
+     "bankHeavy",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "bi_group-BI-2026-5520",
+   "twin": "reseller",
+   "scenario": "all3",
+   "expect": {
+    "tos": 22.3,
+    "netProfit": -7741722.958904117,
+    "marginPct": -5.609944173118926,
+    "cashFlowGap": true,
+    "gapDay": 6,
+    "maxDeficit": 89898240,
+    "distanceKm": 1072,
+    "trucks": 21,
+    "legalRisk": 13.26,
+    "cashFlowRisk": 97.77777777777777,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 133100000.00000001,
+     "logistics": 7794240,
+     "operating": 1680000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 3117482.95890411,
+     "tax": 0
+    },
+    "payDay": 75,
+    "deliveryDay": 25,
+    "minBalance": -89898240,
+    "reasons": [
+     "gap",
+     "lowMargin",
+     "bankHeavy",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "bi_group-BI-2026-5520",
+   "twin": "reseller",
+   "scenario": "late7",
+   "expect": {
+    "tos": 27.2,
+    "netProfit": 3642894.044931501,
+    "marginPct": 2.6397782934286242,
+    "cashFlowGap": true,
+    "gapDay": 6,
+    "maxDeficit": 78281240,
+    "distanceKm": 1072,
+    "trucks": 21,
+    "legalRisk": 13.26,
+    "cashFlowRisk": 96.89655172413794,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 121000000,
+     "logistics": 7794240,
+     "operating": 1197000,
+     "penalty": 966000,
+     "guarantee": 50000,
+     "bank": 1169382.4438356166,
+     "tax": 2180483.511232877
+    },
+    "payDay": 52,
+    "deliveryDay": 32,
+    "minBalance": -78281240,
+    "reasons": [
+     "gap",
+     "lowMargin",
+     "bankHeavy",
+     "certs",
+     "lateScenario"
+    ]
+   }
+  },
+  {
+   "lot": "bi_group-BI-2026-5520",
+   "twin": "reseller",
+   "scenario": "extend_transport",
+   "expect": {
+    "tos": 26.7,
+    "netProfit": 3269687.214012295,
+    "marginPct": 2.3693385608784747,
+    "cashFlowGap": true,
+    "gapDay": 6,
+    "maxDeficit": 78937088,
+    "distanceKm": 1072,
+    "trucks": 21,
+    "legalRisk": 13.26,
+    "cashFlowRisk": 97.04918032786885,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 121000000,
+     "logistics": 9353088,
+     "operating": 1260000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 1195056.4997260275,
+     "tax": 1872168.2862616912
+    },
+    "payDay": 55,
+    "deliveryDay": 35,
+    "minBalance": -78937088,
+    "reasons": [
+     "gap",
+     "lowMargin",
+     "bankHeavy",
+     "certs"
+    ]
+   }
+  },
+  {
+   "lot": "bi_group-BI-2026-5520",
+   "twin": "blacklisted",
+   "scenario": "neutral",
+   "expect": {
+    "tos": 6.5,
+    "netProfit": 3589874.077808231,
+    "marginPct": 2.601358027397269,
+    "cashFlowGap": true,
+    "gapDay": 15,
+    "maxDeficit": 51400240,
+    "distanceKm": 1072,
+    "trucks": 21,
+    "legalRisk": 100,
+    "cashFlowRisk": 93.4198447963801,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 121000000,
+     "logistics": 7794240,
+     "operating": 2450000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 948657.4027397255,
+     "tax": 2167228.519452055
+    },
+    "payDay": 45,
+    "deliveryDay": 25,
+    "minBalance": -51400240,
+    "reasons": [
+     "rnu",
+     "gap",
+     "lowMargin",
+     "overRadius",
+     "bankHeavy"
+    ]
+   }
+  },
+  {
+   "lot": "bi_group-BI-2026-5520",
+   "twin": "blacklisted",
+   "scenario": "fuel15",
+   "expect": {
+    "tos": 6.5,
+    "netProfit": 3589874.077808231,
+    "marginPct": 2.601358027397269,
+    "cashFlowGap": true,
+    "gapDay": 15,
+    "maxDeficit": 51400240,
+    "distanceKm": 1072,
+    "trucks": 21,
+    "legalRisk": 100,
+    "cashFlowRisk": 93.4198447963801,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 121000000,
+     "logistics": 7794240,
+     "operating": 2450000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 948657.4027397255,
+     "tax": 2167228.519452055
+    },
+    "payDay": 45,
+    "deliveryDay": 25,
+    "minBalance": -51400240,
+    "reasons": [
+     "rnu",
+     "gap",
+     "lowMargin",
+     "overRadius",
+     "bankHeavy"
+    ]
+   }
+  },
+  {
+   "lot": "bi_group-BI-2026-5520",
+   "twin": "blacklisted",
+   "scenario": "supplier10",
+   "expect": {
+    "tos": 1.1,
+    "netProfit": -6586316.580821931,
+    "marginPct": -4.772693174508646,
+    "cashFlowGap": true,
+    "gapDay": 6,
+    "maxDeficit": 63500240,
+    "distanceKm": 1072,
+    "trucks": 21,
+    "legalRisk": 100,
+    "cashFlowRisk": 96.47058823529412,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 133100000.00000001,
+     "logistics": 7794240,
+     "operating": 2450000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 1192076.580821918,
+     "tax": 0
+    },
+    "payDay": 45,
+    "deliveryDay": 25,
+    "minBalance": -63500240,
+    "reasons": [
+     "rnu",
+     "gap",
+     "lowMargin",
+     "overRadius",
+     "bankHeavy"
+    ]
+   }
+  },
+  {
+   "lot": "bi_group-BI-2026-5520",
+   "twin": "blacklisted",
+   "scenario": "pay30",
+   "expect": {
+    "tos": 3.2,
+    "netProfit": 1590750.5095890462,
+    "marginPct": 1.1527177605717727,
+    "cashFlowGap": true,
+    "gapDay": 15,
+    "maxDeficit": 52870240,
+    "distanceKm": 1072,
+    "trucks": 21,
+    "legalRisk": 100,
+    "cashFlowRisk": 96.11111111111111,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 121000000,
+     "logistics": 7794240,
+     "operating": 3920000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 1977561.8630136985,
+     "tax": 1667447.6273972604
+    },
+    "payDay": 75,
+    "deliveryDay": 25,
+    "minBalance": -52870240,
+    "reasons": [
+     "rnu",
+     "gap",
+     "lowMargin",
+     "overRadius",
+     "bankHeavy"
+    ]
+   }
+  },
+  {
+   "lot": "bi_group-BI-2026-5520",
+   "twin": "blacklisted",
+   "scenario": "all3",
+   "expect": {
+    "tos": 0.7,
+    "netProfit": -9323905.972602725,
+    "marginPct": -6.7564536033353075,
+    "cashFlowGap": true,
+    "gapDay": 6,
+    "maxDeficit": 64970240,
+    "distanceKm": 1072,
+    "trucks": 21,
+    "legalRisk": 100,
+    "cashFlowRisk": 97.77777777777777,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 133100000.00000001,
+     "logistics": 7794240,
+     "operating": 3920000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 2459665.9726027395,
+     "tax": 0
+    },
+    "payDay": 75,
+    "deliveryDay": 25,
+    "minBalance": -64970240,
+    "reasons": [
+     "rnu",
+     "gap",
+     "lowMargin",
+     "overRadius",
+     "bankHeavy"
+    ]
+   }
+  },
+  {
+   "lot": "bi_group-BI-2026-5520",
+   "twin": "blacklisted",
+   "scenario": "late7",
+   "expect": {
+    "tos": 5.1,
+    "netProfit": 2460140.379178077,
+    "marginPct": 1.7827104196942587,
+    "cashFlowGap": true,
+    "gapDay": 19,
+    "maxDeficit": 52709240,
+    "distanceKm": 1072,
+    "trucks": 21,
+    "legalRisk": 100,
+    "cashFlowRisk": 93.5344827586207,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 121000000,
+     "logistics": 7794240,
+     "operating": 2793000,
+     "penalty": 966000,
+     "guarantee": 50000,
+     "bank": 1051824.5260273975,
+     "tax": 1884795.0947945206
+    },
+    "payDay": 52,
+    "deliveryDay": 32,
+    "minBalance": -52709240,
+    "reasons": [
+     "rnu",
+     "gap",
+     "lowMargin",
+     "overRadius",
+     "bankHeavy",
+     "lateScenario"
+    ]
+   }
+  },
+  {
+   "lot": "bi_group-BI-2026-5520",
+   "twin": "blacklisted",
+   "scenario": "extend_transport",
+   "expect": {
+    "tos": 4.5,
+    "netProfit": 2009138.830450654,
+    "marginPct": 1.4558977032251115,
+    "cashFlowGap": true,
+    "gapDay": 21,
+    "maxDeficit": 53449088,
+    "distanceKm": 1072,
+    "trucks": 21,
+    "legalRisk": 100,
+    "cashFlowRisk": 93.36065573770492,
+    "verdict": "no-go",
+    "costs": {
+     "purchase": 121000000,
+     "logistics": 9353088,
+     "operating": 2940000,
+     "penalty": 0,
+     "guarantee": 50000,
+     "bank": 1090741.9791780824,
+     "tax": 1557031.19037128
+    },
+    "payDay": 55,
+    "deliveryDay": 35,
+    "minBalance": -53449088,
+    "reasons": [
+     "rnu",
+     "gap",
+     "lowMargin",
+     "overRadius",
+     "bankHeavy"
     ]
    }
   }

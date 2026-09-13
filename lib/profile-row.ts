@@ -20,10 +20,18 @@ export type CompanyRow = {
   phone?: string;
   telegram_username?: string;
   legal_address?: string;
+  supplier_prepay_pct?: number;
+  rnu_listed?: boolean | null;
+  vat_payer?: boolean | null;
+  registry_verified?: boolean | null;
+  registry_checked_at?: string | null;
 };
 
-/** Columns added by migrations 0002/0003 — dropped on write if the DB doesn't have them yet. */
-export const OPTIONAL_COLUMNS = ["bin", "director_name", "phone", "telegram_username", "legal_address"] as const;
+/** Columns added by migrations 0002/0003/0005 — dropped on write if the DB doesn't have them yet. */
+export const OPTIONAL_COLUMNS = [
+  "bin", "director_name", "phone", "telegram_username", "legal_address",
+  "supplier_prepay_pct", "rnu_listed", "vat_payer", "registry_verified", "registry_checked_at",
+] as const;
 
 export const fromRow = (r: CompanyRow): CompanyProfile => ({
   ...DEMO_COMPANY,
@@ -41,6 +49,11 @@ export const fromRow = (r: CompanyRow): CompanyProfile => ({
   phone: r.phone ?? "",
   telegramUsername: r.telegram_username ?? "",
   legalAddress: r.legal_address ?? "",
+  supplierPrepayPct: r.supplier_prepay_pct ?? 100,
+  rnuListed: r.rnu_listed ?? false,
+  vatPayer: r.vat_payer ?? null,
+  registryVerified: r.registry_verified ?? false,
+  registryCheckedAt: r.registry_checked_at ?? undefined,
 });
 
 export const toRow = (p: CompanyProfile): CompanyRow => ({
@@ -58,6 +71,11 @@ export const toRow = (p: CompanyProfile): CompanyRow => ({
   phone: p.phone,
   telegram_username: p.telegramUsername,
   legal_address: p.legalAddress,
+  supplier_prepay_pct: Math.round(p.supplierPrepayPct ?? 100),
+  rnu_listed: p.rnuListed ?? null,
+  vat_payer: p.vatPayer ?? null,
+  registry_verified: p.registryVerified ?? null,
+  registry_checked_at: p.registryCheckedAt ?? null,
 });
 
 /** True if a PostgREST error is about one of the not-yet-migrated columns. */

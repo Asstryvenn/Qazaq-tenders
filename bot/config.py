@@ -55,6 +55,10 @@ class Settings:
     # ATI.SU: живые ставки автоперевозок (Bearer-токен); без него — Estimated Rate
     ati_su_client_id: str = ""
     ati_su_api_key: str = ""
+    # Реестры РК для автозаполнения по БИН (company_fetcher); без ключей — Smart Defaults
+    data_egov_api_key: str = ""
+    kgd_portal_token: str = ""
+    goszakup_token: str = ""
 
 
 def load_settings() -> Settings:
@@ -74,4 +78,7 @@ def load_settings() -> Settings:
         supplier_catalog_api_key=_str("SUPPLIER_CATALOG_API_KEY"),
         ati_su_client_id=_str("ATI_SU_CLIENT_ID"),
         ati_su_api_key=_str("ATI_SU_API_KEY"),
+        data_egov_api_key=_str("DATA_EGOV_API_KEY"),
+        kgd_portal_token=_str("KGD_PORTAL_TOKEN"),
+        goszakup_token=_str("GOSZAKUP_TOKEN"),
     )
