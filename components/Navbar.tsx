@@ -8,7 +8,8 @@ import { Button } from "./ui/Button";
 import { Lang, useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { useProfile } from "@/lib/profile";
-import { LogIn, LogOut, Moon, Sun, UserRound } from "lucide-react";
+import { LogIn, LogOut, Moon, ShieldCheck, Sun, UserRound } from "lucide-react";
+import { useIsAdmin } from "@/lib/use-is-admin";
 import { useTheme } from "@/lib/theme";
 import { NotificationBell } from "./NotificationBell";
 
@@ -107,6 +108,8 @@ function AuthButtons() {
 export function Navbar() {
   const { t, tr } = useI18n();
   const { hasAccount } = useProfile();
+  const isAdmin = useIsAdmin();
+  const adminLabel = tr({ kz: "Админ-панель", ru: "Админ-панель" });
   const ref = useRef<HTMLElement>(null);
 
   // Full-height views (AI Studio) size themselves with calc(100dvh - var(--nav-h)).
@@ -154,12 +157,28 @@ export function Navbar() {
               {l.label}
             </Link>
           ))}
+          {isAdmin && (
+            <Link href="/admin" className="text-sm font-medium text-emerald-300 transition-colors hover:text-emerald-200">
+              {adminLabel}
+            </Link>
+          )}
         </div>
 
         <div className="flex items-center gap-3">
           <LangToggle />
           <ThemeToggle />
           {hasAccount && <NotificationBell />}
+          {isAdmin && (
+            <Link
+              href="/admin"
+              title={adminLabel}
+              aria-label={adminLabel}
+              className="flex items-center gap-1.5 rounded-lg border border-emerald-400/40 bg-emerald-500/10 px-2.5 py-2 text-xs font-semibold text-emerald-200 transition-colors hover:bg-emerald-500/20"
+            >
+              <ShieldCheck className="h-4 w-4" />
+              <span className="hidden lg:inline">{adminLabel}</span>
+            </Link>
+          )}
           <AuthButtons />
         </div>
       </nav>

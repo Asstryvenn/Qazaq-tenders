@@ -44,6 +44,7 @@ html.light .hover\:bg-white\/\[0\.06\]:hover { background-color: rgba(15, 23, 42
 html.light .hover\:border-white\/20:hover { border-color: rgba(15, 23, 42, 0.2); }
 html.light .hover\:border-white\/60:hover { border-color: rgba(15, 23, 42, 0.2); }
 html.light .hover\:text-blue-200:hover { color: #1d4ed8; }
+html.light .hover\:text-emerald-200:hover { color: #047857; }
 html.light .hover\:text-rose-300:hover { color: #be123c; }
 html.light .hover\:text-sky-200:hover { color: #0369a1; }
 html.light .hover\:text-slate-200:hover { color: #1e293b; }
