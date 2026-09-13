@@ -170,7 +170,7 @@ interface TpLot {
 
 /** Region / delivery-place text → our city id (regional centre). */
 const REGION_CITY: [RegExp, string][] = [
-  [/астан|нур-султан|акмолинск/i, "astana"],
+  [/астан|нур-султан/i, "astana"],
   [/шымкент/i, "shymkent"],
   [/алматинск|алматы/i, "almaty"],
   [/карагандинск|караганд|улытау|жезказган/i, "karaganda"],
@@ -187,7 +187,7 @@ const REGION_CITY: [RegExp, string][] = [
   [/мангист|актау/i, "aktau"],
   [/жетісу|жетысу|талдыкорган/i, "taldykorgan"],
   [/туркестан/i, "turkistan"],
-  [/кокшетау/i, "kokshetau"],
+  [/кокшетау|акмолинск/i, "kokshetau"],
 ];
 
 function tpCity(l: TpLot): string {
@@ -239,12 +239,11 @@ function fromTenderPlus(l: TpLot): TenderSpec | null {
   };
 }
 
-async function tpRequest(token: string, viaQuery: boolean) {
-  const url = viaQuery ? `${TENDERPLUS_URL}?access-token=${encodeURIComponent(token)}` : TENDERPLUS_URL;
-  return fetch(url, {
+async function tpRequest(token: string) {
+  return fetch(TENDERPLUS_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...(viaQuery ? {} : { Authorization: `Bearer ${token}` }) },
-    body: JSON.stringify({ query: TP_QUERY, variables: { limit: 50 } }),
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ query: TP_QUERY, variables: { limit: 100 } }),
     next: { revalidate: 300 },
   });
 }
@@ -255,9 +254,7 @@ const tenderplus: SourceAdapter = {
     const token = process.env.TENDERPLUS_TOKEN?.trim();
     if (!token) return { lots: [], live: false, note: "no-token" };
     try {
-      // Bearer first; the API is Yii-based, which may expect ?access-token= instead
-      let res = await tpRequest(token, false);
-      if (res.status === 401) res = await tpRequest(token, true);
+      const res = await tpRequest(token);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
       if (json.errors?.length) throw new Error(json.errors[0].message);
