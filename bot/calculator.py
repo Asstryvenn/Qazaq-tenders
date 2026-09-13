@@ -31,7 +31,7 @@ from models import (
     Scenario,
     TenderSpec,
 )
-from logistics import CITIES, CITY_BY_ID, FREIGHT, distance_km, freight_cost, logistics_plan, logistics_quotes
+from logistics import CITIES, CITY_BY_ID, ESTIMATED_RATE_LABEL, FREIGHT, LIVE_RATE_LABEL, distance_km, freight_cost, logistics_plan, logistics_quotes
 
 # =========================================================================== #
 # 1. Нормативы Республики Казахстан                                           #
@@ -313,7 +313,7 @@ CONFIDENCE_WEIGHTS: Dict[str, float] = {
 }
 
 
-def input_confidence(tender: TenderSpec, scenario: Scenario) -> float:
+def input_confidence(tender: TenderSpec, scenario: Scenario, live_logistics: bool = False) -> float:
     """Достоверность входов 0..100, а не обещание точности результата.
 
     Поле из ТЗ/каталога несёт собственный provenance. Точный override, выбранный
@@ -321,6 +321,9 @@ def input_confidence(tender: TenderSpec, scenario: Scenario) -> float:
     применяется консервативная оценка совместимости.
     """
     verified = set(scenario.verified_fields)
+    # Живая рыночная ставка ATI.SU подтверждает логистику
+    if live_logistics:
+        verified.add("city_id")
     if scenario.purchase_cost_override is not None:
         verified.add("purchase_cost")
     if scenario.advance_percentage_override is not None:
@@ -363,6 +366,7 @@ def analyze_tender(tender: TenderSpec, company: CompanyTwin, scenario: Optional[
         tender.delivery_days,
         sc.fuel_delta_pct,
         sc.transport_delta_pct,
+        sc.live_road_rates,
     )
     freight = route.selected
     explicit_mode = sc.transport_mode != "auto" and company.base_city_id != tender.city_id
@@ -486,7 +490,7 @@ def analyze_tender(tender: TenderSpec, company: CompanyTwin, scenario: Optional[
     # Убыточный договор никогда не рекомендуем, как бы хорошо ни выглядели остальные компоненты
     verdict = "no-go" if profit <= 0 else "go" if tos >= 70 and gap_day is None else "caution" if tos >= 45 else "no-go"
 
-    confidence = input_confidence(tender, sc)
+    confidence = input_confidence(tender, sc, live_logistics=freight.rate_kind == "live")
     return AnalysisResult(
         tender_id=tender.id,
         net_profit=profit,
@@ -509,6 +513,7 @@ def analyze_tender(tender: TenderSpec, company: CompanyTwin, scenario: Optional[
         transport_units=freight.units,
         transit_days=freight.transit_days,
         logistics_rate_kind=freight.rate_kind,
+        logistics_rate_label=LIVE_RATE_LABEL if freight.rate_kind == "live" else ESTIMATED_RATE_LABEL,
         timeline=sim.timeline,
         verdict=verdict,  # type: ignore[arg-type]
         reasons=reasons,

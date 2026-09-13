@@ -67,7 +67,7 @@ from cards import (
 from config import Settings, load_settings
 from documents import MAX_FILE_BYTES, DocumentError, detect_kind, extract_pages, find_url, pages_from_url
 from models import AnalysisResult, CompanyTwin, Scenario, SearchQuery, SpecPage, TenderSpec
-from logistics import logistics_plan
+from logistics import fetch_route_live_rates, logistics_plan
 from storage import Storage
 from suppliers import SupplierCatalog, SupplierError
 from tenders import INDUSTRIES, TenderFeed, filter_lots, find_by_url, heuristic_search, industry_matches, lot_key, match_city
@@ -136,6 +136,17 @@ async def safe_edit(message: Message, text: str, kb: Optional[InlineKeyboardMark
     except TelegramBadRequest as e:
         if "message is not modified" not in str(e):
             raise
+
+
+async def with_live_rates(app: App, twin: CompanyTwin, spec: TenderSpec, scenario: Scenario) -> Scenario:
+    """Подмешивает живые ставки ATI.SU (фура/газель) для маршрута лота.
+
+    Без ключа, лицензии или сети список пустой — расчёт остаётся на Estimated Rate.
+    """
+    if not app.settings.ati_su_api_key or twin.base_city_id == spec.city_id:
+        return scenario
+    rates = await fetch_route_live_rates(twin.base_city_id, spec.city_id, api_key=app.settings.ati_su_api_key)
+    return scenario.model_copy(update={"live_road_rates": rates})
 
 
 def _analyze_rows(lots: List[TenderSpec], twin: CompanyTwin) -> List[Row]:
@@ -680,7 +691,7 @@ async def on_logistics(cb: CallbackQuery, callback_data: LogisticsCB, bot: Bot, 
     if twin is None or spec is None:
         await cb.answer(t("lot_gone", lang), show_alert=True)
         return
-    saved = await app.storage.get_lot_scenario(msg.chat.id, callback_data.key)
+    saved = await with_live_rates(app, twin, spec, await app.storage.get_lot_scenario(msg.chat.id, callback_data.key))
     if callback_data.action == "back":
         result = await asyncio.to_thread(analyze_tender, spec, twin, saved)
         await safe_edit(msg, lot_card(spec, result, twin, lang), lot_keyboard(callback_data.key, spec, lang))
@@ -688,7 +699,7 @@ async def on_logistics(cb: CallbackQuery, callback_data: LogisticsCB, bot: Bot, 
         return
 
     cargo = saved.cargo_tonnes_override if saved.cargo_tonnes_override is not None else spec.cargo_tonnes
-    plan = logistics_plan(twin.base_city_id, spec.city_id, cargo, saved.transport_mode, spec.delivery_days, saved.fuel_delta_pct, saved.transport_delta_pct)
+    plan = logistics_plan(twin.base_city_id, spec.city_id, cargo, saved.transport_mode, spec.delivery_days, saved.fuel_delta_pct, saved.transport_delta_pct, saved.live_road_rates)
     if callback_data.action == "choose":
         allowed = {quote.mode for quote in plan.quotes}
         if callback_data.mode not in allowed:
@@ -696,7 +707,7 @@ async def on_logistics(cb: CallbackQuery, callback_data: LogisticsCB, bot: Bot, 
             return
         saved = saved.model_copy(update={"transport_mode": callback_data.mode, "logistics_cost_override": None, "own_transport": False})
         await app.storage.save_lot_scenario(msg.chat.id, callback_data.key, saved)
-        plan = logistics_plan(twin.base_city_id, spec.city_id, cargo, saved.transport_mode, spec.delivery_days, saved.fuel_delta_pct, saved.transport_delta_pct)
+        plan = logistics_plan(twin.base_city_id, spec.city_id, cargo, saved.transport_mode, spec.delivery_days, saved.fuel_delta_pct, saved.transport_delta_pct, saved.live_road_rates)
 
     result = await asyncio.to_thread(analyze_tender, spec, twin, saved)
     await safe_edit(
@@ -790,7 +801,7 @@ async def on_lot(cb: CallbackQuery, callback_data: LotCB, bot: Bot, app: App) ->
     if action == "unhide":
         await app.storage.unhide(msg.chat.id, key)
 
-    saved_scenario = await app.storage.get_lot_scenario(msg.chat.id, key)
+    saved_scenario = await with_live_rates(app, twin, spec, await app.storage.get_lot_scenario(msg.chat.id, key))
     base = await asyncio.to_thread(analyze_tender, spec, twin, saved_scenario)
     if action == "open":  # из списка поиска — новая карточка отдельным сообщением
         await send_card(bot, app, msg.chat.id, key, spec, base, twin, lang)

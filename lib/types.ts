@@ -4,7 +4,7 @@
  */
 import type { TaxRegime } from "./kz-standards";
 import type { TenderSource } from "./tenders/unified";
-import type { LogisticsMode, TransportMode } from "./logistics";
+import type { LiveRoadRate, LogisticsMode, TransportMode } from "./logistics";
 
 export type { TaxRegime };
 
@@ -160,6 +160,8 @@ export interface Scenario {
   /** Explicit 1-click transport choice. `auto` keeps the engine recommendation. */
   transportMode?: TransportMode;
   verifiedFields?: string[];
+  /** Carrier-market road rates fetched server-side (ATI.SU). Empty → built-in estimate. */
+  liveRoadRates?: LiveRoadRate[];
 }
 
 export const NEUTRAL_SCENARIO: Scenario = {
@@ -176,6 +178,7 @@ export const NEUTRAL_SCENARIO: Scenario = {
   ownTransport: false,
   transportMode: "auto",
   verifiedFields: [],
+  liveRoadRates: [],
 };
 
 /** Codes for cash movements — the UI translates them, the engine stays language-free. */
@@ -258,6 +261,8 @@ export interface AnalysisResult {
   transportUnits: number;
   transitDays: number;
   logisticsRateKind: "benchmark" | "live";
+  /** "Verified Live (ATI.SU)" or "Estimated Rate" */
+  logisticsRateLabel?: string;
   timeline: CashFlowPoint[];
   verdict: "go" | "caution" | "no-go";
   reasons: Reason[];

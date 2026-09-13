@@ -15,7 +15,7 @@ import {
   TenderSpec,
 } from "./types";
 import { bankGuaranteeFee, contractTax, KZ, statutoryPenalty } from "./kz-standards";
-import { DistanceProvider, haversineProvider, logisticsPlan } from "./logistics";
+import { DistanceProvider, ESTIMATED_RATE_LABEL, haversineProvider, LIVE_RATE_LABEL, logisticsPlan } from "./logistics";
 
 export const TOS_WEIGHTS = { w1: 0.35, w2: 0.3, w3: 0.15, w4: 0.2 } as const;
 
@@ -142,8 +142,10 @@ function legalRiskScore(tender: TenderSpec, company: CompanyProfile, scenario: S
 }
 
 /** Completeness/provenance of financial inputs; not a promise of forecast accuracy. */
-export function inputConfidence(tender: TenderSpec, scenario: Scenario): number {
+export function inputConfidence(tender: TenderSpec, scenario: Scenario, liveLogistics = false): number {
   const verified = new Set(scenario.verifiedFields ?? []);
+  // A live carrier-market quote (ATI.SU) verifies the logistics input.
+  if (liveLogistics) verified.add("city_id");
   if (scenario.purchaseCostOverride != null) verified.add("purchase_cost");
   if (scenario.advancePercentageOverride != null) verified.add("advance_percentage");
   if (scenario.logisticsCostOverride != null) verified.add("city_id");
@@ -177,7 +179,8 @@ export function analyzeTender(
     scenario.transportMode ?? "auto",
     tender.deliveryDays,
     scenario.fuelDeltaPct,
-    scenario.transportDeltaPct
+    scenario.transportDeltaPct,
+    scenario.liveRoadRates ?? []
   );
   const freight = route.selected;
   // Transport buttons are a scenario relative to ordinary road delivery. Faster air
@@ -279,7 +282,7 @@ export function analyzeTender(
   const verdict: AnalysisResult["verdict"] =
     netProfit <= 0 ? "no-go" : tos >= 70 && cf.gapDay === null ? "go" : tos >= 45 ? "caution" : "no-go";
 
-  const confidenceLevel = Math.round(inputConfidence(tender, scenario) * 10) / 10;
+  const confidenceLevel = Math.round(inputConfidence(tender, scenario, freight.rateKind === "live") * 10) / 10;
   return {
     tenderId: tender.id,
     netProfit,
@@ -301,6 +304,7 @@ export function analyzeTender(
     transportUnits: freight.units,
     transitDays: freight.transitDays,
     logisticsRateKind: freight.rateKind,
+    logisticsRateLabel: freight.rateKind === "live" ? LIVE_RATE_LABEL : ESTIMATED_RATE_LABEL,
     timeline,
     verdict,
     reasons,

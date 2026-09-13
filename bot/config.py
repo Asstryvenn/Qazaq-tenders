@@ -52,6 +52,9 @@ class Settings:
     # Contracted supplier/ERP catalogue implementing bot/suppliers.py contract.
     supplier_catalog_url: str = ""
     supplier_catalog_api_key: str = ""
+    # ATI.SU: живые ставки автоперевозок (Bearer-токен); без него — Estimated Rate
+    ati_su_client_id: str = ""
+    ati_su_api_key: str = ""
 
 
 def load_settings() -> Settings:
@@ -69,4 +72,6 @@ def load_settings() -> Settings:
         webhook_secret=_str("WEBHOOK_SECRET"),
         supplier_catalog_url=_str("SUPPLIER_CATALOG_URL"),
         supplier_catalog_api_key=_str("SUPPLIER_CATALOG_API_KEY"),
+        ati_su_client_id=_str("ATI_SU_CLIENT_ID"),
+        ati_su_api_key=_str("ATI_SU_API_KEY"),
     )

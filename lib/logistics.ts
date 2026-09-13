@@ -65,6 +65,24 @@ export interface LogisticsPlan {
   roadReferenceDays: number;
 }
 
+/**
+ * Carrier-market rate for one road mode and route, fetched server-side from ATI.SU
+ * (average rate over the last 30 days). The engine only uses it for the same route.
+ */
+export interface LiveRoadRate {
+  mode: "truck" | "gazelle";
+  fromId: string;
+  toId: string;
+  distanceKm: number;
+  /** Market price of one trip of one vehicle, KZT */
+  perTripKzt: number;
+  source: "ati.su";
+  fetchedAt: string;
+}
+
+export const LIVE_RATE_LABEL = "Verified Live (ATI.SU)";
+export const ESTIMATED_RATE_LABEL = "Estimated Rate";
+
 export const LOGISTICS_RATES = {
   roadFactor: 1.25,
   railFactor: 1.1,
@@ -128,7 +146,7 @@ export function freightCost(distanceKm: number, tonnes: number, fuelDeltaPct = 0
   return { distanceKm, trucks, cost: trucks * perTrip };
 }
 
-function quoteForMode(fromId: string, toId: string, tonnes: number, mode: LogisticsMode, fuelDeltaPct: number, transportDeltaPct: number): LogisticsQuote {
+function quoteForMode(fromId: string, toId: string, tonnes: number, mode: LogisticsMode, fuelDeltaPct: number, transportDeltaPct: number, live?: LiveRoadRate): LogisticsQuote {
   const cargo = Math.max(0.001, tonnes);
   const sameCity = fromId === toId;
   const direct = directDistanceKm(fromId, toId);
@@ -142,6 +160,22 @@ function quoteForMode(fromId: string, toId: string, tonnes: number, mode: Logist
     const units = Math.max(1, Math.ceil(cargo / capacity));
     const perTrip = cargo <= capacity ? LOGISTICS_RATES.city.perTripKzt : LOGISTICS_RATES.city.heavyTripKzt;
     return { mode, distanceKm: 15, units, capacityTonnes: capacity, cost: units * perTrip * market, transitDays: 1, rateKind: "benchmark", rateLabel: "fixed city rate" };
+  }
+  // Live ATI.SU market rate for this exact route replaces the benchmark tariff.
+  if ((mode === "truck" || mode === "gazelle") && live && live.mode === mode && live.fromId === fromId && live.toId === toId) {
+    const spec = mode === "truck" ? LOGISTICS_RATES.truck : LOGISTICS_RATES.gazelle;
+    const units = Math.max(1, Math.ceil(cargo / spec.capacityT));
+    const adjust = (1 + spec.fuelShare * (fuelDeltaPct / 100)) * market;
+    return {
+      mode,
+      distanceKm: live.distanceKm,
+      units,
+      capacityTonnes: spec.capacityT,
+      cost: units * live.perTripKzt * adjust,
+      transitDays: Math.max(1, Math.ceil(live.distanceKm / spec.kmPerDay)),
+      rateKind: "live",
+      rateLabel: LIVE_RATE_LABEL,
+    };
   }
   if (mode === "truck") {
     const q = freightCost(roadKm, cargo, fuelDeltaPct, transportDeltaPct);
@@ -164,10 +198,12 @@ function quoteForMode(fromId: string, toId: string, tonnes: number, mode: Logist
 }
 
 /** All usable modes for this route. Same-city routes intentionally collapse to city delivery. */
-export function logisticsQuotes(fromId: string, toId: string, tonnes: number, fuelDeltaPct = 0, transportDeltaPct = 0): LogisticsQuote[] {
+export function logisticsQuotes(fromId: string, toId: string, tonnes: number, fuelDeltaPct = 0, transportDeltaPct = 0, liveRates: LiveRoadRate[] = []): LogisticsQuote[] {
   cityPair(fromId, toId);
   if (fromId === toId) return [quoteForMode(fromId, toId, tonnes, "city", fuelDeltaPct, transportDeltaPct)];
-  return (["truck", "gazelle", "rail", "air"] as LogisticsMode[]).map((mode) => quoteForMode(fromId, toId, tonnes, mode, fuelDeltaPct, transportDeltaPct));
+  return (["truck", "gazelle", "rail", "air"] as LogisticsMode[]).map((mode) =>
+    quoteForMode(fromId, toId, tonnes, mode, fuelDeltaPct, transportDeltaPct, liveRates.find((r) => r.mode === mode && r.fromId === fromId && r.toId === toId))
+  );
 }
 
 export function recommendLogisticsMode(quotes: LogisticsQuote[], tonnes: number, deliveryDays: number): LogisticsMode {
@@ -179,8 +215,8 @@ export function recommendLogisticsMode(quotes: LogisticsQuote[], tonnes: number,
   return "truck";
 }
 
-export function logisticsPlan(fromId: string, toId: string, tonnes: number, requested: TransportMode = "auto", deliveryDays = 30, fuelDeltaPct = 0, transportDeltaPct = 0): LogisticsPlan {
-  const quotes = logisticsQuotes(fromId, toId, tonnes, fuelDeltaPct, transportDeltaPct);
+export function logisticsPlan(fromId: string, toId: string, tonnes: number, requested: TransportMode = "auto", deliveryDays = 30, fuelDeltaPct = 0, transportDeltaPct = 0, liveRates: LiveRoadRate[] = []): LogisticsPlan {
+  const quotes = logisticsQuotes(fromId, toId, tonnes, fuelDeltaPct, transportDeltaPct, liveRates);
   const recommendedMode = recommendLogisticsMode(quotes, tonnes, deliveryDays);
   const allowed = quotes.some((q) => q.mode === requested) ? requested as LogisticsMode : recommendedMode;
   const selected = quotes.find((q) => q.mode === allowed) ?? quotes[0];

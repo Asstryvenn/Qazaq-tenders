@@ -17,6 +17,8 @@ from typing import Any, Dict, List, Literal, Optional
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
+from logistics import LiveRoadRate
+
 TaxRegime = Literal["general", "simplified", "vat"]
 Severity = Literal["low", "medium", "high"]
 Verdict = Literal["go", "caution", "no-go"]
@@ -221,6 +223,8 @@ class Scenario(BaseModel):
     transport_mode: TransportMode = "auto"
     # Поля, которые пользователь подтвердил кнопкой или выбором supplier quote.
     verified_fields: List[str] = Field(default_factory=list)
+    # Живые ставки ATI.SU для авто-режимов; пусто → встроенный расчёт (Estimated Rate)
+    live_road_rates: List[LiveRoadRate] = Field(default_factory=list)
 
 
 class CostBreakdown(BaseModel):
@@ -270,6 +274,7 @@ class AnalysisResult(BaseModel):
     transport_units: int
     transit_days: int
     logistics_rate_kind: Literal["benchmark", "live"] = "benchmark"
+    logistics_rate_label: str = "Estimated Rate"
     timeline: List[CashFlowPoint]
     verdict: Verdict
     reasons: List[Reason]

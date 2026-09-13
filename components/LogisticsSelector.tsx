@@ -1,7 +1,8 @@
 "use client";
 
-import { Plane, TrainFront, Truck } from "lucide-react";
-import { logisticsPlan, type LogisticsMode } from "@/lib/logistics";
+import { useEffect, useRef, useState } from "react";
+import { BadgeCheck, Plane, TrainFront, Truck } from "lucide-react";
+import { ESTIMATED_RATE_LABEL, LIVE_RATE_LABEL, logisticsPlan, type LiveRoadRate, type LogisticsMode } from "@/lib/logistics";
 import type { AnalysisResult, CompanyProfile, Scenario, TenderSpec } from "@/lib/types";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -26,6 +27,14 @@ function rateText(mode: LogisticsMode, lang: "kz" | "ru") {
   return rows[mode][lang];
 }
 
+type AtiStatus = "live" | "no-key" | "no-license" | "rate-limit" | "invalid-key" | "http-error" | "network" | "no-data" | "unknown-city";
+type RoadMode = "truck" | "gazelle";
+
+const sameRates = (a: LiveRoadRate[] = [], b: LiveRoadRate[] = []) => {
+  const key = (r: LiveRoadRate[]) => JSON.stringify(r.map((x) => [x.mode, x.fromId, x.toId, x.distanceKm, x.perTripKzt]));
+  return key(a) === key(b);
+};
+
 /** One-click transport comparison; all values are recomputed by the economic engine. */
 export function LogisticsSelector({
   tender,
@@ -41,16 +50,44 @@ export function LogisticsSelector({
   onChange: (scenario: Scenario) => void;
 }) {
   const { tr, kzt, city, lang } = useI18n();
+  const from = company.baseCityId;
+  const to = tender.cityId;
+  const [statuses, setStatuses] = useState<Partial<Record<RoadMode, AtiStatus>>>({});
+  const latest = useRef({ scenario, onChange });
+  latest.current = { scenario, onChange };
+
+  // Live ATI.SU road rates for this route; the engine falls back to its estimate without them.
+  useEffect(() => {
+    if (from === to) return;
+    let cancelled = false;
+    fetch(`/api/logistics/live?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`, { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { rates?: LiveRoadRate[]; statuses?: Partial<Record<RoadMode, AtiStatus>> } | null) => {
+        if (cancelled || !d) return;
+        setStatuses(d.statuses ?? {});
+        const { scenario: current, onChange: emit } = latest.current;
+        const rates = d.rates ?? [];
+        if (!sameRates(current.liveRoadRates, rates)) emit({ ...current, liveRoadRates: rates });
+      })
+      .catch(() => !cancelled && setStatuses({ truck: "network", gazelle: "network" }));
+    return () => {
+      cancelled = true;
+    };
+  }, [from, to]);
+
   const cargo = scenario.cargoTonnesOverride ?? tender.cargoTonnes;
   const plan = logisticsPlan(
-    company.baseCityId,
-    tender.cityId,
+    from,
+    to,
     cargo,
     scenario.transportMode ?? "auto",
     tender.deliveryDays,
     scenario.fuelDeltaPct,
-    scenario.transportDeltaPct
+    scenario.transportDeltaPct,
+    scenario.liveRoadRates ?? []
   );
+  const anyLive = plan.quotes.some((q) => q.rateKind === "live");
+  const noLicense = statuses.truck === "no-license" || statuses.gazelle === "no-license";
 
   return (
     <GlassCard interactive={false} className="mb-6 p-5">
@@ -61,7 +98,7 @@ export function LogisticsSelector({
             <h2 className="text-sm font-semibold text-white">{tr({ kz: "Логистика тәсілін таңдау", ru: "Выбор способа доставки" })}</h2>
           </div>
           <p className="mt-1 text-xs text-slate-400">
-            {city(company.baseCityId)} → {city(tender.cityId)} · {cargo.toFixed(cargo < 1 ? 2 : 1)} {tr({ kz: "т жүк", ru: "т груза" })}
+            {city(from)} → {city(to)} · {cargo.toFixed(cargo < 1 ? 2 : 1)} {tr({ kz: "т жүк", ru: "т груза" })}
           </p>
         </div>
         <div className="text-right">
@@ -74,6 +111,8 @@ export function LogisticsSelector({
         {plan.quotes.map((quote) => {
           const active = result.transportMode === quote.mode;
           const recommended = plan.recommendedMode === quote.mode;
+          const road = quote.mode === "truck" || quote.mode === "gazelle";
+          const live = quote.rateKind === "live";
           return (
             <button
               key={quote.mode}
@@ -98,18 +137,41 @@ export function LogisticsSelector({
               </div>
               <p className="mt-2 font-mono text-sm text-white">{kzt(quote.cost)}</p>
               <p className="mt-1 text-[11px] text-slate-400">{quote.distanceKm} {tr({ kz: "км", ru: "км" })} · {quote.transitDays} {tr({ kz: "күн", ru: "дн." })}</p>
-              <p className="mt-1 text-[10px] leading-snug text-slate-500">{rateText(quote.mode, lang)}</p>
+              <p className="mt-1 text-[10px] leading-snug text-slate-500">
+                {live ? `${kzt(quote.cost / quote.units)} / ${tr({ kz: "рейс", ru: "рейс" })} · ATI.SU, 30 ${tr({ kz: "күн", ru: "дн." })}` : rateText(quote.mode, lang)}
+              </p>
+              {road && (
+                <span
+                  className={cn(
+                    "mt-2 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-semibold",
+                    live ? "bg-emerald-400/10 text-emerald-200" : "bg-amber-400/10 text-amber-200"
+                  )}
+                >
+                  {live && <BadgeCheck className="h-3 w-3" />}
+                  {live ? LIVE_RATE_LABEL : ESTIMATED_RATE_LABEL}
+                </span>
+              )}
             </button>
           );
         })}
       </div>
 
-      <div className="mt-3 flex items-center gap-2 text-[11px] text-slate-500">
-        {result.transportMode === "rail" ? <TrainFront className="h-3.5 w-3.5" /> : result.transportMode === "air" ? <Plane className="h-3.5 w-3.5" /> : <Truck className="h-3.5 w-3.5" />}
-        <span>{tr({
-          kz: "Тарифтер — нарықтық бағдар. Тасымалдаушының коммерциялық ұсынысы емес; таңдау пайда, мерзім, өсімпұл, TOS және Cash Flow-ды бірден қайта есептейді.",
-          ru: "Тарифы — рыночный ориентир, не коммерческое предложение перевозчика. Выбор сразу пересчитывает прибыль, срок, пеню, TOS и Cash Flow.",
-        })}</span>
+      <div className="mt-3 flex items-start gap-2 text-[11px] text-slate-500">
+        {result.transportMode === "rail" ? <TrainFront className="mt-0.5 h-3.5 w-3.5 shrink-0" /> : result.transportMode === "air" ? <Plane className="mt-0.5 h-3.5 w-3.5 shrink-0" /> : <Truck className="mt-0.5 h-3.5 w-3.5 shrink-0" />}
+        <span>
+          {anyLive
+            ? tr({
+                kz: "Фура мен газель тарифтері — ATI.SU соңғы 30 күндегі орташа нарықтық мөлшерлемелері. Теміржол мен әуе — есептік бағдар. Таңдау пайда, мерзім, өсімпұл, TOS және Cash Flow-ды бірден қайта есептейді.",
+                ru: "Тарифы фуры и газели — средние рыночные ставки ATI.SU за последние 30 дней. Ж/Д и авиа — расчётный ориентир. Выбор сразу пересчитывает прибыль, срок, пеню, TOS и Cash Flow.",
+              })
+            : tr({
+                kz: "Тарифтер — нарықтық бағдар. Тасымалдаушының коммерциялық ұсынысы емес; таңдау пайда, мерзім, өсімпұл, TOS және Cash Flow-ды бірден қайта есептейді.",
+                ru: "Тарифы — рыночный ориентир, не коммерческое предложение перевозчика. Выбор сразу пересчитывает прибыль, срок, пеню, TOS и Cash Flow.",
+              })}
+          {!anyLive && noLicense && (
+            <> {tr({ kz: "ATI.SU: «Орташа мөлшерлемелер» лицензиясы белсенді емес — есептік тариф көрсетілген.", ru: "ATI.SU: лицензия «Средние ставки» не активна — показан расчётный тариф." })}</>
+          )}
+        </span>
       </div>
     </GlassCard>
   );
