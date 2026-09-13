@@ -64,19 +64,28 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
-    fetch("/api/tenders")
-      .then((r) => r.json())
-      .then(setFeed)
-      .catch(() => setFeed({ live: false, tenders: [], sources: [] }));
+    // The feed is refreshed every 5 minutes and when the tab regains focus, so new lots
+    // (and new sources after a deploy) show up without a page reload.
+    const load = () =>
+      fetch("/api/tenders", { cache: "no-store" })
+        .then((r) => r.json())
+        .then(setFeed)
+        .catch(() => setFeed((f) => f ?? { live: false, tenders: [], sources: [] }));
+    load();
     try {
       setRead(new Set(JSON.parse(localStorage.getItem(READ_KEY) || "[]")));
     } catch {}
     const onDocs = () => setDocsVersion((v) => v + 1);
+    const onVisible = () => document.visibilityState === "visible" && load();
     window.addEventListener("qt-docs-changed", onDocs);
+    document.addEventListener("visibilitychange", onVisible);
     const tick = setInterval(() => setNow(Date.now()), 60_000);
+    const refresh = setInterval(load, 5 * 60_000);
     return () => {
       window.removeEventListener("qt-docs-changed", onDocs);
+      document.removeEventListener("visibilitychange", onVisible);
       clearInterval(tick);
+      clearInterval(refresh);
     };
   }, []);
 
