@@ -5,6 +5,8 @@ import { BadgeCheck, Plane, TrainFront, Truck } from "lucide-react";
 import { ESTIMATED_RATE_LABEL, LIVE_RATE_LABEL, logisticsPlan, type LiveRoadRate, type LogisticsMode } from "@/lib/logistics";
 import type { AnalysisResult, CompanyProfile, Scenario, TenderSpec } from "@/lib/types";
 import { useI18n } from "@/lib/i18n";
+import { useProfile } from "@/lib/profile";
+import { track } from "@/lib/track";
 import { cn } from "@/lib/utils";
 import { GlassCard } from "./ui/GlassCard";
 
@@ -50,6 +52,7 @@ export function LogisticsSelector({
   onChange: (scenario: Scenario) => void;
 }) {
   const { tr, kzt, city, lang } = useI18n();
+  const { session } = useProfile();
   const from = company.baseCityId;
   const to = tender.cityId;
   const [statuses, setStatuses] = useState<Partial<Record<RoadMode, AtiStatus>>>({});
@@ -118,14 +121,15 @@ export function LogisticsSelector({
               key={quote.mode}
               type="button"
               aria-pressed={active}
-              onClick={() =>
+              onClick={() => {
+                track("logistics_choice", { mode: quote.mode, from, to, live: quote.rateKind === "live" }, session?.access_token);
                 onChange({
                   ...scenario,
                   transportMode: quote.mode,
                   logisticsCostOverride: null,
                   ownTransport: false,
-                })
-              }
+                });
+              }}
               className={cn(
                 "rounded-xl border p-3 text-left transition-colors",
                 active ? "border-sky-400/70 bg-sky-500/15" : "border-white/10 bg-white/[0.03] hover:border-sky-400/35 hover:bg-white/[0.06]"

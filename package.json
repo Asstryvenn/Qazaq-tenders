@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start -p 3077",
     "lint": "next lint",
-    "theme:gen": "node scripts/gen-light-theme.mjs"
+    "theme:gen": "node scripts/gen-light-theme.mjs",
+    "test:admin": "node --test tests/*.test.mjs",
+    "test:admin:e2e": "node scripts/test-admin-access.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

@@ -15,6 +15,7 @@ import { CITIES } from "@/lib/logistics";
 import { modelFor } from "@/lib/server/models";
 import { getOpenAIKey, httpStatusFor, keyMissingBody, OpenAIError, openaiJson } from "@/lib/server/openai";
 import { getRequestUser } from "@/lib/server/auth";
+import { logEvent } from "@/lib/server/events";
 import { checkQuota, consume, resolvePlan, usageOf, type Subject } from "@/lib/server/billing";
 import type { CompanyProfile, TenderSpec } from "@/lib/types";
 import type { AnalyzeResponse, ExtractedFacts, ExtractedRequirement, ExtractedRisk } from "@/lib/upload-types";
@@ -408,5 +409,6 @@ RULES
     summaryLang: lang,
     truncatedPages: doc.truncated,
   };
+  await logEvent("pdf_analysis", { userId: user?.id ?? null, meta: { source: "upload" } });
   return NextResponse.json({ success: true, ...response });
 }

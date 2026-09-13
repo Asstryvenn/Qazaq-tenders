@@ -7,6 +7,9 @@ const anonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.
 export interface RequestUser {
   id: string;
   email?: string;
+  emailConfirmed: boolean;
+  /** `app_metadata.role` — writable only by the server, unlike user_metadata. */
+  appRole?: unknown;
   /** Client acting as this user — row-level security applies. */
   db: SupabaseClient;
 }
@@ -22,7 +25,13 @@ export async function getRequestUser(req: Request): Promise<RequestUser | null> 
   });
   const { data, error } = await db.auth.getUser(jwt);
   if (error || !data.user) return null;
-  return { id: data.user.id, email: data.user.email ?? undefined, db };
+  return {
+    id: data.user.id,
+    email: data.user.email ?? undefined,
+    emailConfirmed: !!data.user.email_confirmed_at,
+    appRole: data.user.app_metadata?.role,
+    db,
+  };
 }
 
 /** Service client (bypasses RLS) — only when SUPABASE_SECRET_KEY is configured. */

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { trackOnce } from "@/lib/track";
 import { motion } from "framer-motion";
 import { ArrowLeft, ExternalLink, Loader2, MapPin, Send, Sparkles, Truck } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
@@ -62,6 +63,12 @@ export default function TenderPage({ params }: { params: { id: string } }) {
 
   const result = useMemo(() => tender && analyzeTender(tender, company, scenario), [tender, company, scenario]);
   const baseline = useMemo(() => tender && analyzeTender(tender, company), [tender, company]);
+  const trackToken = useProfile().session?.access_token;
+  const tracked = result ? `${tender?.id}:${result.transportMode}` : "";
+  useEffect(() => {
+    if (tender && result) trackOnce(`tender:${tender.id}`, "tender_analyzed", { tenderId: tender.id, source: tender.source, mode: result.transportMode, tos: result.tos }, trackToken);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tracked]);
 
   if (tender === undefined) return <div className="mx-auto max-w-7xl px-6 py-24 text-center text-slate-400">{t.feed.loading}</div>;
   if (!tender || !result || !baseline)

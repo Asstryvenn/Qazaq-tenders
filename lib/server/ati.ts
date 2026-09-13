@@ -7,6 +7,7 @@
  * gets a status instead of a rate, and the engine keeps its built-in "Estimated Rate".
  */
 import { haversineProvider, type LiveRoadRate } from "../logistics";
+import { logIntegrationError } from "./events";
 
 const AVERAGE_PRICES_URL = "https://api.ati.su/priceline/license/v1/average_prices";
 
@@ -118,8 +119,11 @@ export async function fetchAtiLiveRates(cityFrom: string, cityTo: string, truckT
     else value = parseAtiResponse((await res.json()) as AtiResponse, cityFrom, cityTo, truckType);
   } catch (e) {
     // Network errors are not cached — the next request retries.
+    await logIntegrationError("ati", "network", (e as Error).name);
     return { status: "network", detail: (e as Error).name };
   }
+  if (["http-error", "rate-limit", "invalid-key"].includes(value.status))
+    await logIntegrationError("ati", value.status, "detail" in value ? value.detail ?? "" : "");
   cache.set(cacheKey, { until: Date.now() + (value.status === "live" ? TTL_LIVE : TTL_FAIL), value });
   return value;
 }
