@@ -14,7 +14,7 @@ from aiogram.types import InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from calculator import CITIES, SCENARIO_LEVERS, TOS_WEIGHTS, js_round, meets_min_margin, timeline_frame, twin_verdict
-from models import AnalysisResult, CompanyTwin, SearchQuery, TenderSpec
+from models import AnalysisResult, CompanyTwin, SearchQuery, SupplierOffer, TenderSpec
 from tenders import INDUSTRIES
 from texts import EVENT_LABELS, TAX_LABELS, city_name, esc, fmt_date, join_items, money, num, pct, reason_text, t
 
@@ -38,8 +38,20 @@ class SetupCB(CallbackData, prefix="st"):
     value: str = ""
 
 
+class SupplierCB(CallbackData, prefix="sup"):
+    action: str  # list | choose | back
+    key: str
+    offer: str = ""
+
+
 SEVERITY_ORDER = {"high": 0, "medium": 1, "low": 2}
-LEVER_TEXT = {"fuel": "lever_fuel", "supplier": "lever_supplier", "payment": "lever_payment"}
+LEVER_TEXT = {
+    "fuel": "lever_fuel",
+    "supplier": "lever_supplier",
+    "payment": "lever_payment",
+    "advance": "lever_advance",
+    "own_transport": "lever_own_transport",
+}
 
 
 def _title(spec: TenderSpec, lang: str) -> str:
@@ -98,7 +110,11 @@ def lot_card(spec: TenderSpec, res: AnalysisResult, twin: CompanyTwin, lang: str
     verdict = twin_verdict(res, twin)
     lines.append(f"🎯 <b>TOS {num(res.tos, 1)}</b>/100 {tos_bar(res.tos)}")
     lines.append(verdict_label(verdict, lang))
+    confidence_kind = t("confidence_verified" if res.confidence_label == "verified" else "confidence_smart", lang)
+    lines.append(t("confidence_line", lang, value=num(res.confidence_level, 1), kind=confidence_kind))
     lines.append(t("profit_line", lang, profit=money(res.net_profit, lang), margin=pct(res.margin_pct)))
+    if spec.field_sources.get("purchase_cost", None) and spec.field_sources["purchase_cost"].is_smart_default:
+        lines.append(t("smart_values", lang, purchase=money(res.costs.purchase, lang), cargo=num(spec.cargo_tonnes, 2)))
     if not meets_min_margin(res, twin):
         lines.append(t("below_min", lang, min=pct(twin.min_margin_pct, 0)))
     if res.cash_flow_gap:
@@ -130,7 +146,35 @@ def lot_keyboard(key: str, spec: TenderSpec, lang: str) -> InlineKeyboardMarkup:
     if _is_public_url(spec.source_url):
         kb.button(text=t("btn_link", lang), url=spec.source_url)
     kb.button(text=t("btn_sim", lang), callback_data=LotCB(action="sim", key=key, m=0))
+    kb.button(text=t("btn_suppliers", lang), callback_data=SupplierCB(action="list", key=key))
     kb.button(text=t("btn_hide", lang), callback_data=LotCB(action="hide", key=key))
+    kb.adjust(2)
+    return kb.as_markup()
+
+
+def suppliers_view(spec: TenderSpec, offers: List[SupplierOffer], lang: str) -> str:
+    lines = [t("suppliers_title", lang), f"<b>{esc(_title(spec, lang))}</b>", ""]
+    if not offers:
+        return "\n".join(lines + [t("suppliers_empty", lang)])
+    lines.append(t("suppliers_disclaimer", lang))
+    for i, offer in enumerate(offers, 1):
+        phone = f" · ☎️ {esc(offer.phone)}" if offer.phone else ""
+        lines += [
+            "",
+            f"{i}. <b>{esc(offer.supplier_name)}</b>{phone}",
+            f"{esc(offer.product_name)}",
+            f"💰 <b>{money(offer.total_price_kzt, lang)}</b> · {esc(offer.city or '—')}",
+            f"🕒 {esc(offer.updated_at)} · {esc(offer.source)}",
+        ]
+    return "\n".join(lines)
+
+
+def suppliers_keyboard(key: str, offers: List[SupplierOffer], lang: str) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+    for i, offer in enumerate(offers, 1):
+        kb.button(text=t("supplier_choose", lang, n=i, price=money(offer.total_price_kzt, lang)), callback_data=SupplierCB(action="choose", key=key, offer=offer.id))
+        kb.button(text=t("supplier_link", lang, n=i), url=offer.url)
+    kb.button(text=t("btn_back_card", lang), callback_data=SupplierCB(action="back", key=key))
     kb.adjust(2)
     return kb.as_markup()
 
@@ -262,6 +306,7 @@ def simulator_view(spec: TenderSpec, base: AnalysisResult, sim: AnalysisResult, 
             f"📈 {t('sim_row_margin', lang)}: {pct(base.margin_pct)}{arrow}<b>{pct(sim.margin_pct)}</b>",
             f"🕳 {t('sim_row_gap', lang)}: {gap_str(base)}{arrow}<b>{gap_str(sim)}</b>",
             f"⚖️ {t('sim_row_verdict', lang)}: {verdict_label(twin_verdict(base, twin), lang)}{arrow}<b>{verdict_label(twin_verdict(sim, twin), lang)}</b>",
+            f"🛡 {t('confidence_short', lang)}: {num(base.confidence_level, 1)}%{arrow}<b>{num(sim.confidence_level, 1)}%</b>",
         ]
     else:
         lines += [
@@ -269,6 +314,7 @@ def simulator_view(spec: TenderSpec, base: AnalysisResult, sim: AnalysisResult, 
             f"💵 {t('sim_row_profit', lang)}: <b>{money(base.net_profit, lang)}</b> · {pct(base.margin_pct)}",
             f"🕳 {t('sim_row_gap', lang)}: <b>{gap_str(base)}</b>",
             f"⚖️ {verdict_label(twin_verdict(base, twin), lang)}",
+            f"🛡 {t('confidence_short', lang)}: <b>{num(base.confidence_level, 1)}%</b>",
         ]
     lines += ["", f"<i>{t('sim_hint', lang)}</i>"]
     return "\n".join(lines)
@@ -281,7 +327,7 @@ def simulator_keyboard(key: str, mask: int, lang: str) -> InlineKeyboardMarkup:
         kb.button(text=("✅ " if on else "") + t(LEVER_TEXT[name], lang), callback_data=LotCB(action="sim", key=key, m=mask ^ bit))
     kb.button(text=t("btn_reset", lang), callback_data=LotCB(action="sim", key=key, m=0))
     kb.button(text=t("btn_back_card", lang), callback_data=LotCB(action="card", key=key))
-    kb.adjust(2, 1, 2)
+    kb.adjust(2, 2, 1, 2)
     return kb.as_markup()
 
 

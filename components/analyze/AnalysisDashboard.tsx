@@ -18,6 +18,9 @@ import { useProfile } from "@/lib/profile";
 import { NEUTRAL_SCENARIO } from "@/lib/types";
 import type { UploadAnalysis } from "@/lib/upload-types";
 import { cn } from "@/lib/utils";
+import { SupplierPanel } from "@/components/SupplierPanel";
+import { ActionGuide } from "@/components/ActionGuide";
+import type { SupplierOffer } from "@/lib/suppliers";
 
 const SEV = {
   high: { tone: "crimson" as const, color: "#f43f5e", kz: "Жоғары қауіп", ru: "Высокий риск" },
@@ -32,8 +35,10 @@ export function AnalysisDashboard({ upload, onUpdate, onDelete }: { upload: Uplo
   const spec = upload.spec;
   const S = spec.contractAmount;
   const ready = S > 0;
+  const [scenario, setScenario] = useState(NEUTRAL_SCENARIO);
+  const [selectedSupplierId, setSelectedSupplierId] = useState<string>();
 
-  const result = useMemo(() => (ready ? analyzeTender(spec, company) : null), [spec, company, ready]);
+  const result = useMemo(() => (ready ? analyzeTender(spec, company, scenario) : null), [spec, company, ready, scenario]);
 
   // Delivery slip vs penalty vs what's left of the profit — engine re-run per day.
   const timeline = useMemo(() => {
@@ -87,6 +92,14 @@ export function AnalysisDashboard({ upload, onUpdate, onDelete }: { upload: Uplo
           <p className="mt-1 text-sm text-slate-400">{spec.customer}</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          {upload.linkedTenderId && (
+            <Link
+              href={`/tender/${encodeURIComponent(upload.linkedTenderId)}`}
+              className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-100 hover:bg-emerald-500/20"
+            >
+              {tr({ kz: "Лотқа оралу", ru: "Вернуться к лоту" })}
+            </Link>
+          )}
           <Link
             href={`/ai-studio?tender=${encodeURIComponent(spec.id)}`}
             className={cn("inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-opacity", ready ? "bg-accent-blue text-ink" : "pointer-events-none bg-white/10 text-slate-500")}
@@ -105,10 +118,31 @@ export function AnalysisDashboard({ upload, onUpdate, onDelete }: { upload: Uplo
         </div>
       )}
 
+      {ready && (
+        <SupplierPanel
+          tender={spec}
+          selectedId={selectedSupplierId}
+          onSelect={(offer: SupplierOffer) => {
+            setSelectedSupplierId(offer.id);
+            setScenario((current) => ({
+              ...current,
+              purchaseCostOverride: offer.totalPriceKzt,
+              cargoTonnesOverride: offer.cargoTonnes ?? current.cargoTonnesOverride,
+              verifiedFields: Array.from(new Set([...(current.verifiedFields ?? []), "purchase_cost", ...(offer.cargoTonnes != null ? ["cargo_tonnes"] : [])])),
+            }));
+          }}
+        />
+      )}
+
       {/* Score + metrics */}
       <div className="grid gap-6 lg:grid-cols-12">
         <GlassCard interactive={false} glow={tone?.key === "go" ? "emerald" : tone?.key === "no-go" ? "crimson" : "blue"} className="flex flex-col items-center justify-center p-6 lg:col-span-4">
           {result ? <TosGauge value={result.tos} verdict={result.verdict} /> : <p className="py-16 font-mono text-4xl text-slate-500">—</p>}
+          {result?.confidenceLevel != null && (
+            <Badge tone={result.confidenceLabel === "verified" ? "emerald" : "blue"} className="mt-3">
+              {tr({ kz: "Деректер сенімділігі", ru: "Достоверность данных" })}: {result.confidenceLevel.toFixed(0)}%
+            </Badge>
+          )}
           {upload.recommendation && (
             <Badge tone={upload.recommendation === "participate" ? "emerald" : upload.recommendation === "avoid" ? "crimson" : "amber"} className="mt-3">
               AI:{" "}
@@ -277,11 +311,11 @@ export function AnalysisDashboard({ upload, onUpdate, onDelete }: { upload: Uplo
               <Req key={c} ok={certOk(c)} text={c} />
             ))}
             {upload.requirements
-              .filter((r) => r.kind !== "certificate" && r.kind !== "experience")
+              .filter((r) => !r.isBase && r.kind !== "certificate" && r.kind !== "experience")
               .map((r, i) => (
                 <Req key={i} ok={null} text={r.text} page={r.page} />
               ))}
-            {upload.facts.requiredExperienceYears == null && !spec.requiredCertificates.length && !upload.requirements.length && (
+            {upload.facts.requiredExperienceYears == null && !spec.requiredCertificates.length && !upload.requirements.some((r) => !r.isBase) && (
               <li className="text-sm text-slate-400">{tr({ kz: "Талаптар табылмады.", ru: "Требования не найдены." })}</li>
             )}
           </ul>
@@ -304,6 +338,11 @@ export function AnalysisDashboard({ upload, onUpdate, onDelete }: { upload: Uplo
           </GlassCard>
         )}
       </div>
+
+      {/* The same actionable checklist used on lot pages, now fed by this PDF's exact requirements. */}
+      <GlassCard interactive={false} glow="blue" className="p-6">
+        <ActionGuide tender={spec} />
+      </GlassCard>
 
       {upload.truncatedPages.length > 0 && (
         <p className="text-xs text-slate-500">

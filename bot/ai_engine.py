@@ -1,14 +1,15 @@
 """
 Qazaq Tenders — AI-СЛОЙ (OpenAI).
 
-Три задачи, и ни одна из них не считает деньги:
+Три задачи; финансовое решение и TOS остаются вне LLM:
   1. transcribe()          — голос → текст (Whisper);
   2. parse_search_query()  — текст запроса → SearchQuery (город, сумма, предмет);
-  3. extract_tender()      — текст техспецификации → TenderSpec (факты + NLP-«сито» рисков).
+  3. extract_tender()      — текст техспецификации → TenderSpec (факты, позиции,
+     помеченные Smart Defaults + NLP-«сито» рисков).
 
 Ответы модели ограничены строгой JSON-схемой (response_format=json_schema, strict=True),
-поэтому в экономический слой попадают только валидные типизированные данные. Всё, чего нет
-в документе, модель возвращает как null, а допущение фиксирует уже код, а не модель.
+поэтому в экономический слой попадают только валидные типизированные данные. Факт документа
+никогда не смешивается со Smart Default: у критичных полей сохраняются source, confidence и evidence.
 """
 from __future__ import annotations
 
@@ -22,7 +23,7 @@ import openai
 from openai import AsyncOpenAI
 
 from calculator import CITIES, CITY_BY_ID
-from models import HiddenRequirement, SearchQuery, SpecPage, TenderSpec
+from models import FieldSource, HiddenRequirement, SearchQuery, SpecPage, TenderItem, TenderSpec
 from tenders import INDUSTRIES
 
 log = logging.getLogger(__name__)
@@ -71,6 +72,20 @@ CITY_IDS = [c.id for c in CITIES]
 CITY_HINT = ", ".join(f"{c.id} ({c.ru})" for c in CITIES)
 INDUSTRY_HINT = ", ".join(f"{i.id} ({i.ru})" for i in INDUSTRIES.values())
 
+# Внутренняя номенклатурная база MVP. Доля — типичная закупочная себестоимость
+# относительно бюджета; kg_per_unit используется только когда ТЗ дало количество,
+# но не вес. Реальный supplier quote всегда имеет приоритет над этими значениями.
+CATEGORY_DEFAULTS: Dict[str, Dict[str, float]] = {
+    "electronics": {"cost_share": 0.80, "kg_per_unit": 2.5},
+    "furniture": {"cost_share": 0.72, "kg_per_unit": 12.0},
+    "construction": {"cost_share": 0.78, "kg_per_unit": 25.0},
+    "medical": {"cost_share": 0.76, "kg_per_unit": 1.5},
+    "office": {"cost_share": 0.70, "kg_per_unit": 2.0},
+    "services": {"cost_share": 0.55, "kg_per_unit": 0.1},
+    "other": {"cost_share": 0.78, "kg_per_unit": 2.0},
+}
+CATEGORY_IDS = list(CATEGORY_DEFAULTS)
+
 SEARCH_SCHEMA: Dict[str, Any] = {
     "type": "object",
     "additionalProperties": False,
@@ -109,6 +124,44 @@ FACTS_SCHEMA: Dict[str, Any] = {
         "performance_security_pct": _nullable({"type": "number"}),
         "bid_deadline": _nullable({"type": "string"}),
         "cargo_tonnes": _nullable({"type": "number"}),
+        "category": {"type": "string", "enum": CATEGORY_IDS},
+        "items": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "name": {"type": "string"},
+                    "quantity": {"type": "number"},
+                    "unit": {"type": "string"},
+                    "estimated_unit_weight_kg": _nullable({"type": "number"}),
+                },
+                "required": ["name", "quantity", "unit", "estimated_unit_weight_kg"],
+            },
+        },
+        "smart_defaults": {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": {
+                "purchase_cost_kzt": {
+                    "type": "object", "additionalProperties": False,
+                    "properties": {
+                        "value": {"type": "number"}, "is_smart_default": {"type": "boolean"},
+                        "confidence": {"type": "number"}, "evidence": {"type": "string"},
+                    },
+                    "required": ["value", "is_smart_default", "confidence", "evidence"],
+                },
+                "cargo_tonnes": {
+                    "type": "object", "additionalProperties": False,
+                    "properties": {
+                        "value": {"type": "number"}, "is_smart_default": {"type": "boolean"},
+                        "confidence": {"type": "number"}, "evidence": {"type": "string"},
+                    },
+                    "required": ["value", "is_smart_default", "confidence", "evidence"],
+                },
+            },
+            "required": ["purchase_cost_kzt", "cargo_tonnes"],
+        },
         "required_experience_years": _nullable({"type": "number"}),
         "required_certificates": {"type": "array", "items": {"type": "string"}},
         "hidden_requirements": {
@@ -128,14 +181,14 @@ FACTS_SCHEMA: Dict[str, Any] = {
     },
     "required": [
         "title", "customer", "city_id", "budget_kzt", "delivery_days", "payment_delay_days", "advance_pct",
-        "penalty_pct_per_day", "bid_security_pct", "performance_security_pct", "bid_deadline", "cargo_tonnes",
+        "penalty_pct_per_day", "bid_security_pct", "performance_security_pct", "bid_deadline", "cargo_tonnes", "category", "items", "smart_defaults",
         "required_experience_years", "required_certificates", "hidden_requirements",
     ],
 }
 
 FACTS_SYSTEM = """Ты — юрист-аналитик госзакупок Республики Казахстан. Тебе дан текст техспецификации или объявления
-лота с метками страниц [стр. N]. Извлеки ТОЛЬКО факты, которые прямо есть в тексте. Ничего не считай и не
-придумывай: если факта нет — null.
+лота с метками страниц [стр. N]. Работай в два этапа внутри одного JSON: сначала извлеки факты, затем создай
+Smart Defaults только для отсутствующих cargo_tonnes и purchase_cost_kzt. Не называй Smart Default фактом документа.
 - title — предмет закупки кратко; customer — заказчик.
 - budget_kzt — сумма закупки/договора в тенге («46 500 000» → 46500000).
 - delivery_days — срок поставки/оказания услуг в календарных днях от заключения договора (если указана только дата — null).
@@ -146,6 +199,16 @@ FACTS_SYSTEM = """Ты — юрист-аналитик госзакупок Ре
 - bid_deadline — срок подачи заявок в формате YYYY-MM-DD.
 - city_id — город поставки из списка: {cities}.
 - cargo_tonnes — общий вес поставки в тоннах, только если указан или однозначно следует из текста.
+- category — одна из: electronics, furniture, construction, medical, office, services, other.
+- items — до 20 основных позиций: name, quantity, unit. estimated_unit_weight_kg = null, если вес прямо не указан
+  и нет общеизвестной оценки; иначе допустима осторожная оценка (например, ноутбук с упаковкой ≈ 2,5 кг,
+  офисное кресло ≈ 12 кг). Не придумывай количество.
+- smart_defaults.purchase_cost_kzt: если точной цены поставщика нет, рассчитай бюджет × долю категории:
+  electronics 0.80; furniture 0.72; construction 0.78; medical 0.76; office 0.70;
+  services 0.55; other 0.78. is_smart_default всегда true, confidence 0.70–0.80, evidence кратко объясняет базу.
+- smart_defaults.cargo_tonnes: если cargo_tonnes есть в документе — повтори его с is_smart_default=false,
+  confidence 0.98 и ссылкой на факт. Иначе суммируй quantity × estimated_unit_weight_kg / 1000, если возможно;
+  если невозможно — дай консервативную оценку, is_smart_default=true, confidence 0.55–0.80.
 - hidden_requirements — пункты, которые ограничивают конкуренцию или опасны для малого бизнеса: конкретный бренд
   без аналогов; собственный склад/сервис в конкретном городе; нереальные сроки; неустойка выше 0,1 % в день или без
   потолка; оплата позже 30 дней; нет аванса при крупной сумме; опыт больше 3 лет; лицензии, не связанные с предметом.
@@ -277,8 +340,22 @@ class AIEngine:
             assumptions.append("city")
             city = fallback_city
         penalty_pct = pick(f.get("penalty_pct_per_day"), 0.1, "penalty")
-        cargo = float(max(0.1, pick(f.get("cargo_tonnes"), 2.0, "cargo")))
-        # Себестоимость в документе не пишут: оцениваем как 78 % суммы (как и сайт)
+        category = f.get("category") if f.get("category") in CATEGORY_DEFAULTS else "other"
+        smart = f.get("smart_defaults") or {}
+        cargo_smart = smart.get("cargo_tonnes") or {}
+        cargo_raw = f.get("cargo_tonnes")
+        if cargo_raw is None:
+            cargo_candidate = cargo_smart.get("value")
+            cargo = float(max(0.1, cargo_candidate if isinstance(cargo_candidate, (int, float)) and cargo_candidate > 0 else 2.0))
+            assumptions.append("cargo")
+        else:
+            cargo = float(max(0.1, cargo_raw))
+
+        purchase_smart = smart.get("purchase_cost_kzt") or {}
+        purchase_candidate = purchase_smart.get("value")
+        default_purchase = float(budget) * CATEGORY_DEFAULTS[category]["cost_share"]
+        # Ограничение защищает Economic Layer от явно ошибочного AI-числа.
+        purchase = float(purchase_candidate) if isinstance(purchase_candidate, (int, float)) and budget * 0.30 <= purchase_candidate <= budget * 0.98 else default_purchase
         assumptions.append("purchase")
         if truncated:
             assumptions.append("truncated")
@@ -295,6 +372,28 @@ class AIEngine:
         ]
         digest = hashlib.sha1("".join(p.text for p in pages).encode("utf-8")).hexdigest()[:12]
         title = (f.get("title") or source_name or "—").strip()[:200]
+        items = [
+            TenderItem(
+                name=str(item.get("name") or "")[:160],
+                quantity=max(0.001, float(item.get("quantity") or 1)),
+                unit=str(item.get("unit") or "шт")[:24],
+                estimated_unit_weight_kg=(max(0.0, float(item["estimated_unit_weight_kg"])) if isinstance(item.get("estimated_unit_weight_kg"), (int, float)) else None),
+            )
+            for item in (f.get("items") or [])[:20]
+            if str(item.get("name") or "").strip()
+        ]
+
+        def source(value: Any, smart_key: str, fallback_evidence: str) -> FieldSource:
+            if value is not None:
+                return FieldSource(source="document", confidence=0.98, evidence="Извлечено из ТЗ")
+            block = smart.get(smart_key) or {}
+            confidence = block.get("confidence")
+            return FieldSource(
+                source="category_default" if smart_key in ("purchase_cost_kzt", "cargo_tonnes") else "fallback",
+                is_smart_default=True,
+                confidence=min(0.80, max(0.50, float(confidence))) if isinstance(confidence, (int, float)) else 0.65,
+                evidence=str(block.get("evidence") or fallback_evidence)[:240],
+            )
 
         spec = TenderSpec(
             id=f"upload-{digest}",
@@ -312,12 +411,22 @@ class AIEngine:
             delivery_days=delivery,
             payment_delay_days=payment,
             penalty_rate=float(penalty_pct) / 100,
-            purchase_cost=float(budget) * 0.78,
+            purchase_cost=purchase,
             city_id=city,
             cargo_tonnes=cargo,
             required_experience_years=float(f.get("required_experience_years") or 0),
             required_certificates=[c.strip()[:80] for c in f.get("required_certificates", []) if c.strip()][:10],
             hidden_requirements=hidden,
             deadline=(f.get("bid_deadline") or "")[:10],
+            category=category,
+            items=items,
+            field_sources={
+                "purchase_cost": source(None, "purchase_cost_kzt", f"Средняя доля себестоимости категории {category}"),
+                "cargo_tonnes": source(cargo_raw, "cargo_tonnes", f"Оценка веса категории {category}"),
+                "delivery_days": source(f.get("delivery_days"), "delivery_days", "Fallback 30 дней"),
+                "payment_delay_days": source(f.get("payment_delay_days"), "payment_delay_days", "Fallback 30 дней"),
+                "advance_percentage": source(f.get("advance_pct"), "advance_percentage", "Fallback: аванса нет"),
+                "city_id": source(f.get("city_id"), "city_id", "Fallback: город компании"),
+            },
         )
         return spec, assumptions

@@ -34,6 +34,7 @@ export default function AnalyzePage() {
   // Server integration status (presence only) — shown before the user wastes an upload.
   const [health, setHealth] = useState<{ openai: boolean } | null>(null);
   const running = useRef(false);
+  const linkedTenderId = useRef<string | null>(null);
 
   useEffect(() => {
     fetch("/api/health", { cache: "no-store" })
@@ -42,7 +43,9 @@ export default function AnalyzePage() {
       .catch(() => setHealth(null));
     const list = loadUploads();
     setItems(list);
-    const q = new URLSearchParams(window.location.search).get("id");
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get("id");
+    linkedTenderId.current = params.get("tender");
     setCurrent(q && list.some((u) => u.id === q) ? q : null);
   }, []);
 
@@ -85,12 +88,23 @@ export default function AnalyzePage() {
 
         setStage({ key: "engine" });
         const r = data as AnalyzeResponse;
-        const upload: UploadAnalysis = { ...r, fileName: p.fileName, createdAt: Date.now(), numPages: p.pdf.numPages, spec: { ...r.spec, specPages: p.pdf.pages } };
+        const upload: UploadAnalysis = {
+          ...r,
+          ...(linkedTenderId.current && { linkedTenderId: linkedTenderId.current }),
+          fileName: p.fileName,
+          createdAt: Date.now(),
+          numPages: p.pdf.numPages,
+          spec: { ...r.spec, specPages: p.pdf.pages },
+        };
         if (!saveUpload(upload)) setError(tr({ kz: "Браузер жады толы — талдау тек осы сессияда көрінеді.", ru: "Память браузера заполнена — анализ виден только в этой сессии." }));
         setPending(null);
         setItems((list) => [upload, ...list.filter((u) => u.id !== upload.id)]);
         setCurrent(upload.id);
-        window.history.replaceState(null, "", `/analyze?id=${upload.id}`);
+        window.history.replaceState(
+          null,
+          "",
+          `/analyze?id=${upload.id}${upload.linkedTenderId ? `&tender=${encodeURIComponent(upload.linkedTenderId)}` : ""}`
+        );
         billing.refresh();
       } catch (e) {
         setError(`${tr({ kz: "Талдау қатесі", ru: "Ошибка анализа" })}: ${(e as Error).message}`);

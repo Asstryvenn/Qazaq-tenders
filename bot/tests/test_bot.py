@@ -7,9 +7,9 @@ from pathlib import Path
 import pytest
 
 from calculator import ALL_LEVERS_MASK, analyze_tender, scenario_from_mask
-from cards import full_breakdown, lot_card, lot_keyboard, search_keyboard, search_results, simulator_keyboard, simulator_view, twin_view
+from cards import full_breakdown, lot_card, lot_keyboard, search_keyboard, search_results, simulator_keyboard, simulator_view, suppliers_keyboard, suppliers_view, twin_view
 from documents import DocumentError, _assert_public_host, _chunk, extract_docx, find_url
-from models import CompanyTwin, SearchQuery, TenderSpec
+from models import CompanyTwin, SearchQuery, SupplierOffer, TenderSpec
 from storage import Storage
 from tenders import filter_lots, find_by_url, heuristic_search, lot_key, match_city
 from texts import money, pct
@@ -50,6 +50,24 @@ def test_card_contains_required_fields():
         assert needle in text
     kz = lot_card(spec, analyze_tender(spec, TWIN), TWIN, "kz")
     assert "Тапсырыс беруші" in kz
+    assert "Достоверность входных данных" in text
+
+
+def test_supplier_cards_include_real_provenance_and_safe_callbacks():
+    offer = SupplierOffer(
+        id="0123456789abcdef",
+        supplier_name="ТОО Поставщик",
+        product_name="Ноутбук 100 шт",
+        total_price_kzt=7_800_000,
+        phone="+77010000000",
+        url="https://supplier.example/item/1",
+        city="Алматы",
+        updated_at="2026-09-13T10:00:00Z",
+        source="partner-api",
+    )
+    text = suppliers_view(LOTS[0], [offer], "ru")
+    assert "ТОО Поставщик" in text and "+77010000000" in text and "partner-api" in text
+    _callback_sizes(suppliers_keyboard(lot_key(LOTS[0].id), [offer], "ru"))
 
 
 def test_search_views():
@@ -137,6 +155,9 @@ def test_storage_roundtrip_and_ai_limit(tmp_path):
         key = lot_key(LOTS[0].id)
         await st.put_lot(key, LOTS[0])
         assert (await st.get_lot(key)) == LOTS[0]
+        saved_scenario = scenario_from_mask(8 | 16)
+        await st.save_lot_scenario(1, key, saved_scenario)
+        assert await st.get_lot_scenario(1, key) == saved_scenario
         await st.hide(1, key)
         assert key in await st.hidden_keys(1)
         assert [await st.use_ai(1, 2) for _ in range(3)] == [True, True, False]

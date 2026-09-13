@@ -15,24 +15,41 @@ import { Checklist } from "@/components/Checklist";
 import { PlainSummaryCard } from "@/components/PlainSummaryCard";
 import { PlanGate } from "@/components/billing/PlanGate";
 import { ActionGuide } from "@/components/ActionGuide";
+import { SupplierPanel } from "@/components/SupplierPanel";
 import { SOURCES } from "@/lib/tenders/unified";
 import { decodeScenario } from "@/lib/chat-client";
 import { useTelegramLink } from "@/lib/use-telegram-link";
 import { analyzeTender, tosTone, TOS_WEIGHTS } from "@/lib/engine";
 import { useI18n } from "@/lib/i18n";
 import { useProfile } from "@/lib/profile";
+import { getTenderAttachment } from "@/lib/uploads";
 import { NEUTRAL_SCENARIO, Scenario, TenderSpec } from "@/lib/types";
+import type { SupplierOffer } from "@/lib/suppliers";
 
 export default function TenderPage({ params }: { params: { id: string } }) {
   const { t, kzt, city, lotTitle } = useI18n();
   const { company } = useProfile();
   const [tender, setTender] = useState<TenderSpec | null | undefined>(undefined);
   const [scenario, setScenario] = useState<Scenario>(NEUTRAL_SCENARIO);
+  const [selectedSupplierId, setSelectedSupplierId] = useState<string>();
 
   useEffect(() => {
     fetch(`/api/tenders/${params.id}`)
       .then((r) => (r.ok ? r.json() : { tender: null }))
-      .then((d) => setTender(d.tender))
+      .then((d: { tender: TenderSpec | null }) => {
+        if (!d.tender) return setTender(null);
+        const attachment = getTenderAttachment(d.tender.id);
+        if (!attachment) return setTender(d.tender);
+        const uploaded = attachment.spec;
+        setTender({
+          ...d.tender,
+          requiredExperienceYears: Math.max(d.tender.requiredExperienceYears, uploaded.requiredExperienceYears),
+          requiredCertificates: Array.from(new Set([...d.tender.requiredCertificates, ...uploaded.requiredCertificates])),
+          hiddenRequirements: uploaded.hiddenRequirements,
+          qualificationRequirements: uploaded.qualificationRequirements ?? attachment.requirements.filter((requirement) => !requirement.isBase),
+          specPages: uploaded.specPages,
+        });
+      })
       .catch(() => setTender(null));
   }, [params.id]);
 
@@ -97,11 +114,27 @@ export default function TenderPage({ params }: { params: { id: string } }) {
           </Badge>
           {tender.advancePercentage > 0 && <Badge tone="blue">аванс {tender.advancePercentage}%</Badge>}
           {tender.estimated && <Badge tone="neutral">{t.feed.estimated}</Badge>}
+          <Badge tone={result.confidenceLabel === "verified" ? "emerald" : "blue"}>
+            {result.confidenceLevel?.toFixed(0)}% {result.confidenceLabel === "verified" ? "verified" : "Smart AI"}
+          </Badge>
           <Badge tone={badgeTone}>{t.verdict[tone.key]}</Badge>
         </div>
       </motion.div>
 
       <TenderActions tenderId={tender.id} />
+      <SupplierPanel
+        tender={tender}
+        selectedId={selectedSupplierId}
+        onSelect={(offer: SupplierOffer) => {
+          setSelectedSupplierId(offer.id);
+          setScenario((current) => ({
+            ...current,
+            purchaseCostOverride: offer.totalPriceKzt,
+            cargoTonnesOverride: offer.cargoTonnes ?? current.cargoTonnesOverride,
+            verifiedFields: Array.from(new Set([...(current.verifiedFields ?? []), "purchase_cost", ...(offer.cargoTonnes != null ? ["cargo_tonnes"] : [])])),
+          }));
+        }}
+      />
 
       {/* Row 1 — TOS breakdown | plain-language summary */}
       <div className="grid items-stretch gap-6 lg:grid-cols-12">

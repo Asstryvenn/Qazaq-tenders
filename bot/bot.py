@@ -34,11 +34,12 @@ from aiogram.types import BotCommand, CallbackQuery, ErrorEvent, InlineKeyboardM
 from aiogram.utils.chat_action import ChatActionSender
 
 from ai_engine import AIEngine, AIError
-from calculator import analyze_tender, meets_min_margin, rank_lots, scenario_from_mask, ALL_LEVERS_MASK
+from calculator import analyze_tender, meets_min_margin, rank_lots, scenario_from_mask, SUPPORTED_LEVERS_MASK
 from cards import (
     LotCB,
     MenuCB,
     SetupCB,
+    SupplierCB,
     assumptions_note,
     back_keyboard,
     city_keyboard,
@@ -54,14 +55,17 @@ from cards import (
     search_results,
     simulator_keyboard,
     simulator_view,
+    suppliers_keyboard,
+    suppliers_view,
     tax_keyboard,
     twin_keyboard,
     twin_view,
 )
 from config import Settings, load_settings
 from documents import MAX_FILE_BYTES, DocumentError, detect_kind, extract_pages, find_url, pages_from_url
-from models import AnalysisResult, CompanyTwin, SearchQuery, SpecPage, TenderSpec
+from models import AnalysisResult, CompanyTwin, Scenario, SearchQuery, SpecPage, TenderSpec
 from storage import Storage
+from suppliers import SupplierCatalog, SupplierError
 from tenders import INDUSTRIES, TenderFeed, filter_lots, find_by_url, heuristic_search, industry_matches, lot_key, match_city
 from texts import esc, pct, t
 
@@ -82,6 +86,7 @@ class App:
     storage: Storage
     feed: TenderFeed
     ai: AIEngine
+    suppliers: SupplierCatalog
     tasks: List[asyncio.Task] = field(default_factory=list)
 
 
@@ -91,6 +96,7 @@ def create_app(settings: Settings) -> App:
         storage=Storage(settings.db_path),
         feed=TenderFeed(settings.qt_api_base),
         ai=AIEngine(settings.openai_api_key, settings.openai_model, settings.transcribe_model),
+        suppliers=SupplierCatalog(settings.supplier_catalog_url, settings.supplier_catalog_api_key),
     )
 
 
@@ -657,6 +663,61 @@ async def on_text(message: Message, bot: Bot, app: App) -> None:
 # =========================================================================== #
 
 
+@router.callback_query(SupplierCB.filter())
+async def on_supplier(cb: CallbackQuery, callback_data: SupplierCB, bot: Bot, app: App) -> None:
+    """Показывает только реальные catalog quotes и применяет выбранную цену к TOS."""
+    if not isinstance(cb.message, Message):
+        await cb.answer()
+        return
+    msg = cb.message
+    user = await get_user(app, msg.chat.id, cb.from_user.language_code)
+    lang, twin = user["lang"], user["twin"]
+    spec = await app.storage.get_lot(callback_data.key)
+    if twin is None or spec is None:
+        await cb.answer(t("lot_gone", lang), show_alert=True)
+        return
+
+    if callback_data.action == "back":
+        saved = await app.storage.get_lot_scenario(msg.chat.id, callback_data.key)
+        base = await asyncio.to_thread(analyze_tender, spec, twin, saved)
+        await safe_edit(msg, lot_card(spec, base, twin, lang), lot_keyboard(callback_data.key, spec, lang))
+        await cb.answer()
+        return
+
+    if callback_data.action == "list":
+        try:
+            offers = await app.suppliers.search(spec)
+        except SupplierError:
+            await cb.answer(t("suppliers_unavailable", lang), show_alert=True)
+            return
+        await app.storage.put_supplier_offers(offers)
+        await safe_edit(msg, suppliers_view(spec, offers, lang), suppliers_keyboard(callback_data.key, offers, lang))
+        await cb.answer()
+        return
+
+    if callback_data.action == "choose":
+        offer = await app.storage.get_supplier_offer(callback_data.offer)
+        if offer is None:
+            await cb.answer(t("suppliers_unavailable", lang), show_alert=True)
+            return
+        verified = ["purchase_cost"]
+        if offer.cargo_tonnes is not None:
+            verified.append("cargo_tonnes")
+        sc = Scenario(
+            purchase_cost_override=offer.total_price_kzt,
+            cargo_tonnes_override=offer.cargo_tonnes,
+            verified_fields=verified,
+        )
+        await app.storage.save_lot_scenario(msg.chat.id, callback_data.key, sc)
+        result = await asyncio.to_thread(analyze_tender, spec, twin, sc)
+        header = t("supplier_applied", lang, name=esc(offer.supplier_name))
+        await safe_edit(msg, lot_card(spec, result, twin, lang, header=header), lot_keyboard(callback_data.key, spec, lang))
+        await cb.answer()
+        return
+
+    await cb.answer()
+
+
 @router.callback_query(LotCB.filter())
 async def on_lot(cb: CallbackQuery, callback_data: LotCB, bot: Bot, app: App) -> None:
     if not isinstance(cb.message, Message):
@@ -682,14 +743,29 @@ async def on_lot(cb: CallbackQuery, callback_data: LotCB, bot: Bot, app: App) ->
     if action == "unhide":
         await app.storage.unhide(msg.chat.id, key)
 
-    base = await asyncio.to_thread(analyze_tender, spec, twin)
+    saved_scenario = await app.storage.get_lot_scenario(msg.chat.id, key)
+    base = await asyncio.to_thread(analyze_tender, spec, twin, saved_scenario)
     if action == "open":  # из списка поиска — новая карточка отдельным сообщением
         await send_card(bot, app, msg.chat.id, key, spec, base, twin, lang)
     elif action == "full":
         await safe_edit(msg, full_breakdown(spec, base, twin, lang), back_keyboard(key, lang))
     elif action == "sim":
-        mask = callback_data.m & ALL_LEVERS_MASK
-        sim = await asyncio.to_thread(analyze_tender, spec, twin, scenario_from_mask(mask)) if mask else base
+        mask = callback_data.m & SUPPORTED_LEVERS_MASK
+        lever = scenario_from_mask(mask)
+        updates: Dict[str, Any] = {}
+        for field_name in ("fuel_delta_pct", "transport_delta_pct", "supplier_delta_pct", "payment_delay_delta", "late_days", "delivery_delta_days"):
+            value = getattr(lever, field_name)
+            if value:
+                updates[field_name] = value
+        for field_name in ("advance_percentage_override", "logistics_cost_override", "cargo_tonnes_override"):
+            value = getattr(lever, field_name)
+            if value is not None:
+                updates[field_name] = value
+        if lever.own_transport:
+            updates["own_transport"] = True
+        updates["verified_fields"] = list(dict.fromkeys([*saved_scenario.verified_fields, *lever.verified_fields]))
+        combined = saved_scenario.model_copy(update=updates)
+        sim = await asyncio.to_thread(analyze_tender, spec, twin, combined) if mask else base
         await safe_edit(msg, simulator_view(spec, base, sim, mask, twin, lang), simulator_keyboard(key, mask, lang))
     else:  # card | unhide
         await safe_edit(msg, lot_card(spec, base, twin, lang), lot_keyboard(key, spec, lang))

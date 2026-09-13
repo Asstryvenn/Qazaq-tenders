@@ -291,7 +291,10 @@ BASELINE ENGINE RESULT: ${JSON.stringify(summarize(baseline))}`;
             } else if (call.name === "run_scenario") {
               send({ t: "status", key: "engine" });
               const scenario: Scenario = { ...NEUTRAL_SCENARIO };
-              for (const k of Object.keys(NEUTRAL_SCENARIO) as (keyof Scenario)[]) {
+              const numericKeys: Array<keyof Pick<Scenario, "fuelDeltaPct" | "transportDeltaPct" | "supplierDeltaPct" | "paymentDelayDelta" | "lateDays" | "deliveryDeltaDays">> = [
+                "fuelDeltaPct", "transportDeltaPct", "supplierDeltaPct", "paymentDelayDelta", "lateDays", "deliveryDeltaDays",
+              ];
+              for (const k of numericKeys) {
                 if (typeof args[k] === "number" && Number.isFinite(args[k])) scenario[k] = args[k];
               }
               const r = analyzeTender(tender, company, scenario);

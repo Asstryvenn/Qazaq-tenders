@@ -49,6 +49,9 @@ class Settings:
     # Режим webhook (через api.py): публичный https-адрес и секрет. Пусто → polling.
     webhook_base_url: str
     webhook_secret: str
+    # Contracted supplier/ERP catalogue implementing bot/suppliers.py contract.
+    supplier_catalog_url: str = ""
+    supplier_catalog_api_key: str = ""
 
 
 def load_settings() -> Settings:
@@ -64,4 +67,6 @@ def load_settings() -> Settings:
         alert_min_tos=_float("ALERT_MIN_TOS", 60),
         webhook_base_url=_str("WEBHOOK_BASE_URL").rstrip("/"),
         webhook_secret=_str("WEBHOOK_SECRET"),
+        supplier_catalog_url=_str("SUPPLIER_CATALOG_URL"),
+        supplier_catalog_api_key=_str("SUPPLIER_CATALOG_API_KEY"),
     )

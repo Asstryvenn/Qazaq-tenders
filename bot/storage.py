@@ -15,7 +15,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Set, TypeVar
 
-from models import CompanyTwin, TenderSpec
+from models import CompanyTwin, Scenario, SupplierOffer, TenderSpec
 
 T = TypeVar("T")
 ALMATY = timezone(timedelta(hours=5))
@@ -49,6 +49,18 @@ CREATE TABLE IF NOT EXISTS ai_usage (
     day     TEXT    NOT NULL,
     count   INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY (chat_id, day)
+);
+CREATE TABLE IF NOT EXISTS supplier_offers (
+    id         TEXT PRIMARY KEY,
+    offer_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS lot_scenarios (
+    chat_id       INTEGER NOT NULL,
+    key           TEXT    NOT NULL,
+    scenario_json TEXT    NOT NULL,
+    updated_at    TEXT    NOT NULL,
+    PRIMARY KEY (chat_id, key)
 );
 """
 
@@ -131,6 +143,36 @@ class Storage:
     async def get_lot(self, key: str) -> Optional[TenderSpec]:
         row = await self._run(lambda db: db.execute("SELECT spec_json FROM lots WHERE key = ?", (key,)).fetchone())
         return TenderSpec.model_validate_json(row["spec_json"]) if row else None
+
+    async def put_supplier_offers(self, offers: Iterable[SupplierOffer]) -> None:
+        rows = [(o.id, o.model_dump_json(by_alias=True), _now()) for o in offers]
+        if rows:
+            await self._run(
+                lambda db: db.executemany(
+                    "INSERT INTO supplier_offers (id, offer_json, created_at) VALUES (?, ?, ?) "
+                    "ON CONFLICT(id) DO UPDATE SET offer_json = excluded.offer_json, created_at = excluded.created_at",
+                    rows,
+                )
+            )
+
+    async def get_supplier_offer(self, offer_id: str) -> Optional[SupplierOffer]:
+        row = await self._run(lambda db: db.execute("SELECT offer_json FROM supplier_offers WHERE id = ?", (offer_id,)).fetchone())
+        return SupplierOffer.model_validate_json(row["offer_json"]) if row else None
+
+    async def save_lot_scenario(self, chat_id: int, key: str, scenario: Scenario) -> None:
+        await self._run(
+            lambda db: db.execute(
+                "INSERT INTO lot_scenarios (chat_id, key, scenario_json, updated_at) VALUES (?, ?, ?, ?) "
+                "ON CONFLICT(chat_id, key) DO UPDATE SET scenario_json = excluded.scenario_json, updated_at = excluded.updated_at",
+                (chat_id, key, scenario.model_dump_json(), _now()),
+            )
+        )
+
+    async def get_lot_scenario(self, chat_id: int, key: str) -> Scenario:
+        row = await self._run(
+            lambda db: db.execute("SELECT scenario_json FROM lot_scenarios WHERE chat_id = ? AND key = ?", (chat_id, key)).fetchone()
+        )
+        return Scenario.model_validate_json(row["scenario_json"]) if row else Scenario()
 
     async def hide(self, chat_id: int, key: str) -> None:
         await self._run(lambda db: db.execute("INSERT OR IGNORE INTO hidden (chat_id, key) VALUES (?, ?)", (chat_id, key)))

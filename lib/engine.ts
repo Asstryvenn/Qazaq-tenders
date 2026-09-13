@@ -28,6 +28,15 @@ export const TARGET_MARGIN_PCT = 20;
  */
 export const MAX_OPEX_SHARE = 0.1;
 
+const CONFIDENCE_WEIGHTS: Record<string, number> = {
+  purchase_cost: 0.45,
+  cargo_tonnes: 0.15,
+  delivery_days: 0.1,
+  payment_delay_days: 0.1,
+  advance_percentage: 0.1,
+  city_id: 0.1,
+};
+
 /** Bid security is returned once the contract is signed. */
 const SIGNING_DAY = 5;
 
@@ -132,6 +141,24 @@ function legalRiskScore(tender: TenderSpec, company: CompanyProfile, scenario: S
   return { risk: clamp(risk), reasons };
 }
 
+/** Completeness/provenance of financial inputs; not a promise of forecast accuracy. */
+export function inputConfidence(tender: TenderSpec, scenario: Scenario): number {
+  const verified = new Set(scenario.verifiedFields ?? []);
+  if (scenario.purchaseCostOverride != null) verified.add("purchase_cost");
+  if (scenario.advancePercentageOverride != null) verified.add("advance_percentage");
+  if (scenario.logisticsCostOverride != null) verified.add("city_id");
+  if (scenario.cargoTonnesOverride != null) verified.add("cargo_tonnes");
+  let total = 0;
+  for (const [field, weight] of Object.entries(CONFIDENCE_WEIGHTS)) {
+    const source = tender.fieldSources?.[field];
+    const score = verified.has(field)
+      ? 0.99
+      : source?.confidence ?? (tender.isDemo ? 0.75 : tender.estimated ? (field === "purchase_cost" || field === "cargo_tonnes" ? 0.68 : 0.78) : 0.92);
+    total += weight * score;
+  }
+  return clamp(total * 100);
+}
+
 /* ------------------------------------------------------------------ */
 /* Main entry point                                                    */
 /* ------------------------------------------------------------------ */
@@ -147,16 +174,19 @@ export function analyzeTender(
   const horizon = payDay + 5;
 
   const distanceKm = distances.distanceKm(company.baseCityId, tender.cityId);
-  const freight = freightCost(distanceKm, tender.cargoTonnes, scenario.fuelDeltaPct, scenario.transportDeltaPct);
+  const freight = freightCost(distanceKm, scenario.cargoTonnesOverride ?? tender.cargoTonnes, scenario.fuelDeltaPct, scenario.transportDeltaPct);
 
   const S = tender.contractAmount;
   const bidSecurity = S * (tender.bidSecurityRate ?? KZ.bidSecurityRate);
   const performanceSecurity = S * (tender.performanceSecurityRate ?? KZ.performanceSecurityRate);
-  const advance = S * (tender.advancePercentage / 100);
+  const advancePct = scenario.advancePercentageOverride ?? tender.advancePercentage;
+  const advance = S * (advancePct / 100);
+  const purchaseCost = scenario.purchaseCostOverride ?? tender.purchaseCost * (1 + scenario.supplierDeltaPct / 100);
+  const logisticsCost = scenario.logisticsCostOverride ?? freight.cost * (scenario.ownTransport ? 0.4 : 1);
 
   const costs: CostBreakdown = {
-    purchase: tender.purchaseCost * (1 + scenario.supplierDeltaPct / 100),
-    logistics: freight.cost,
+    purchase: purchaseCost,
+    logistics: logisticsCost,
     operating: Math.min((company.monthlyOpex / 30) * company.opexAllocation * horizon, S * MAX_OPEX_SHARE),
     penalty: statutoryPenalty(S, tender.penaltyRate, scenario.lateDays),
     // Guarantee must stay open until the customer has paid.
@@ -233,6 +263,7 @@ export function analyzeTender(
   const verdict: AnalysisResult["verdict"] =
     netProfit <= 0 ? "no-go" : tos >= 70 && cf.gapDay === null ? "go" : tos >= 45 ? "caution" : "no-go";
 
+  const confidenceLevel = Math.round(inputConfidence(tender, scenario) * 10) / 10;
   return {
     tenderId: tender.id,
     netProfit,
@@ -253,6 +284,8 @@ export function analyzeTender(
     timeline,
     verdict,
     reasons,
+    confidenceLevel,
+    confidenceLabel: confidenceLevel >= 95 ? "verified" : "quick_ai",
   };
 }
 

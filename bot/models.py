@@ -21,6 +21,7 @@ TaxRegime = Literal["general", "simplified", "vat"]
 Severity = Literal["low", "medium", "high"]
 Verdict = Literal["go", "caution", "no-go"]
 Lang = Literal["kz", "ru"]
+ValueSourceKind = Literal["document", "supplier_api", "category_default", "fallback", "user_verified"]
 
 
 class _Camel(BaseModel):
@@ -48,6 +49,46 @@ class HiddenRequirement(_Camel):
     page: int
     severity: Severity
     reason: str
+
+
+class FieldSource(_Camel):
+    """Происхождение одного входного значения.
+
+    confidence — уверенность именно в исходном значении, а не обещание точности
+    будущей прибыли. evidence показывает пользователю, почему значение выбрано.
+    """
+
+    source: ValueSourceKind
+    is_smart_default: bool = False
+    confidence: float = Field(..., ge=0, le=1)
+    evidence: str = ""
+
+
+class TenderItem(_Camel):
+    """Нормализованная позиция из ТЗ для поиска предложений поставщиков."""
+
+    name: str
+    quantity: float = Field(1.0, gt=0)
+    unit: str = "шт"
+    estimated_unit_weight_kg: Optional[float] = Field(None, ge=0)
+
+
+class SupplierOffer(_Camel):
+    """Нормализованная актуальная котировка внешнего каталога поставщиков."""
+
+    id: str
+    supplier_name: str
+    product_name: str
+    total_price_kzt: float = Field(..., ge=0)
+    unit_price_kzt: Optional[float] = Field(None, ge=0)
+    quantity: Optional[float] = Field(None, ge=0)
+    phone: str = ""
+    url: str
+    city: str = ""
+    availability: str = "unknown"
+    updated_at: str
+    source: str
+    cargo_tonnes: Optional[float] = Field(None, ge=0)
 
 
 class TenderSpec(_Camel):
@@ -86,6 +127,13 @@ class TenderSpec(_Camel):
     # Срок подачи заявок, ISO-дата
     deadline: str = ""
     spec_pages: List[SpecPage] = Field(default_factory=list)
+    # Категория и позиции позволяют искать реальные supplier quotes, а не применять
+    # одну долю себестоимости ко всем предметам закупки.
+    category: str = "other"
+    items: List[TenderItem] = Field(default_factory=list)
+    # Provenance критичных полей: purchase_cost, cargo_tonnes, delivery_days,
+    # payment_delay_days, advance_percentage, city_id.
+    field_sources: Dict[str, FieldSource] = Field(default_factory=dict)
 
 
 # --------------------------------------------------------------------------- #
@@ -158,6 +206,14 @@ class Scenario(BaseModel):
     payment_delay_delta: int = 0  # +дней к отсрочке оплаты
     late_days: int = 0  # дней просрочки поставки → неустойка
     delivery_delta_days: int = 0  # продление срока по согласованию (без неустойки)
+    # Точные overrides имеют приоритет над процентными рычагами.
+    purchase_cost_override: Optional[float] = Field(None, ge=0)
+    advance_percentage_override: Optional[float] = Field(None, ge=0, le=100)
+    logistics_cost_override: Optional[float] = Field(None, ge=0)
+    cargo_tonnes_override: Optional[float] = Field(None, ge=0)
+    own_transport: bool = False
+    # Поля, которые пользователь подтвердил кнопкой или выбором supplier quote.
+    verified_fields: List[str] = Field(default_factory=list)
 
 
 class CostBreakdown(BaseModel):
@@ -206,6 +262,9 @@ class AnalysisResult(BaseModel):
     timeline: List[CashFlowPoint]
     verdict: Verdict
     reasons: List[Reason]
+    # Это completeness/confidence входных данных, а не статистическая гарантия прибыли.
+    confidence_level: float = Field(75.0, ge=0, le=100)
+    confidence_label: Literal["quick_ai", "verified"] = "quick_ai"
 
 
 class SearchQuery(BaseModel):

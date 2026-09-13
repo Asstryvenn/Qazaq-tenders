@@ -1,5 +1,5 @@
 /** Shapes produced by the PDF analysis pipeline (shared by /api/analyze and the UI). */
-import type { TenderSpec } from "./types";
+import type { RequirementKind, TenderSpec } from "./types";
 
 export type Severity = "low" | "medium" | "high";
 
@@ -15,7 +15,9 @@ export interface ExtractedRisk {
 export interface ExtractedRequirement {
   text: string;
   page: number | null;
-  kind: "certificate" | "license" | "experience" | "staff" | "equipment" | "other";
+  kind: RequirementKind;
+  proof: string;
+  isBase: boolean;
 }
 
 /** Facts exactly as stated in the document (null = not stated). No calculations. */
@@ -51,6 +53,8 @@ export interface Assumptions {
 
 export interface UploadAnalysis {
   id: string;
+  /** Source lot this PDF was attached to from its document checklist. */
+  linkedTenderId?: string;
   fileName: string;
   createdAt: number;
   numPages: number;

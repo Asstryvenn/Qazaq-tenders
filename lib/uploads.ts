@@ -18,6 +18,11 @@ export function getUpload(id: string): UploadAnalysis | undefined {
   return loadUploads().find((u) => u.id === id);
 }
 
+/** Most recent technical specification explicitly attached to a marketplace lot. */
+export function getTenderAttachment(tenderId: string): UploadAnalysis | undefined {
+  return loadUploads().find((u) => u.linkedTenderId === tenderId);
+}
+
 /** Insert or replace; drops the oldest analyses if the browser storage is full. */
 export function saveUpload(u: UploadAnalysis): boolean {
   let list = [u, ...loadUploads().filter((x) => x.id !== u.id)].slice(0, MAX_ITEMS);

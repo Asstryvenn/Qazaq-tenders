@@ -22,7 +22,7 @@ from calculator import (
     tender_opportunity_score,
     timeline_frame,
 )
-from models import CompanyTwin, Scenario, TenderSpec
+from models import CompanyTwin, FieldSource, Scenario, TenderSpec
 
 HERE = Path(__file__).resolve().parent
 LOTS = {x["id"]: TenderSpec.model_validate(x) for x in json.loads((HERE.parent / "data" / "sample_tenders.json").read_text("utf-8"))["tenders"]}
@@ -136,6 +136,44 @@ def test_mask_builds_combined_scenario():
     s = scenario_from_mask(ALL_LEVERS_MASK)
     assert (s.fuel_delta_pct, s.supplier_delta_pct, s.payment_delay_delta) == (15, 10, 30)
     assert scenario_from_mask(0) == Scenario()
+
+
+def test_one_click_advance_and_own_transport_recalculate_immediately():
+    spec, twin = LOTS[next(iter(LOTS))], TWINS["demo"]
+    base = analyze_tender(spec, twin)
+    improved = analyze_tender(spec, twin, scenario_from_mask(8 | 16))
+    assert improved.costs.logistics < base.costs.logistics
+    assert improved.max_deficit <= base.max_deficit
+    assert improved.net_profit > base.net_profit
+
+
+def test_supplier_quote_overrides_category_default_and_raises_confidence():
+    spec = next(iter(LOTS.values())).model_copy(
+        update={
+            "estimated": True,
+            "field_sources": {
+                "purchase_cost": FieldSource(source="category_default", is_smart_default=True, confidence=0.75, evidence="electronics 80%"),
+                "cargo_tonnes": FieldSource(source="category_default", is_smart_default=True, confidence=0.75, evidence="100 laptops"),
+                **{
+                    name: FieldSource(source="document", confidence=0.98, evidence="ТЗ")
+                    for name in ("delivery_days", "payment_delay_days", "advance_percentage", "city_id")
+                },
+            },
+        }
+    )
+    base = analyze_tender(spec, TWINS["demo"])
+    quoted = analyze_tender(
+        spec,
+        TWINS["demo"],
+        Scenario(
+            purchase_cost_override=50_000_000,
+            cargo_tonnes_override=12,
+            verified_fields=["purchase_cost", "cargo_tonnes"],
+        ),
+    )
+    assert quoted.costs.purchase == 50_000_000
+    assert quoted.confidence_level > base.confidence_level
+    assert quoted.confidence_level >= 95 and quoted.confidence_label == "verified"
 
 
 def test_deterministic():

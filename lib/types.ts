@@ -53,9 +53,37 @@ export interface TenderSpec {
   requiredCertificates: string[];
   /** Suspicious / competition-restricting clauses found by the RAG sieve */
   hiddenRequirements: HiddenRequirement[];
+  /** Bidder-specific requirements extracted from this exact technical specification. */
+  qualificationRequirements?: QualificationRequirement[];
   /** Bid submission deadline, ISO date */
   deadline: string;
   specPages: SpecPage[];
+  category?: string;
+  items?: Array<{ name: string; quantity: number; unit: string; estimatedUnitWeightKg?: number | null }>;
+  fieldSources?: Record<string, { source: "document" | "supplier_api" | "category_default" | "fallback" | "user_verified"; isSmartDefault: boolean; confidence: number; evidence: string }>;
+}
+
+export type RequirementKind =
+  | "certificate"
+  | "license"
+  | "experience"
+  | "staff"
+  | "equipment"
+  | "technical"
+  | "sample"
+  | "warranty"
+  | "delivery"
+  | "financial"
+  | "other";
+
+export interface QualificationRequirement {
+  text: string;
+  page: number | null;
+  kind: RequirementKind;
+  /** What evidence the bidder should attach or prepare. */
+  proof: string;
+  /** Universal portal boilerplate is kept out of the lot-specific UI. */
+  isBase: boolean;
 }
 
 export interface HiddenRequirement {
@@ -113,6 +141,12 @@ export interface Scenario {
   lateDays: number;
   /** Delivery term extended by agreement with the customer — no penalty */
   deliveryDeltaDays: number;
+  purchaseCostOverride?: number | null;
+  advancePercentageOverride?: number | null;
+  logisticsCostOverride?: number | null;
+  cargoTonnesOverride?: number | null;
+  ownTransport?: boolean;
+  verifiedFields?: string[];
 }
 
 export const NEUTRAL_SCENARIO: Scenario = {
@@ -122,6 +156,12 @@ export const NEUTRAL_SCENARIO: Scenario = {
   paymentDelayDelta: 0,
   lateDays: 0,
   deliveryDeltaDays: 0,
+  purchaseCostOverride: null,
+  advancePercentageOverride: null,
+  logisticsCostOverride: null,
+  cargoTonnesOverride: null,
+  ownTransport: false,
+  verifiedFields: [],
 };
 
 /** Codes for cash movements — the UI translates them, the engine stays language-free. */
@@ -203,4 +243,6 @@ export interface AnalysisResult {
   timeline: CashFlowPoint[];
   verdict: "go" | "caution" | "no-go";
   reasons: Reason[];
+  confidenceLevel?: number;
+  confidenceLabel?: "quick_ai" | "verified";
 }

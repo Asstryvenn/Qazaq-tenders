@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { AlertTriangle, Check, ClipboardList, ExternalLink, FileDown, HelpCircle, Loader2 } from "lucide-react";
-import { deadlineAt, DocItem, prepSchedule, readDocState, requiredDocs, writeDocState } from "@/lib/documents";
+import { deadlineAt, prepSchedule, readDocState, requiredDocs, writeDocState } from "@/lib/documents";
+import type { DocItem } from "@/lib/documents";
 import { downloadLetter } from "@/lib/letter-client";
 import { useBilling } from "@/lib/billing-client";
 import { useNotifications } from "@/lib/notifications";
@@ -46,6 +48,9 @@ export function ActionGuide({ tender }: { tender: TenderSpec }) {
   const schedule = prepSchedule(docs, deadline, now);
   const hoursLeft = Math.max(0, (deadline.getTime() - now.getTime()) / 3_600_000);
   const completed = docs.filter(isDone).length;
+  const baseDocs = docs.filter((d) => d.scope === "base");
+  const lotDocs = docs.filter((d) => d.scope === "lot");
+  const hasGeneratedLetter = lotDocs.some((d) => d.generated);
   const bisValid = /^\d{12}$/.test(company.bin);
 
   const generate = async () => {
@@ -93,8 +98,29 @@ export function ActionGuide({ tender }: { tender: TenderSpec }) {
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
         {/* Checklist */}
-        <ul className="space-y-2">
-          {docs.map((d) => {
+        <div className="space-y-5">
+          {[
+            { key: "base", title: tr({ kz: "Барлық тендерлерге арналған базалық пакет", ru: "Базовый пакет для всех тендеров" }), items: baseDocs },
+            { key: "lot", title: tr({ kz: "Осы тендердің арнайы талаптары", ru: "Требования именно этого тендера" }), items: lotDocs },
+          ].map((group) => (
+            <section key={group.key}>
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <h4 className={cn("text-xs font-semibold uppercase tracking-wider", group.key === "lot" ? "text-amber-200" : "text-sky-200")}>{group.title}</h4>
+                <span className="rounded-full border border-white/10 px-2 py-0.5 font-mono text-[10px] text-slate-400">{group.items.length}</span>
+              </div>
+              {group.key === "lot" && group.items.length === 0 && (
+                <div className="rounded-xl border border-amber-400/25 bg-amber-400/[0.06] p-4 text-xs leading-relaxed text-amber-100">
+                  <p>{tr({
+                    kz: "Бұл лоттың техникалық ерекшелігі дереккөзден алынбады, сондықтан арнайы талаптарды ойдан қоспаймыз.",
+                    ru: "Техническая спецификация этого лота не получена из источника, поэтому мы не придумываем специальные требования.",
+                  })}</p>
+                  <Link href={`/analyze?tender=${encodeURIComponent(tender.id)}`} className="mt-2 inline-block font-semibold text-sky-200 hover:underline">
+                    {tr({ kz: "PDF жүктеп, осы лотқа талаптарды тіркеу →", ru: "Загрузить PDF и прикрепить требования к этому лоту →" })}
+                  </Link>
+                </div>
+              )}
+              <ul className="space-y-2">
+              {group.items.map((d) => {
             const slot = schedule.find((s) => s.id === d.id)!;
             const ok = isDone(d);
             return (
@@ -118,6 +144,15 @@ export function ActionGuide({ tender }: { tender: TenderSpec }) {
                   {ok && <Check className="h-3.5 w-3.5" strokeWidth={3} />}
                 </button>
                 <div className="min-w-0 flex-1">
+                  {d.scope === "lot" && (
+                    <div className="mb-1 flex flex-wrap gap-1.5">
+                      <span className="rounded bg-amber-400/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-amber-200">
+                        {requirementKindLabel(d.requirementKind, lang)}
+                      </span>
+                      {d.sourcePage != null && <span className="rounded bg-white/[0.06] px-1.5 py-0.5 text-[10px] text-slate-400">PDF · {lang === "kz" ? "бет" : "стр."} {d.sourcePage}</span>}
+                      {d.risk && <span className={cn("rounded px-1.5 py-0.5 text-[10px] font-semibold", d.risk === "high" ? "bg-rose-500/15 text-rose-200" : "bg-amber-400/10 text-amber-200")}>{d.risk === "high" ? tr({ kz: "Маңызды", ru: "Критично" }) : tr({ kz: "Тексеру керек", ru: "Проверить" })}</span>}
+                    </div>
+                  )}
                   <p className={cn("text-sm leading-snug", ok ? "text-slate-400 line-through" : "text-slate-100")}>{tr(d.title)}</p>
                   <p className="mt-0.5 text-xs text-slate-500">
                     {d.owned
@@ -147,18 +182,21 @@ export function ActionGuide({ tender }: { tender: TenderSpec }) {
                 )}
               </li>
             );
-          })}
-          {(!bisValid || isDemo) && (
-            <li className="flex items-center justify-between gap-3 rounded-xl border border-amber-400/25 bg-amber-400/[0.06] px-3.5 py-2.5 text-xs text-amber-100">
+              })}
+              </ul>
+            </section>
+          ))}
+          {hasGeneratedLetter && (!bisValid || isDemo) && (
+            <div className="flex items-center justify-between gap-3 rounded-xl border border-amber-400/25 bg-amber-400/[0.06] px-3.5 py-2.5 text-xs text-amber-100">
               {isDemo
                 ? tr({ kz: "Хат демо-компания атынан жасалады.", ru: "Письмо будет от имени демо-компании." })
                 : tr({ kz: "Хат үшін профильде 12 таңбалы БСН керек.", ru: "Для письма нужен 12-значный БИН в профиле." })}
               <button onClick={() => openModal("onboarding")} className="shrink-0 font-semibold text-amber-200 underline-offset-2 hover:underline">
                 {tr({ kz: "Профиль", ru: "Профиль" })}
               </button>
-            </li>
+            </div>
           )}
-        </ul>
+        </div>
 
         {/* Preparation timeline */}
         <div className="rounded-xl border border-white/10 bg-black/20 p-4">
@@ -217,6 +255,14 @@ export function ActionGuide({ tender }: { tender: TenderSpec }) {
       <Modal open={!!help} onClose={() => setHelp(null)} title={help ? tr(help.title) : ""} subtitle={help ? tr(help.where) : undefined}>
         {help && (
           <div className="space-y-5">
+            {help.scope === "lot" && help.sourcePage != null && (
+              <div className="rounded-lg border border-amber-400/20 bg-amber-400/[0.06] px-3 py-2 text-xs text-amber-100">
+                {tr({
+                  kz: `Дереккөз: техникалық ерекшелік, ${help.sourcePage}-бет.`,
+                  ru: `Источник: техническая спецификация, стр. ${help.sourcePage}.`,
+                })}
+              </div>
+            )}
             <ol className="space-y-3">
               {help.steps.map((s, i) => (
                 <li key={i} className="flex gap-3 text-sm leading-relaxed text-slate-200">
@@ -248,6 +294,24 @@ export function ActionGuide({ tender }: { tender: TenderSpec }) {
       </Modal>
     </div>
   );
+}
+
+function requirementKindLabel(kind: string | undefined, lang: "kz" | "ru") {
+  const labels: Record<string, { kz: string; ru: string }> = {
+    certificate: { kz: "Сертификат", ru: "Сертификат" },
+    license: { kz: "Лицензия", ru: "Лицензия" },
+    experience: { kz: "Тәжірибе", ru: "Опыт" },
+    staff: { kz: "Мамандар", ru: "Специалисты" },
+    equipment: { kz: "Жабдық", ru: "Оборудование" },
+    technical: { kz: "Техникалық параметр", ru: "Технический параметр" },
+    sample: { kz: "Үлгі / сынақ", ru: "Образец / испытание" },
+    warranty: { kz: "Кепілдік", ru: "Гарантия" },
+    delivery: { kz: "Жеткізу", ru: "Поставка" },
+    financial: { kz: "Қаржылық талап", ru: "Финансовое требование" },
+    special_clause: { kz: "Арнайы шарт", ru: "Особое условие" },
+    other: { kz: "Басқа талап", ru: "Другое требование" },
+  };
+  return (labels[kind ?? "other"] ?? labels.other)[lang];
 }
 
 function DeadlineBadge({ hoursLeft }: { hoursLeft: number }) {

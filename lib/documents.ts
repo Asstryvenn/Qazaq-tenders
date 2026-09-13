@@ -22,6 +22,11 @@ export interface DocItem {
   owned: boolean;
   /** Produced by the app itself (warranty letter) */
   generated?: boolean;
+  /** Universal application package or a requirement of this exact lot. */
+  scope: "base" | "lot";
+  sourcePage?: number | null;
+  requirementKind?: string;
+  risk?: "low" | "medium" | "high";
 }
 
 const EGOV = { label: "eGov.kz", url: "https://egov.kz" };
@@ -33,6 +38,12 @@ const ATAMEKEN = { label: "atameken.kz", url: "https://atameken.kz" };
 /** Documents required for this lot, derived from the spec and the company. */
 export function requiredDocs(t: TenderSpec, c: CompanyProfile): DocItem[] {
   const has = (cert: string) => c.certificates.some((x) => x.toLowerCase() === cert.toLowerCase());
+  const specific = (t.qualificationRequirements ?? []).filter((r) => !r.isBase);
+  const sourceLink = t.source === "goszakup"
+    ? [GOSZAKUP]
+    : /^https?:\/\//i.test(t.sourceUrl)
+      ? [{ label: new URL(t.sourceUrl).host, url: t.sourceUrl }]
+      : [];
   const docs: DocItem[] = [
     {
       id: "application",
@@ -43,9 +54,10 @@ export function requiredDocs(t: TenderSpec, c: CompanyProfile): DocItem[] {
         { kz: "Лотты тауып, «Өтінім беру» түймесін басыңыз.", ru: "Найдите лот и нажмите «Подать заявку»." },
         { kz: "Нысанды толтырып, ЭЦҚ-мен қол қойыңыз.", ru: "Заполните форму и подпишите ЭЦП." },
       ],
-      links: t.source === "goszakup" ? [GOSZAKUP] : [{ label: new URL(t.sourceUrl).host, url: t.sourceUrl }],
+      links: sourceLink,
       leadDays: 1,
       owned: false,
+      scope: "base",
     },
     {
       id: "bidSecurity",
@@ -65,6 +77,7 @@ export function requiredDocs(t: TenderSpec, c: CompanyProfile): DocItem[] {
       links: [GOSZAKUP],
       leadDays: 3,
       owned: false,
+      scope: "base",
     },
     {
       id: "taxCert",
@@ -77,6 +90,7 @@ export function requiredDocs(t: TenderSpec, c: CompanyProfile): DocItem[] {
       links: [EGOV, SALYK],
       leadDays: 1,
       owned: false,
+      scope: "base",
     },
     {
       id: "regCert",
@@ -86,10 +100,14 @@ export function requiredDocs(t: TenderSpec, c: CompanyProfile): DocItem[] {
       links: [EGOV],
       leadDays: 0,
       owned: false,
+      scope: "base",
     },
   ];
 
   for (const cert of t.requiredCertificates) {
+    // The detailed AI requirement below carries the exact wording, source page and proof.
+    // Do not show a second generic row for the same certificate.
+    if (specific.some((r) => (r.kind === "certificate" || r.kind === "license") && r.text.toLowerCase().includes(cert.toLowerCase()))) continue;
     const owned = has(cert);
     if (/лицензия|license/i.test(cert)) {
       docs.push({
@@ -103,6 +121,7 @@ export function requiredDocs(t: TenderSpec, c: CompanyProfile): DocItem[] {
         links: [ELICENSE],
         leadDays: 30,
         owned,
+        scope: "lot",
       });
     } else if (/ст-kz/i.test(cert)) {
       docs.push({
@@ -116,6 +135,7 @@ export function requiredDocs(t: TenderSpec, c: CompanyProfile): DocItem[] {
         links: [ATAMEKEN],
         leadDays: 5,
         owned,
+        scope: "lot",
       });
     } else {
       docs.push({
@@ -129,11 +149,12 @@ export function requiredDocs(t: TenderSpec, c: CompanyProfile): DocItem[] {
         links: [],
         leadDays: 45,
         owned,
+        scope: "lot",
       });
     }
   }
 
-  if (t.requiredExperienceYears > 0) {
+  if (t.requiredExperienceYears > 0 && !specific.some((r) => r.kind === "experience")) {
     docs.push({
       id: "experience",
       title: {
@@ -148,22 +169,76 @@ export function requiredDocs(t: TenderSpec, c: CompanyProfile): DocItem[] {
       links: [GOSZAKUP],
       leadDays: 2,
       owned: c.experienceYears >= t.requiredExperienceYears,
+      scope: "lot",
     });
   }
 
-  docs.push({
-    id: "warrantyLetter",
-    title: { kz: "Кепілдік хат", ru: "Гарантийное письмо" },
-    where: { kz: "Осы жерде автоматты түрде жасалады", ru: "Генерируется здесь автоматически" },
-    steps: [
-      { kz: "«Кепілдеме хатты генерациялау» түймесін басыңыз — БСН мен атауыңыз толтырылады.", ru: "Нажмите «Сгенерировать гарантийное письмо» — БИН и название подставятся." },
-      { kz: "Мөр басып, басшы қол қояды, сканерлеп өтінімге тіркейді.", ru: "Руководитель подписывает, ставится печать, скан прикладывается к заявке." },
-    ],
-    links: [],
-    leadDays: 0,
-    owned: false,
-    generated: true,
+  const kindMeta: Record<string, { days: number; links: { label: string; url: string }[] }> = {
+    certificate: { days: 10, links: [] }, license: { days: 30, links: [ELICENSE] }, experience: { days: 2, links: [GOSZAKUP] },
+    staff: { days: 3, links: [] }, equipment: { days: 3, links: [] }, technical: { days: 2, links: [] }, sample: { days: 7, links: [] },
+    warranty: { days: 1, links: [] }, delivery: { days: 2, links: [] }, financial: { days: 3, links: [] }, other: { days: 2, links: [] },
+  };
+  const existing = new Set(docs.map((d) => `${d.title.ru} ${d.where.ru}`.toLowerCase()));
+  specific.forEach((requirement, index) => {
+    const normalized = requirement.text.toLowerCase();
+    if (Array.from(existing).some((value) => normalized.includes(value) || value.includes(normalized))) return;
+    const meta = kindMeta[requirement.kind] ?? kindMeta.other;
+    const proof = requirement.proof?.trim() || "Подготовьте документальное подтверждение требования из технической спецификации.";
+    const owned =
+      requirement.kind === "certificate" || requirement.kind === "license"
+        ? c.certificates.some((cert) => normalized.includes(cert.toLowerCase()))
+        : requirement.kind === "experience" && c.experienceYears >= t.requiredExperienceYears;
+    docs.push({
+      id: `req:${index}:${requirement.kind}`,
+      title: { kz: requirement.text, ru: requirement.text },
+      where: { kz: proof, ru: proof },
+      steps: [{ kz: proof, ru: proof }],
+      links: meta.links,
+      leadDays: meta.days,
+      owned,
+      scope: "lot",
+      sourcePage: requirement.page,
+      requirementKind: requirement.kind,
+    });
+    existing.add(normalized);
   });
+
+  t.hiddenRequirements.forEach((requirement, index) => {
+    const normalized = requirement.clause.toLowerCase();
+    if (Array.from(existing).some((value) => normalized.includes(value) || value.includes(normalized))) return;
+    docs.push({
+      id: `risk:${index}`,
+      title: { kz: requirement.clause, ru: requirement.clause },
+      where: { kz: requirement.reason, ru: requirement.reason },
+      steps: [{ kz: requirement.reason, ru: requirement.reason }],
+      links: [],
+      leadDays: requirement.severity === "high" ? 5 : 2,
+      owned: false,
+      scope: "lot",
+      sourcePage: requirement.page,
+      requirementKind: "special_clause",
+      risk: requirement.severity,
+    });
+    existing.add(normalized);
+  });
+
+  const requiresWarranty = specific.some((r) => r.kind === "warranty") || t.specPages.some((p) => /гарант|кепілдік/i.test(p.text));
+  if (requiresWarranty) {
+    docs.push({
+      id: "warrantyLetter",
+      title: { kz: "Кепілдік хат", ru: "Гарантийное письмо" },
+      where: { kz: "Осы жерде автоматты түрде жасалады", ru: "Генерируется здесь автоматически" },
+      steps: [
+        { kz: "«Кепілдеме хатты генерациялау» түймесін басыңыз — БСН мен атауыңыз толтырылады.", ru: "Нажмите «Сгенерировать гарантийное письмо» — БИН и название подставятся." },
+        { kz: "Мөр басып, басшы қол қояды, сканерлеп өтінімге тіркейді.", ru: "Руководитель подписывает, ставится печать, скан прикладывается к заявке." },
+      ],
+      links: [],
+      leadDays: 0,
+      owned: false,
+      generated: true,
+      scope: "lot",
+    });
+  }
 
   return docs;
 }

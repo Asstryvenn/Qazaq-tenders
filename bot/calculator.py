@@ -381,6 +381,49 @@ def legal_risk_score(tender: TenderSpec, company: CompanyTwin, scenario: Scenari
     return clamp(risk), reasons
 
 
+CONFIDENCE_WEIGHTS: Dict[str, float] = {
+    "purchase_cost": 0.45,
+    "cargo_tonnes": 0.15,
+    "delivery_days": 0.10,
+    "payment_delay_days": 0.10,
+    "advance_percentage": 0.10,
+    "city_id": 0.10,
+}
+
+
+def input_confidence(tender: TenderSpec, scenario: Scenario) -> float:
+    """Достоверность входов 0..100, а не обещание точности результата.
+
+    Поле из ТЗ/каталога несёт собственный provenance. Точный override, выбранный
+    пользователем, считается верифицированным. Для старых лотов без provenance
+    применяется консервативная оценка совместимости.
+    """
+    verified = set(scenario.verified_fields)
+    if scenario.purchase_cost_override is not None:
+        verified.add("purchase_cost")
+    if scenario.advance_percentage_override is not None:
+        verified.add("advance_percentage")
+    if scenario.logistics_cost_override is not None:
+        verified.add("city_id")
+    if scenario.cargo_tonnes_override is not None:
+        verified.add("cargo_tonnes")
+
+    total = 0.0
+    for name, weight in CONFIDENCE_WEIGHTS.items():
+        if name in verified:
+            score = 0.99
+        elif name in tender.field_sources:
+            score = tender.field_sources[name].confidence
+        elif tender.is_demo:
+            score = 0.75
+        elif tender.estimated:
+            score = 0.68 if name in ("purchase_cost", "cargo_tonnes") else 0.78
+        else:
+            score = 0.92
+        total += weight * score
+    return clamp(total * 100)
+
+
 # =========================================================================== #
 # 7. Главная функция: полный расчёт лота                                      #
 # =========================================================================== #
@@ -394,18 +437,33 @@ def analyze_tender(tender: TenderSpec, company: CompanyTwin, scenario: Optional[
     horizon = pay_day + 5
 
     dist = distance_km(company.base_city_id, tender.city_id)
-    freight = freight_cost(dist, tender.cargo_tonnes, sc.fuel_delta_pct, sc.transport_delta_pct)
+    freight = freight_cost(dist, sc.cargo_tonnes_override or tender.cargo_tonnes, sc.fuel_delta_pct, sc.transport_delta_pct)
 
     s = tender.contract_amount
     bid_security = s * (tender.bid_security_rate if tender.bid_security_rate is not None else KZ.BID_SECURITY_RATE)
     performance_security = s * (
         tender.performance_security_rate if tender.performance_security_rate is not None else KZ.PERFORMANCE_SECURITY_RATE
     )
-    advance = s * (tender.advance_percentage / 100)
+    advance_pct = sc.advance_percentage_override if sc.advance_percentage_override is not None else tender.advance_percentage
+    advance = s * (advance_pct / 100)
+
+    purchase_cost = (
+        sc.purchase_cost_override
+        if sc.purchase_cost_override is not None
+        else tender.purchase_cost * (1 + sc.supplier_delta_pct / 100)
+    )
+    # Для собственного транспорта не заявляем нулевую цену: остаются топливо,
+    # водитель и амортизация. Пока точная внутренняя ставка не указана, берём
+    # топливную долю рыночного рейса (40%).
+    logistics_cost = (
+        sc.logistics_cost_override
+        if sc.logistics_cost_override is not None
+        else freight.cost * (FREIGHT.FUEL_SHARE if sc.own_transport else 1.0)
+    )
 
     costs: Dict[str, float] = {
-        "purchase": tender.purchase_cost * (1 + sc.supplier_delta_pct / 100),
-        "logistics": freight.cost,
+        "purchase": purchase_cost,
+        "logistics": logistics_cost,
         "operating": min((company.monthly_opex / 30) * company.opex_allocation * horizon, s * MAX_OPEX_SHARE),
         "penalty": statutory_penalty(s, tender.penalty_rate, sc.late_days),
         # Гарантия исполнения должна быть открыта, пока заказчик не заплатит
@@ -491,6 +549,7 @@ def analyze_tender(tender: TenderSpec, company: CompanyTwin, scenario: Optional[
     # Убыточный договор никогда не рекомендуем, как бы хорошо ни выглядели остальные компоненты
     verdict = "no-go" if profit <= 0 else "go" if tos >= 70 and gap_day is None else "caution" if tos >= 45 else "no-go"
 
+    confidence = input_confidence(tender, sc)
     return AnalysisResult(
         tender_id=tender.id,
         net_profit=profit,
@@ -512,6 +571,8 @@ def analyze_tender(tender: TenderSpec, company: CompanyTwin, scenario: Optional[
         timeline=sim.timeline,
         verdict=verdict,  # type: ignore[arg-type]
         reasons=reasons,
+        confidence_level=js_round(confidence * 10) / 10,
+        confidence_label="verified" if confidence >= 95 else "quick_ai",
     )
 
 
@@ -521,20 +582,30 @@ def analyze_tender(tender: TenderSpec, company: CompanyTwin, scenario: Optional[
 
 # Рычаги кнопок бота. Состояние симулятора — битовая маска, поэтому помещается в
 # callback_data (≤ 64 байта) и не требует хранения на сервере.
-SCENARIO_LEVERS: List[Tuple[str, int, Dict[str, float]]] = [
+SCENARIO_LEVERS: List[Tuple[str, int, Dict[str, object]]] = [
     ("fuel", 1, {"fuel_delta_pct": 15}),  # ⛽ Топливо +15 %
     ("supplier", 2, {"supplier_delta_pct": 10}),  # 📦 Закупка +10 %
     ("payment", 4, {"payment_delay_delta": 30}),  # ⏱ Постоплата +30 дней
+    ("advance", 8, {"advance_percentage_override": 30, "verified_fields": ["advance_percentage"]}),
+    ("own_transport", 16, {"own_transport": True, "verified_fields": ["city_id"]}),
 ]
-ALL_LEVERS_MASK = sum(bit for _, bit, _ in SCENARIO_LEVERS)
+# Сохраняем старый публичный контракт: ALL_LEVERS_MASK — стресс-сценарии,
+# используемые parity-тестами. SUPPORTED включает также полезные 1-click условия.
+ALL_LEVERS_MASK = 1 | 2 | 4
+SUPPORTED_LEVERS_MASK = sum(bit for _, bit, _ in SCENARIO_LEVERS)
 
 
 def scenario_from_mask(mask: int) -> Scenario:
-    fields: Dict[str, float] = {}
+    fields: Dict[str, object] = {}
     for _, bit, delta in SCENARIO_LEVERS:
         if mask & bit:
             for k, v in delta.items():
-                fields[k] = fields.get(k, 0) + v
+                if k == "verified_fields":
+                    fields[k] = list(dict.fromkeys([*(fields.get(k, []) or []), *v]))  # type: ignore[arg-type]
+                elif isinstance(v, bool):
+                    fields[k] = v
+                else:
+                    fields[k] = float(fields.get(k, 0) or 0) + v  # type: ignore[operator]
     return Scenario(**fields)
 
 

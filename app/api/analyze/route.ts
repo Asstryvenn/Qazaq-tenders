@@ -25,6 +25,10 @@ export const maxDuration = 60;
 /** ~50–70k tokens of Cyrillic text — leaves room for the answer and keeps latency sane. */
 const MAX_CHARS = 150_000;
 const DEFAULT_COST_SHARE = 0.78;
+const CATEGORY_DEFAULTS: Record<string, { costShare: number }> = {
+  electronics: { costShare: 0.8 }, furniture: { costShare: 0.72 }, construction: { costShare: 0.78 },
+  medical: { costShare: 0.76 }, office: { costShare: 0.7 }, services: { costShare: 0.55 }, other: { costShare: DEFAULT_COST_SHARE },
+};
 
 const n = { type: ["number", "null"] };
 const i = { type: ["integer", "null"] };
@@ -37,6 +41,7 @@ const SCHEMA = {
     "title", "customer", "city", "budgetKzt", "deliveryDays", "paymentDelayDays", "advancePct", "penaltyRatePctPerDay",
     "penaltyCapPct", "bidSecurityPct", "performanceSecurityPct", "bidDeadline", "cargoTonnes", "requiredExperienceYears",
     "requiredCertificates", "requirements", "risks", "factPages",
+    "category", "items", "smartDefaults",
   ],
   properties: {
     title: s,
@@ -52,6 +57,28 @@ const SCHEMA = {
     performanceSecurityPct: n,
     bidDeadline: s,
     cargoTonnes: n,
+    category: { type: "string", enum: Object.keys(CATEGORY_DEFAULTS) },
+    items: {
+      type: "array",
+      items: {
+        type: "object", additionalProperties: false,
+        required: ["name", "quantity", "unit", "estimatedUnitWeightKg"],
+        properties: { name: { type: "string" }, quantity: { type: "number" }, unit: { type: "string" }, estimatedUnitWeightKg: n },
+      },
+    },
+    smartDefaults: {
+      type: "object", additionalProperties: false, required: ["purchaseCostKzt", "cargoTonnes"],
+      properties: {
+        purchaseCostKzt: {
+          type: "object", additionalProperties: false, required: ["value", "isSmartDefault", "confidence", "evidence"],
+          properties: { value: { type: "number" }, isSmartDefault: { type: "boolean" }, confidence: { type: "number" }, evidence: { type: "string" } },
+        },
+        cargoTonnes: {
+          type: "object", additionalProperties: false, required: ["value", "isSmartDefault", "confidence", "evidence"],
+          properties: { value: { type: "number" }, isSmartDefault: { type: "boolean" }, confidence: { type: "number" }, evidence: { type: "string" } },
+        },
+      },
+    },
     requiredExperienceYears: i,
     requiredCertificates: { type: "array", items: { type: "string" } },
     requirements: {
@@ -59,8 +86,14 @@ const SCHEMA = {
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["text", "page", "kind"],
-        properties: { text: { type: "string" }, page: i, kind: { type: "string", enum: ["certificate", "license", "experience", "staff", "equipment", "other"] } },
+        required: ["text", "page", "kind", "proof", "isBase"],
+        properties: {
+          text: { type: "string" },
+          page: i,
+          kind: { type: "string", enum: ["certificate", "license", "experience", "staff", "equipment", "technical", "sample", "warranty", "delivery", "financial", "other"] },
+          proof: { type: "string" },
+          isBase: { type: "boolean" },
+        },
       },
     },
     risks: {
@@ -87,7 +120,7 @@ const SCHEMA = {
   },
 };
 
-const KEYWORDS = /сумм|бюджет|стоимост|срок|мерзім|оплат|төлем|неустойк|пен[яи]|штраф|өсімпұл|гарант|обеспечен|кепіл|требован|талап|сертификат|лиценз|опыт|тәжірибе|аванс|приёмк|приемк|поставк|жеткіз/i;
+const KEYWORDS = /сумм|бюджет|стоимост|срок|мерзім|оплат|төлем|неустойк|пен[яи]|штраф|өсімпұл|гарант|обеспечен|кепіл|требован|талап|сертификат|лиценз|опыт|тәжірибе|аванс|приёмк|приемк|поставк|жеткіз|персонал|специалист|біліктілік|оборудован|жабдық|склад|қойма|транспорт|көлік|образ[ео]ц|үлгі|испытан|сынақ|авторизац|сервис/i;
 
 /** Page-tagged document text within the budget: key pages in full, the rest shortened. */
 function buildDocument(pages: { page: number; text: string }[]) {
@@ -153,13 +186,23 @@ export async function POST(req: Request) {
           role: "system",
           content: `You extract facts from a Kazakhstani public-procurement technical specification. Pages are marked "=== стр. N ===".
 RULES
-- Extract ONLY what the document states. Use null when a value is not stated. Never estimate or calculate.
+- For fact fields, extract ONLY what the document states and use null when absent. Estimates are allowed only in items.estimatedUnitWeightKg and smartDefaults, under the explicit rules below.
 - budgetKzt: total lot/contract amount in tenge (number, no spaces). penaltyRatePctPerDay: e.g. "0,1% за каждый день" → 0.1. Percent fields are plain percents (1% → 1).
 - deliveryDays / paymentDelayDays: calendar days as stated ("в течение 30 дней после приёмки" → 30).
 - bidDeadline: ISO date YYYY-MM-DD if a submission deadline is stated.
 - page fields: the page number where the fact appears, from the markers.
+- category: electronics, furniture, construction, medical, office, services or other.
+- items: up to 20 principal nomenclature lines with quantity/unit. estimatedUnitWeightKg may be a conservative category estimate; never invent quantity.
+- smartDefaults.purchaseCostKzt: when there is no supplier quote, budget × category share: electronics .80, furniture .72, construction .78, medical .76, office .70, services .55, other .78. Mark isSmartDefault=true, confidence .70-.80 and explain evidence.
+- smartDefaults.cargoTonnes: use document weight with isSmartDefault=false/.98; otherwise sum quantity × estimatedUnitWeightKg or make a conservative category estimate, mark true and explain it.
 - risks: clauses that are dangerous for a small supplier — harsh or uncapped penalties, long payment deferral, no advance with large purchases, unrealistic deadlines, brand/article lock-in, regional or excessive experience demands, own-equipment demands, extra guarantees, one-sided termination. clause = short verbatim quote (≤ 200 chars). title and why in ${language}. Up to 8, most severe first.
-- requirements: qualification requirements (certificates, licences, experience, staff, equipment), text in ${language}.`,
+- requirements: extract EVERY requirement imposed on the potential supplier in this exact specification: certificates/licences,
+  analogous experience, named specialists and qualifications, owned or leased equipment/warehouse/transport, product parameters,
+  samples/test reports, manufacturer authorisation, warranty/service centre, delivery schedule, financial security and other attachments.
+  Preserve concrete thresholds, quantities, standards, brands and deadlines. text is a concise faithful requirement in ${language};
+  page is the source page; proof says what document/evidence the bidder should attach. Set isBase=true only for universal portal
+  boilerplate (application form, tax-debt statement, legal-entity registration, standard bid security). Lot-specific requirements,
+  even if common in the industry, must be isBase=false. Do not invent requirements absent from the document.`,
         },
         { role: "user", content: doc.text },
       ],
@@ -177,6 +220,26 @@ RULES
   const deadline = x.bidDeadline && /^\d{4}-\d{2}-\d{2}$/.test(x.bidDeadline) ? x.bidDeadline : deadlineFallback;
   const id = `upload-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
   const risks = (x.risks ?? []).slice(0, 8);
+  const raw = x as typeof x & {
+    category?: string;
+    items?: Array<{ name: string; quantity: number; unit: string; estimatedUnitWeightKg: number | null }>;
+    smartDefaults?: { purchaseCostKzt?: { value: number; confidence: number; evidence: string }; cargoTonnes?: { value: number; confidence: number; evidence: string } };
+  };
+  const category = raw.category && CATEGORY_DEFAULTS[raw.category] ? raw.category : "other";
+  const smartPurchase = raw.smartDefaults?.purchaseCostKzt;
+  const smartCargo = raw.smartDefaults?.cargoTonnes;
+  const purchaseCandidate = Number(smartPurchase?.value);
+  const purchaseCost = Number.isFinite(purchaseCandidate) && purchaseCandidate >= budget * 0.3 && purchaseCandidate <= budget * 0.98
+    ? purchaseCandidate
+    : budget * CATEGORY_DEFAULTS[category].costShare;
+  const cargoCandidate = Number(smartCargo?.value);
+  const cargoTonnes = pct(x.cargoTonnes) ?? (Number.isFinite(cargoCandidate) && cargoCandidate > 0 ? cargoCandidate : Math.max(1, Math.round(budget / 5_000_000)));
+  const provenance = (found: boolean, confidence: number | undefined, evidence: string, source: "category_default" | "fallback" = "fallback") => ({
+    source: found ? "document" as const : source,
+    isSmartDefault: !found,
+    confidence: found ? 0.98 : Math.min(0.8, Math.max(0.5, Number(confidence) || 0.65)),
+    evidence: found ? "Извлечено из ТЗ" : evidence,
+  });
 
   const spec: Omit<TenderSpec, "specPages"> = {
     id,
@@ -193,17 +256,28 @@ RULES
     deliveryDays: x.deliveryDays && x.deliveryDays > 0 ? x.deliveryDays : 30,
     paymentDelayDays: x.paymentDelayDays != null && x.paymentDelayDays >= 0 ? x.paymentDelayDays : 30,
     penaltyRate: (pct(x.penaltyRatePctPerDay) ?? 0.1) / 100,
-    purchaseCost: budget * DEFAULT_COST_SHARE,
+    purchaseCost,
     cityId: cityId ?? body.company.baseCityId,
-    cargoTonnes: pct(x.cargoTonnes) ?? Math.max(1, Math.round(budget / 5_000_000)),
+    cargoTonnes,
     requiredExperienceYears: x.requiredExperienceYears ?? 0,
     requiredCertificates: x.requiredCertificates ?? [],
     hiddenRequirements: risks
       .filter((r) => r.severity !== "low" && r.page != null)
       .map((r) => ({ clause: r.clause, page: r.page as number, severity: r.severity, reason: r.why })),
+    qualificationRequirements: (x.requirements ?? []).filter((requirement) => !requirement.isBase),
     deadline,
     ...(pct(x.bidSecurityPct) != null && { bidSecurityRate: (x.bidSecurityPct as number) / 100 }),
     ...(pct(x.performanceSecurityPct) != null && { performanceSecurityRate: (x.performanceSecurityPct as number) / 100 }),
+    category,
+    items: (raw.items ?? []).slice(0, 20).filter((item) => item.name && item.quantity > 0),
+    fieldSources: {
+      purchase_cost: provenance(false, smartPurchase?.confidence, smartPurchase?.evidence || `Категория ${category}`, "category_default"),
+      cargo_tonnes: provenance(x.cargoTonnes != null, smartCargo?.confidence, smartCargo?.evidence || `Оценка веса категории ${category}`, "category_default"),
+      delivery_days: provenance(Boolean(x.deliveryDays && x.deliveryDays > 0), undefined, "Fallback 30 дней"),
+      payment_delay_days: provenance(x.paymentDelayDays != null, undefined, "Fallback 30 дней"),
+      advance_percentage: provenance(x.advancePct != null, undefined, "Fallback: аванса нет"),
+      city_id: provenance(Boolean(cityId), undefined, "Fallback: город компании"),
+    },
   };
 
   const assumed = {
