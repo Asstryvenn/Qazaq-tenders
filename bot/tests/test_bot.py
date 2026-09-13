@@ -7,10 +7,11 @@ from pathlib import Path
 import pytest
 
 from calculator import ALL_LEVERS_MASK, analyze_tender, scenario_from_mask
-from cards import full_breakdown, lot_card, lot_keyboard, search_keyboard, search_results, simulator_keyboard, simulator_view, suppliers_keyboard, suppliers_view, twin_view
+from cards import full_breakdown, logistics_keyboard, logistics_view, lot_card, lot_keyboard, search_keyboard, search_results, simulator_keyboard, simulator_view, suppliers_keyboard, suppliers_view, twin_view
 from documents import DocumentError, _assert_public_host, _chunk, extract_docx, find_url
 from models import CompanyTwin, SearchQuery, SupplierOffer, TenderSpec
 from storage import Storage
+from suppliers import SupplierCatalog, demo_supplier_offers
 from tenders import filter_lots, find_by_url, heuristic_search, lot_key, match_city
 from texts import money, pct
 
@@ -68,6 +69,34 @@ def test_supplier_cards_include_real_provenance_and_safe_callbacks():
     text = suppliers_view(LOTS[0], [offer], "ru")
     assert "ТОО Поставщик" in text and "+77010000000" in text and "partner-api" in text
     _callback_sizes(suppliers_keyboard(lot_key(LOTS[0].id), [offer], "ru"))
+
+
+def test_demo_supplier_fallback_is_explicit_stable_and_not_verified():
+    first = demo_supplier_offers(LOTS[0])
+    second = asyncio.run(SupplierCatalog().search(LOTS[0]))
+    assert len(first) == len(second) == 5
+    assert {offer.city for offer in first} == {"Алматы", "Астана", "Шымкент", "Караганда", "Павлодар"}
+    assert [(offer.id, offer.total_price_kzt) for offer in first] == [
+        (offer.id, offer.total_price_kzt) for offer in second
+    ]
+    assert all(offer.is_demo and offer.status == "smart_ai" for offer in first)
+    assert all(offer.supplier_name.startswith("ДЕМО ·") for offer in first)
+    text = suppliers_view(LOTS[0], first, "ru")
+    assert "ДЕМО" in text and "Smart AI" in text and "СТ-KZ" in text
+    keyboard = suppliers_keyboard(lot_key(LOTS[0].id), first, "ru")
+    assert not any(button.url for row in keyboard.inline_keyboard for button in row)
+    _callback_sizes(keyboard)
+
+
+def test_logistics_selector_renders_every_mode_and_safe_callbacks():
+    spec = LOTS[0].model_copy(update={"city_id": "almaty", "cargo_tonnes": 12})
+    scenario = scenario_from_mask(0).model_copy(update={"transport_mode": "rail"})
+    result = analyze_tender(spec, TWIN, scenario)
+    text = logistics_view(spec, TWIN, scenario, result, "ru")
+    for label in ("Авто-фура", "Газель", "Ж/Д", "Авиа"):
+        assert label in text
+    markup = logistics_keyboard(lot_key(spec.id), ["truck", "gazelle", "rail", "air"], "rail", "ru")
+    _callback_sizes(markup)
 
 
 def test_search_views():

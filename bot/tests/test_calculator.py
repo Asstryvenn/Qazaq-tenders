@@ -15,6 +15,8 @@ from calculator import (
     contract_tax,
     distance_km,
     freight_cost,
+    logistics_plan,
+    logistics_quotes,
     net_profit,
     rank_lots,
     scenario_from_mask,
@@ -88,6 +90,39 @@ def test_distance_symmetric_and_local():
     assert distance_km("almaty", "astana") == distance_km("astana", "almaty")
     with pytest.raises(ValueError):
         distance_km("almaty", "atlantis")
+
+
+def test_logistics_engine_quotes_all_intercity_modes():
+    quotes = {quote.mode: quote for quote in logistics_quotes("astana", "pavlodar", 12)}
+    assert set(quotes) == {"truck", "gazelle", "rail", "air"}
+    assert quotes["truck"].distance_km == distance_km("astana", "pavlodar")
+    assert quotes["truck"].units == 1 and quotes["gazelle"].units == 4
+    assert quotes["rail"].transit_days >= 3
+    assert quotes["air"].transit_days == 1
+    assert quotes["air"].cost == pytest.approx(12_000 * 850)
+
+
+def test_same_city_uses_only_fixed_city_delivery():
+    plan = logistics_plan("almaty", "almaty", 4, "auto", 10)
+    assert [quote.mode for quote in plan.quotes] == ["city"]
+    assert plan.selected.mode == plan.recommended_mode == "city"
+    assert plan.selected.distance_km == 15
+    assert plan.selected.units == 2
+    assert plan.selected.cost == pytest.approx(120_000)
+
+
+def test_transport_click_recalculates_cost_dates_penalty_and_tos():
+    spec = next(iter(LOTS.values())).model_copy(
+        update={"city_id": "almaty", "cargo_tonnes": 12, "delivery_days": 10}
+    )
+    twin = TWINS["demo"].model_copy(update={"base_city_id": "astana"})
+    truck = analyze_tender(spec, twin, Scenario(transport_mode="truck", late_days=3))
+    rail = analyze_tender(spec, twin, Scenario(transport_mode="rail", late_days=3))
+    air = analyze_tender(spec, twin, Scenario(transport_mode="air", late_days=3))
+    assert len({truck.costs.logistics, rail.costs.logistics, air.costs.logistics}) == 3
+    assert air.delivery_day < truck.delivery_day < rail.delivery_day
+    assert air.costs.penalty < truck.costs.penalty < rail.costs.penalty
+    assert len({truck.tos, rail.tos, air.tos}) > 1
 
 
 # ------------------------------ паритет с сайтом ------------------------------ #

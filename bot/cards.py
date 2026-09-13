@@ -14,7 +14,8 @@ from aiogram.types import InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from calculator import CITIES, SCENARIO_LEVERS, TOS_WEIGHTS, js_round, meets_min_margin, timeline_frame, twin_verdict
-from models import AnalysisResult, CompanyTwin, SearchQuery, SupplierOffer, TenderSpec
+from logistics import LogisticsMode, logistics_plan
+from models import AnalysisResult, CompanyTwin, Scenario, SearchQuery, SupplierOffer, TenderSpec
 from tenders import INDUSTRIES
 from texts import EVENT_LABELS, TAX_LABELS, city_name, esc, fmt_date, join_items, money, num, pct, reason_text, t
 
@@ -44,6 +45,12 @@ class SupplierCB(CallbackData, prefix="sup"):
     offer: str = ""
 
 
+class LogisticsCB(CallbackData, prefix="log"):
+    action: str  # list | choose | back
+    key: str
+    mode: str = "auto"
+
+
 SEVERITY_ORDER = {"high": 0, "medium": 1, "low": 2}
 LEVER_TEXT = {
     "fuel": "lever_fuel",
@@ -51,6 +58,14 @@ LEVER_TEXT = {
     "payment": "lever_payment",
     "advance": "lever_advance",
     "own_transport": "lever_own_transport",
+}
+
+LOGISTICS_LABELS = {
+    "city": {"kz": "🏙️ Қала ішінде", "ru": "🏙️ По городу"},
+    "truck": {"kz": "🚛 Авто-фура 20 т", "ru": "🚛 Авто-фура 20 т"},
+    "gazelle": {"kz": "🚚 Газель 3 т дейін", "ru": "🚚 Газель до 3 т"},
+    "rail": {"kz": "🚂 Теміржол контейнері", "ru": "🚂 Ж/Д контейнер"},
+    "air": {"kz": "✈️ Әуе экспрессі", "ru": "✈️ Авиа-экспресс"},
 }
 
 
@@ -121,9 +136,15 @@ def lot_card(spec: TenderSpec, res: AnalysisResult, twin: CompanyTwin, lang: str
         lines.append(t("gap_yes", lang, day=res.gap_day, deficit=money(res.max_deficit, lang)))
     else:
         lines.append(t("gap_no", lang))
-    lines.append(
-        t("logistics_line", lang, dist=num(res.distance_km), trucks=res.trucks, level=t(f"level_{logistics_level(res)}", lang))
-    )
+    lines.append(t(
+        "logistics_line",
+        lang,
+        dist=num(res.distance_km),
+        mode=LOGISTICS_LABELS[res.transport_mode][lang],
+        days=res.transit_days,
+        cost=money(res.costs.logistics, lang),
+        level=t(f"level_{logistics_level(res)}", lang),
+    ))
     lines.append(t("main_risk", lang, text=main_risk(spec, res, lang)))
 
     notes = []
@@ -146,6 +167,7 @@ def lot_keyboard(key: str, spec: TenderSpec, lang: str) -> InlineKeyboardMarkup:
     if _is_public_url(spec.source_url):
         kb.button(text=t("btn_link", lang), url=spec.source_url)
     kb.button(text=t("btn_sim", lang), callback_data=LotCB(action="sim", key=key, m=0))
+    kb.button(text=t("btn_logistics", lang), callback_data=LogisticsCB(action="list", key=key))
     kb.button(text=t("btn_suppliers", lang), callback_data=SupplierCB(action="list", key=key))
     kb.button(text=t("btn_hide", lang), callback_data=LotCB(action="hide", key=key))
     kb.adjust(2)
@@ -156,14 +178,18 @@ def suppliers_view(spec: TenderSpec, offers: List[SupplierOffer], lang: str) -> 
     lines = [t("suppliers_title", lang), f"<b>{esc(_title(spec, lang))}</b>", ""]
     if not offers:
         return "\n".join(lines + [t("suppliers_empty", lang)])
-    lines.append(t("suppliers_disclaimer", lang))
+    demo = any(offer.is_demo for offer in offers)
+    lines.append(t("suppliers_demo_disclaimer" if demo else "suppliers_disclaimer", lang))
     for i, offer in enumerate(offers, 1):
         phone = f" · ☎️ {esc(offer.phone)}" if offer.phone else ""
+        status = "DEMO · Smart AI" if offer.is_demo else ("Verified" if offer.status == "verified" else "Smart AI")
+        st_kz = " · СТ-KZ ✅" if offer.has_st_kz_certificate else ""
         lines += [
             "",
             f"{i}. <b>{esc(offer.supplier_name)}</b>{phone}",
             f"{esc(offer.product_name)}",
-            f"💰 <b>{money(offer.total_price_kzt, lang)}</b> · {esc(offer.city or '—')}",
+            f"💰 <b>{money(offer.total_price_kzt, lang)}</b> · {t('supplier_unit', lang)} {money(offer.unit_price_kzt or offer.total_price_kzt, lang)}",
+            f"⚖️ {num(offer.cargo_tonnes or spec.cargo_tonnes, 2)} т · {status}{st_kz} · {esc(offer.city or '—')}",
             f"🕒 {esc(offer.updated_at)} · {esc(offer.source)}",
         ]
     return "\n".join(lines)
@@ -173,9 +199,37 @@ def suppliers_keyboard(key: str, offers: List[SupplierOffer], lang: str) -> Inli
     kb = InlineKeyboardBuilder()
     for i, offer in enumerate(offers, 1):
         kb.button(text=t("supplier_choose", lang, n=i, price=money(offer.total_price_kzt, lang)), callback_data=SupplierCB(action="choose", key=key, offer=offer.id))
-        kb.button(text=t("supplier_link", lang, n=i), url=offer.url)
+        if not offer.is_demo:
+            kb.button(text=t("supplier_link", lang, n=i), url=offer.url)
     kb.button(text=t("btn_back_card", lang), callback_data=SupplierCB(action="back", key=key))
     kb.adjust(2)
+    return kb.as_markup()
+
+
+def logistics_view(spec: TenderSpec, twin: CompanyTwin, scenario: Scenario, result: AnalysisResult, lang: str) -> str:
+    cargo = scenario.cargo_tonnes_override if scenario.cargo_tonnes_override is not None else spec.cargo_tonnes
+    plan = logistics_plan(twin.base_city_id, spec.city_id, cargo, scenario.transport_mode, spec.delivery_days, scenario.fuel_delta_pct, scenario.transport_delta_pct)
+    lines = [t("logistics_title", lang), f"<b>{esc(_title(spec, lang))}</b>", ""]
+    for quote in plan.quotes:
+        active = "✅ " if quote.mode == result.transport_mode else ""
+        recommended = f" · {t('logistics_recommended', lang)}" if quote.mode == plan.recommended_mode else ""
+        lines.append(
+            f"{active}<b>{LOGISTICS_LABELS[quote.mode][lang]}</b> — {money(quote.cost, lang)} · "
+            f"{quote.distance_km} км · {quote.transit_days} {t('logistics_days', lang)}{recommended}"
+        )
+    lines += ["", t("logistics_disclaimer", lang)]
+    return "\n".join(lines)
+
+
+def logistics_keyboard(key: str, modes: List[LogisticsMode], selected: LogisticsMode, lang: str) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+    for mode in modes:
+        kb.button(
+            text=("✅ " if mode == selected else "") + LOGISTICS_LABELS[mode][lang],
+            callback_data=LogisticsCB(action="choose", key=key, mode=mode),
+        )
+    kb.button(text=t("btn_back_card", lang), callback_data=LogisticsCB(action="back", key=key))
+    kb.adjust(2, 2, 1)
     return kb.as_markup()
 
 
@@ -221,7 +275,7 @@ def full_breakdown(spec: TenderSpec, res: AnalysisResult, twin: CompanyTwin, lan
         t("profit_formula", lang),
         f"{t('c_revenue', lang)}: {m(spec.contract_amount)}",
         f"− {t('c_purchase', lang)}: {m(c.purchase)}",
-        f"− {t('c_logistics', lang)}: {m(c.logistics)} ({num(res.distance_km)} км · {res.trucks}×20 т)",
+        f"− {t('c_logistics', lang)}: {m(c.logistics)} ({LOGISTICS_LABELS[res.transport_mode][lang]} · {num(res.distance_km)} км · {res.transit_days} {t('logistics_days', lang)})",
         f"− {t('c_tax', lang)}: {m(c.tax)} ({tax_label})",
         f"− {t('c_bank', lang)}: {m(c.bank + c.guarantee)}",
         f"− {t('c_operating', lang)}: {m(c.operating)}",

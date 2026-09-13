@@ -22,6 +22,7 @@ import { SupplierPanel } from "@/components/SupplierPanel";
 import { ActionGuide } from "@/components/ActionGuide";
 import type { SupplierOffer } from "@/lib/suppliers";
 import { useBilling } from "@/lib/billing-client";
+import { LogisticsSelector } from "@/components/LogisticsSelector";
 
 const SEV = {
   high: { tone: "crimson" as const, color: "#f43f5e", kz: "Жоғары қауіп", ru: "Высокий риск" },
@@ -185,11 +186,14 @@ export function AnalysisDashboard({ upload, onUpdate, onDelete }: { upload: Uplo
               ...current,
               purchaseCostOverride: offer.totalPriceKzt,
               cargoTonnesOverride: offer.cargoTonnes ?? current.cargoTonnesOverride,
-              verifiedFields: Array.from(new Set([...(current.verifiedFields ?? []), "purchase_cost", ...(offer.cargoTonnes != null ? ["cargo_tonnes"] : [])])),
+              verifiedFields: offer.status === "verified" && !offer.isDemo
+                ? Array.from(new Set([...(current.verifiedFields ?? []).filter((field) => !["purchase_cost", "cargo_tonnes"].includes(field)), "purchase_cost", ...(offer.cargoTonnes != null ? ["cargo_tonnes"] : [])]))
+                : (current.verifiedFields ?? []).filter((field) => !["purchase_cost", "cargo_tonnes"].includes(field)),
             }));
           }}
         />
       )}
+      {ready && result && <LogisticsSelector tender={spec} company={company} scenario={scenario} result={result} onChange={setScenario} />}
 
       {/* Score + metrics */}
       <div className="grid gap-6 lg:grid-cols-12">

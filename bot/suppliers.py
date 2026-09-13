@@ -1,25 +1,13 @@
-"""Real-time supplier catalogue adapter.
+"""Supplier catalogue adapter with an explicit, deterministic demo fallback.
 
-There is no legitimate universal API containing prices and contacts of every
-Kazakhstani supplier. This adapter therefore consumes a contracted catalogue or
-ERP/marketplace endpoint configured by the operator. It never fabricates demo
-offers: missing credentials produce an explicit unavailable state.
-
-Expected GET response::
-
-    {"offers": [{
-      "id": "sku-42", "supplier_name": "ТОО ...", "product_name": "...",
-      "total_price_kzt": 7800000, "unit_price_kzt": 78000, "quantity": 100,
-      "phone": "+7...", "url": "https://...", "city": "Алматы",
-      "availability": "in_stock", "updated_at": "2026-09-13T10:00:00Z",
-      "source": "partner-name", "cargo_tonnes": 0.25
-    }]}
-
-The same contract is used by the Next.js /api/suppliers route.
+Live rows come only from the configured contracted catalogue. When it is absent,
+empty or unavailable, fictional rows are returned with `is_demo=True` and
+`status="smart_ai"`; callers must never present them as verified quotations.
 """
 from __future__ import annotations
 
 import hashlib
+from datetime import datetime, timezone
 from typing import List
 from urllib.parse import urlparse
 
@@ -29,7 +17,52 @@ from models import SupplierOffer, TenderSpec
 
 
 class SupplierError(Exception):
-    pass
+    """Kept for backwards compatibility; normal upstream failures now use fallback."""
+
+
+DEMO_REGIONS = [
+    ("Алматы", "ДЕМО · ТОО Алматы ТехСнаб", 0.96, True, "almaty"),
+    ("Астана", "ДЕМО · ТОО Astana Supply Lab", 1.01, True, "astana"),
+    ("Шымкент", "ДЕМО · ТОО Оңтүстік Қамту", 0.94, False, "shymkent"),
+    ("Караганда", "ДЕМО · ТОО Saryarqa Industrial", 0.99, True, "karaganda"),
+    ("Павлодар", "ДЕМО · ТОО Павлодар-ПромСнаб", 1.04, True, "pavlodar"),
+]
+
+
+def demo_supplier_offers(tender: TenderSpec, limit: int = 12) -> List[SupplierOffer]:
+    query = ", ".join(item.name for item in tender.items[:5]) or tender.title
+    digest = hashlib.sha256(query.lower().encode("utf-8")).digest()
+    baseline = max(100_000.0, tender.purchase_cost or tender.contract_amount * 0.78)
+    quantity = max(1.0, sum(item.quantity for item in tender.items) or 1.0)
+    cargo = max(0.01, tender.cargo_tonnes)
+    now = datetime.now(timezone.utc).isoformat()
+    offers: List[SupplierOffer] = []
+    for index, (city, name, factor, st_kz, slug) in enumerate(DEMO_REGIONS[:limit]):
+        jitter = 0.97 + digest[index] / 255 * 0.06
+        total = round(baseline * factor * jitter / 1000) * 1000
+        offer_id = "demo-" + hashlib.sha1(f"{query}:{slug}".encode("utf-8")).hexdigest()[:11]
+        offers.append(
+            SupplierOffer(
+                id=offer_id,
+                supplier_name=name,
+                product_name=query[:220],
+                total_price_kzt=total,
+                unit_price_kzt=round(total / quantity),
+                quantity=quantity,
+                phone="+7 (000) 000-00-00",
+                email=f"demo+{slug}@qazaqtenders.kz",
+                url="https://www.qazaqtenders.kz/",
+                city=city,
+                availability="demo",
+                updated_at=now,
+                source="Qazaq Tenders · demo fallback",
+                cargo_tonnes=round(cargo * (0.96 + index * 0.02), 2),
+                has_st_kz_certificate=st_kz,
+                status="smart_ai",
+                is_demo=True,
+            )
+        )
+    return offers
 
 
 class SupplierCatalog:
@@ -39,13 +72,13 @@ class SupplierCatalog:
 
     @property
     def available(self) -> bool:
-        p = urlparse(self.endpoint)
-        return p.scheme == "https" and bool(p.netloc and self.api_key)
+        parsed = urlparse(self.endpoint)
+        return parsed.scheme == "https" and bool(parsed.netloc and self.api_key)
 
     async def search(self, tender: TenderSpec, limit: int = 12) -> List[SupplierOffer]:
         if not self.available:
-            raise SupplierError("not_configured")
-        query = ", ".join(i.name for i in tender.items[:5]) or tender.title
+            return demo_supplier_offers(tender, limit)
+        query = ", ".join(item.name for item in tender.items[:5]) or tender.title
         try:
             async with httpx.AsyncClient(timeout=15, follow_redirects=False) as client:
                 response = await client.get(
@@ -55,20 +88,24 @@ class SupplierCatalog:
                 )
                 response.raise_for_status()
                 payload = response.json()
-        except (httpx.HTTPError, ValueError) as exc:
-            raise SupplierError("upstream_failed") from exc
+        except (httpx.HTTPError, ValueError):
+            return demo_supplier_offers(tender, limit)
 
         rows = payload.get("offers", []) if isinstance(payload, dict) else []
         offers: List[SupplierOffer] = []
         for row in rows:
+            if not isinstance(row, dict):
+                continue
             try:
                 offer = SupplierOffer.model_validate(row)
             except Exception:
                 continue
-            # Only usable, attributable offers enter the financial engine.
-            u = urlparse(offer.url)
-            if u.scheme != "https" or not u.netloc or offer.total_price_kzt <= 0:
+            url = urlparse(offer.url)
+            if url.scheme != "https" or not url.netloc or offer.total_price_kzt <= 0:
                 continue
             offer.id = hashlib.sha1(f"{offer.source}:{offer.id}".encode()).hexdigest()[:16]
+            offer.is_demo = False
+            # Only an explicit upstream verification flag earns Verified status.
+            offer.status = "verified" if row.get("verified") is True or row.get("status") == "verified" else "smart_ai"
             offers.append(offer)
-        return sorted(offers, key=lambda x: x.total_price_kzt)[:limit]
+        return sorted(offers, key=lambda item: item.total_price_kzt)[:limit] or demo_supplier_offers(tender, limit)

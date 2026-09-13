@@ -4,6 +4,7 @@
  */
 import type { TaxRegime } from "./kz-standards";
 import type { TenderSource } from "./tenders/unified";
+import type { LogisticsMode, TransportMode } from "./logistics";
 
 export type { TaxRegime };
 
@@ -156,6 +157,8 @@ export interface Scenario {
   logisticsCostOverride?: number | null;
   cargoTonnesOverride?: number | null;
   ownTransport?: boolean;
+  /** Explicit 1-click transport choice. `auto` keeps the engine recommendation. */
+  transportMode?: TransportMode;
   verifiedFields?: string[];
 }
 
@@ -171,6 +174,7 @@ export const NEUTRAL_SCENARIO: Scenario = {
   logisticsCostOverride: null,
   cargoTonnesOverride: null,
   ownTransport: false,
+  transportMode: "auto",
   verifiedFields: [],
 };
 
@@ -250,6 +254,10 @@ export interface AnalysisResult {
   deliveryDay: number;
   distanceKm: number;
   trucks: number;
+  transportMode: LogisticsMode;
+  transportUnits: number;
+  transitDays: number;
+  logisticsRateKind: "benchmark" | "live";
   timeline: CashFlowPoint[];
   verdict: "go" | "caution" | "no-go";
   reasons: Reason[];

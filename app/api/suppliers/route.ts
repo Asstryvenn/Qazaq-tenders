@@ -7,13 +7,14 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const query = (url.searchParams.get("q") ?? "").trim();
   const city = (url.searchParams.get("city") ?? "").trim();
+  const baselineKzt = Number(url.searchParams.get("baseline"));
+  const cargoTonnes = Number(url.searchParams.get("cargo"));
+  const quantity = Number(url.searchParams.get("quantity"));
   if (query.length < 2) return NextResponse.json({ error: "query-required" }, { status: 400 });
-  try {
-    const offers = await searchSuppliers(query, city, 20);
-    return NextResponse.json({ offers, live: true, fetchedAt: new Date().toISOString() }, { headers: { "Cache-Control": "no-store" } });
-  } catch (error) {
-    const message = (error as Error).message;
-    const status = message === "SUPPLIER_CATALOG_NOT_CONFIGURED" ? 503 : 502;
-    return NextResponse.json({ error: message }, { status });
-  }
+  const result = await searchSuppliers(query, city, 20, {
+    baselineKzt: Number.isFinite(baselineKzt) && baselineKzt > 0 ? baselineKzt : undefined,
+    cargoTonnes: Number.isFinite(cargoTonnes) && cargoTonnes > 0 ? cargoTonnes : undefined,
+    quantity: Number.isFinite(quantity) && quantity > 0 ? quantity : undefined,
+  });
+  return NextResponse.json({ ...result, fetchedAt: new Date().toISOString() }, { headers: { "Cache-Control": "no-store" } });
 }

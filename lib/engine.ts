@@ -15,7 +15,7 @@ import {
   TenderSpec,
 } from "./types";
 import { bankGuaranteeFee, contractTax, KZ, statutoryPenalty } from "./kz-standards";
-import { DistanceProvider, freightCost, haversineProvider } from "./logistics";
+import { DistanceProvider, haversineProvider, logisticsPlan } from "./logistics";
 
 export const TOS_WEIGHTS = { w1: 0.35, w2: 0.3, w3: 0.15, w4: 0.2 } as const;
 
@@ -169,12 +169,27 @@ export function analyzeTender(
   scenario: Scenario = NEUTRAL_SCENARIO,
   distances: DistanceProvider = haversineProvider
 ): AnalysisResult {
-  const deliveryDay = tender.deliveryDays + (scenario.deliveryDeltaDays ?? 0) + scenario.lateDays;
+  const cargoTonnes = scenario.cargoTonnesOverride ?? tender.cargoTonnes;
+  const route = logisticsPlan(
+    company.baseCityId,
+    tender.cityId,
+    cargoTonnes,
+    scenario.transportMode ?? "auto",
+    tender.deliveryDays,
+    scenario.fuelDeltaPct,
+    scenario.transportDeltaPct
+  );
+  const freight = route.selected;
+  // Transport buttons are a scenario relative to ordinary road delivery. Faster air
+  // can absorb existing delay; slower rail can create a modelled late-delivery risk.
+  const explicitMode = scenario.transportMode && scenario.transportMode !== "auto" && company.baseCityId !== tender.cityId;
+  const transitDelta = explicitMode ? freight.transitDays - route.roadReferenceDays : 0;
+  const effectiveLateDays = Math.max(0, scenario.lateDays + transitDelta);
+  const deliveryDay = Math.max(0, tender.deliveryDays + (scenario.deliveryDeltaDays ?? 0) + scenario.lateDays + transitDelta);
   const payDay = deliveryDay + tender.paymentDelayDays + scenario.paymentDelayDelta;
   const horizon = payDay + 5;
 
-  const distanceKm = distances.distanceKm(company.baseCityId, tender.cityId);
-  const freight = freightCost(distanceKm, scenario.cargoTonnesOverride ?? tender.cargoTonnes, scenario.fuelDeltaPct, scenario.transportDeltaPct);
+  const distanceKm = distances === haversineProvider ? freight.distanceKm : distances.distanceKm(company.baseCityId, tender.cityId);
 
   const S = tender.contractAmount;
   const bidSecurity = S * (tender.bidSecurityRate ?? KZ.bidSecurityRate);
@@ -182,13 +197,14 @@ export function analyzeTender(
   const advancePct = scenario.advancePercentageOverride ?? tender.advancePercentage;
   const advance = S * (advancePct / 100);
   const purchaseCost = scenario.purchaseCostOverride ?? tender.purchaseCost * (1 + scenario.supplierDeltaPct / 100);
-  const logisticsCost = scenario.logisticsCostOverride ?? freight.cost * (scenario.ownTransport ? 0.4 : 1);
+  const ownFleetFactor = scenario.ownTransport && ["city", "truck", "gazelle"].includes(freight.mode) ? 0.4 : 1;
+  const logisticsCost = scenario.logisticsCostOverride ?? freight.cost * ownFleetFactor;
 
   const costs: CostBreakdown = {
     purchase: purchaseCost,
     logistics: logisticsCost,
     operating: Math.min((company.monthlyOpex / 30) * company.opexAllocation * horizon, S * MAX_OPEX_SHARE),
-    penalty: statutoryPenalty(S, tender.penaltyRate, scenario.lateDays),
+    penalty: statutoryPenalty(S, tender.penaltyRate, effectiveLateDays),
     // Guarantee must stay open until the customer has paid.
     guarantee: bankGuaranteeFee(performanceSecurity, payDay - SIGNING_DAY),
     bank: 0,
@@ -234,7 +250,7 @@ export function analyzeTender(
 
   const cf = cashFlowRiskScore(timeline, company);
   const lScore = logisticsScore(distanceKm, company.maxDistanceKm);
-  const legal = legalRiskScore(tender, company, scenario);
+  const legal = legalRiskScore(tender, company, { ...scenario, lateDays: effectiveLateDays });
 
   const components = {
     marginScore: clamp((marginPct / TARGET_MARGIN_PCT) * 100),
@@ -280,7 +296,11 @@ export function analyzeTender(
     payDay,
     deliveryDay,
     distanceKm,
-    trucks: freight.trucks,
+    trucks: freight.units,
+    transportMode: freight.mode,
+    transportUnits: freight.units,
+    transitDays: freight.transitDays,
+    logisticsRateKind: freight.rateKind,
     timeline,
     verdict,
     reasons,

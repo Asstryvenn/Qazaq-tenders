@@ -66,10 +66,17 @@ export function plainSummary(r: AnalysisResult, t: TenderSpec, lang: Lang): Plai
         : `Из каждых 100 тенге ${Math.round((r.costs.purchase / t.contractAmount) * 100)} уходят на товар, у вас остаётся ${Math.max(0, Math.round(r.marginPct))}.`
   );
 
+  const transport = {
+    city: kz ? "қала ішіндегі жеткізу" : "доставка по городу",
+    truck: `${r.transportUnits} ${kz ? "фура" : "фура"}`,
+    gazelle: `${r.transportUnits} ${kz ? "газель" : "газель"}`,
+    rail: `${r.transportUnits} ${kz ? "теміржол контейнері" : "ж/д контейнер"}`,
+    air: kz ? "әуе экспрессі" : "авиа-экспресс",
+  }[r.transportMode];
   points.push(
     kz
-      ? `Жеткізу: ${r.distanceKm} км, ${r.trucks} жүк көлігі, құны ${k(r.costs.logistics)}.`
-      : `Доставка: ${r.distanceKm} км, ${r.trucks} фур(а), стоимость ${k(r.costs.logistics)}.`
+      ? `Жеткізу: ${r.distanceKm} км, ${transport}, ${r.transitDays} күн, құны ${k(r.costs.logistics)}.`
+      : `Доставка: ${r.distanceKm} км, ${transport}, ${r.transitDays} дн., стоимость ${k(r.costs.logistics)}.`
   );
 
   if (t.hiddenRequirements.length)

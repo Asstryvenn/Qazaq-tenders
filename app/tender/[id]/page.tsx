@@ -25,6 +25,7 @@ import { useProfile } from "@/lib/profile";
 import { getTenderAttachment } from "@/lib/uploads";
 import { NEUTRAL_SCENARIO, Scenario, TenderSpec } from "@/lib/types";
 import type { SupplierOffer } from "@/lib/suppliers";
+import { LogisticsSelector } from "@/components/LogisticsSelector";
 
 export default function TenderPage({ params }: { params: { id: string } }) {
   const { t, tr, kzt, city, lotTitle } = useI18n();
@@ -103,7 +104,17 @@ export default function TenderPage({ params }: { params: { id: string } }) {
               <MapPin className="h-3.5 w-3.5" /> {city(company.baseCityId)} → {city(tender.cityId)} · {result.distanceKm} {t.units.km}
             </span>
             <span className="flex items-center gap-1.5">
-              <Truck className="h-3.5 w-3.5" /> {result.trucks} {t.logi.trucks} · {kzt(result.costs.logistics)}
+              <Truck className="h-3.5 w-3.5" />
+              {result.transportMode === "city"
+                ? tr({ kz: "қала ішінде", ru: "по городу" })
+                : result.transportMode === "truck"
+                  ? `${result.transportUnits} ${tr({ kz: "фура", ru: "фура" })}`
+                  : result.transportMode === "gazelle"
+                    ? `${result.transportUnits} ${tr({ kz: "газель", ru: "газель" })}`
+                    : result.transportMode === "rail"
+                      ? `${result.transportUnits} ${tr({ kz: "контейнер", ru: "контейнер" })}`
+                      : tr({ kz: "әуе экспрессі", ru: "авиа-экспресс" })}
+              {" · "}{result.transitDays} {t.units.days} · {kzt(result.costs.logistics)}
             </span>
           </p>
         </div>
@@ -138,10 +149,13 @@ export default function TenderPage({ params }: { params: { id: string } }) {
             ...current,
             purchaseCostOverride: offer.totalPriceKzt,
             cargoTonnesOverride: offer.cargoTonnes ?? current.cargoTonnesOverride,
-            verifiedFields: Array.from(new Set([...(current.verifiedFields ?? []), "purchase_cost", ...(offer.cargoTonnes != null ? ["cargo_tonnes"] : [])])),
+            verifiedFields: offer.status === "verified" && !offer.isDemo
+              ? Array.from(new Set([...(current.verifiedFields ?? []).filter((field) => !["purchase_cost", "cargo_tonnes"].includes(field)), "purchase_cost", ...(offer.cargoTonnes != null ? ["cargo_tonnes"] : [])]))
+              : (current.verifiedFields ?? []).filter((field) => !["purchase_cost", "cargo_tonnes"].includes(field)),
           }));
         }}
       />
+      <LogisticsSelector tender={tender} company={company} scenario={scenario} result={result} onChange={setScenario} />
 
       {/* Row 1 — TOS breakdown | plain-language summary */}
       <div className="grid items-stretch gap-6 lg:grid-cols-12">

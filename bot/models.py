@@ -22,6 +22,8 @@ Severity = Literal["low", "medium", "high"]
 Verdict = Literal["go", "caution", "no-go"]
 Lang = Literal["kz", "ru"]
 ValueSourceKind = Literal["document", "supplier_api", "category_default", "fallback", "user_verified"]
+TransportMode = Literal["auto", "city", "truck", "gazelle", "rail", "air"]
+LogisticsMode = Literal["city", "truck", "gazelle", "rail", "air"]
 
 
 class _Camel(BaseModel):
@@ -89,6 +91,10 @@ class SupplierOffer(_Camel):
     updated_at: str
     source: str
     cargo_tonnes: Optional[float] = Field(None, ge=0)
+    has_st_kz_certificate: bool = False
+    status: Literal["verified", "smart_ai"] = "smart_ai"
+    is_demo: bool = False
+    email: str = ""
 
 
 class TenderSpec(_Camel):
@@ -212,6 +218,7 @@ class Scenario(BaseModel):
     logistics_cost_override: Optional[float] = Field(None, ge=0)
     cargo_tonnes_override: Optional[float] = Field(None, ge=0)
     own_transport: bool = False
+    transport_mode: TransportMode = "auto"
     # Поля, которые пользователь подтвердил кнопкой или выбором supplier quote.
     verified_fields: List[str] = Field(default_factory=list)
 
@@ -259,6 +266,10 @@ class AnalysisResult(BaseModel):
     delivery_day: int
     distance_km: float
     trucks: int
+    transport_mode: LogisticsMode
+    transport_units: int
+    transit_days: int
+    logistics_rate_kind: Literal["benchmark", "live"] = "benchmark"
     timeline: List[CashFlowPoint]
     verdict: Verdict
     reasons: List[Reason]

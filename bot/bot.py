@@ -36,6 +36,7 @@ from aiogram.utils.chat_action import ChatActionSender
 from ai_engine import AIEngine, AIError
 from calculator import analyze_tender, meets_min_margin, rank_lots, scenario_from_mask, SUPPORTED_LEVERS_MASK
 from cards import (
+    LogisticsCB,
     LotCB,
     MenuCB,
     SetupCB,
@@ -49,6 +50,8 @@ from cards import (
     industry_keyboard,
     lot_card,
     lot_keyboard,
+    logistics_keyboard,
+    logistics_view,
     main_menu_keyboard,
     margin_keyboard,
     search_keyboard,
@@ -64,6 +67,7 @@ from cards import (
 from config import Settings, load_settings
 from documents import MAX_FILE_BYTES, DocumentError, detect_kind, extract_pages, find_url, pages_from_url
 from models import AnalysisResult, CompanyTwin, Scenario, SearchQuery, SpecPage, TenderSpec
+from logistics import logistics_plan
 from storage import Storage
 from suppliers import SupplierCatalog, SupplierError
 from tenders import INDUSTRIES, TenderFeed, filter_lots, find_by_url, heuristic_search, industry_matches, lot_key, match_city
@@ -663,9 +667,49 @@ async def on_text(message: Message, bot: Bot, app: App) -> None:
 # =========================================================================== #
 
 
+@router.callback_query(LogisticsCB.filter())
+async def on_logistics(cb: CallbackQuery, callback_data: LogisticsCB, bot: Bot, app: App) -> None:
+    """Mutually exclusive transport buttons with an immediate full engine rerun."""
+    if not isinstance(cb.message, Message):
+        await cb.answer()
+        return
+    msg = cb.message
+    user = await get_user(app, msg.chat.id, cb.from_user.language_code)
+    lang, twin = user["lang"], user["twin"]
+    spec = await app.storage.get_lot(callback_data.key)
+    if twin is None or spec is None:
+        await cb.answer(t("lot_gone", lang), show_alert=True)
+        return
+    saved = await app.storage.get_lot_scenario(msg.chat.id, callback_data.key)
+    if callback_data.action == "back":
+        result = await asyncio.to_thread(analyze_tender, spec, twin, saved)
+        await safe_edit(msg, lot_card(spec, result, twin, lang), lot_keyboard(callback_data.key, spec, lang))
+        await cb.answer()
+        return
+
+    cargo = saved.cargo_tonnes_override if saved.cargo_tonnes_override is not None else spec.cargo_tonnes
+    plan = logistics_plan(twin.base_city_id, spec.city_id, cargo, saved.transport_mode, spec.delivery_days, saved.fuel_delta_pct, saved.transport_delta_pct)
+    if callback_data.action == "choose":
+        allowed = {quote.mode for quote in plan.quotes}
+        if callback_data.mode not in allowed:
+            await cb.answer(t("error", lang), show_alert=True)
+            return
+        saved = saved.model_copy(update={"transport_mode": callback_data.mode, "logistics_cost_override": None, "own_transport": False})
+        await app.storage.save_lot_scenario(msg.chat.id, callback_data.key, saved)
+        plan = logistics_plan(twin.base_city_id, spec.city_id, cargo, saved.transport_mode, spec.delivery_days, saved.fuel_delta_pct, saved.transport_delta_pct)
+
+    result = await asyncio.to_thread(analyze_tender, spec, twin, saved)
+    await safe_edit(
+        msg,
+        logistics_view(spec, twin, saved, result, lang),
+        logistics_keyboard(callback_data.key, [quote.mode for quote in plan.quotes], result.transport_mode, lang),
+    )
+    await cb.answer()
+
+
 @router.callback_query(SupplierCB.filter())
 async def on_supplier(cb: CallbackQuery, callback_data: SupplierCB, bot: Bot, app: App) -> None:
-    """Показывает только реальные catalog quotes и применяет выбранную цену к TOS."""
+    """Shows live quotes or an explicitly labelled demo fallback and applies one to TOS."""
     if not isinstance(cb.message, Message):
         await cb.answer()
         return
@@ -700,14 +744,17 @@ async def on_supplier(cb: CallbackQuery, callback_data: SupplierCB, bot: Bot, ap
         if offer is None:
             await cb.answer(t("suppliers_unavailable", lang), show_alert=True)
             return
-        verified = ["purchase_cost"]
-        if offer.cargo_tonnes is not None:
-            verified.append("cargo_tonnes")
-        sc = Scenario(
-            purchase_cost_override=offer.total_price_kzt,
-            cargo_tonnes_override=offer.cargo_tonnes,
-            verified_fields=verified,
-        )
+        saved = await app.storage.get_lot_scenario(msg.chat.id, callback_data.key)
+        verified = [field for field in saved.verified_fields if field not in ("purchase_cost", "cargo_tonnes")]
+        if offer.status == "verified" and not offer.is_demo:
+            verified.append("purchase_cost")
+            if offer.cargo_tonnes is not None:
+                verified.append("cargo_tonnes")
+        sc = saved.model_copy(update={
+            "purchase_cost_override": offer.total_price_kzt,
+            "cargo_tonnes_override": offer.cargo_tonnes,
+            "verified_fields": list(dict.fromkeys(verified)),
+        })
         await app.storage.save_lot_scenario(msg.chat.id, callback_data.key, sc)
         result = await asyncio.to_thread(analyze_tender, spec, twin, sc)
         header = t("supplier_applied", lang, name=esc(offer.supplier_name))
@@ -763,6 +810,8 @@ async def on_lot(cb: CallbackQuery, callback_data: LotCB, bot: Bot, app: App) ->
                 updates[field_name] = value
         if lever.own_transport:
             updates["own_transport"] = True
+        if lever.transport_mode != "auto":
+            updates["transport_mode"] = lever.transport_mode
         updates["verified_fields"] = list(dict.fromkeys([*saved_scenario.verified_fields, *lever.verified_fields]))
         combined = saved_scenario.model_copy(update=updates)
         sim = await asyncio.to_thread(analyze_tender, spec, twin, combined) if mask else base

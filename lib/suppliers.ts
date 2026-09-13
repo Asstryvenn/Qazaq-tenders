@@ -12,10 +12,16 @@ export interface SupplierOffer {
   updatedAt: string;
   source: string;
   cargoTonnes?: number | null;
+  hasStKzCertificate?: boolean;
+  status: "verified" | "smart_ai";
+  isDemo: boolean;
+  email?: string;
 }
 
 export interface SupplierSearchResponse {
   offers: SupplierOffer[];
-  live: true;
+  live: boolean;
+  mode: "live" | "demo";
+  fallbackReason?: string;
   fetchedAt: string;
 }

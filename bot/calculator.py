@@ -31,6 +31,7 @@ from models import (
     Scenario,
     TenderSpec,
 )
+from logistics import CITIES, CITY_BY_ID, FREIGHT, distance_km, freight_cost, logistics_plan, logistics_quotes
 
 # =========================================================================== #
 # 1. Нормативы Республики Казахстан                                           #
@@ -78,85 +79,6 @@ def js_round(x: float) -> int:
 
 def clamp(v: float, lo: float = 0.0, hi: float = 100.0) -> float:
     return min(hi, max(lo, v))
-
-
-# =========================================================================== #
-# 2. Логистика: расстояние между городами РК и стоимость перевозки            #
-# =========================================================================== #
-
-
-@dataclass(frozen=True)
-class City:
-    id: str
-    kz: str
-    ru: str
-    lat: float
-    lon: float
-
-
-CITIES: List[City] = [
-    City("astana", "Астана", "Астана", 51.169, 71.449),
-    City("almaty", "Алматы", "Алматы", 43.238, 76.946),
-    City("shymkent", "Шымкент", "Шымкент", 42.315, 69.587),
-    City("karaganda", "Қарағанды", "Караганда", 49.806, 73.085),
-    City("aktobe", "Ақтөбе", "Актобе", 50.283, 57.167),
-    City("taraz", "Тараз", "Тараз", 42.9, 71.367),
-    City("pavlodar", "Павлодар", "Павлодар", 52.287, 76.967),
-    City("oskemen", "Өскемен", "Усть-Каменогорск", 49.948, 82.628),
-    City("semey", "Семей", "Семей", 50.411, 80.227),
-    City("atyrau", "Атырау", "Атырау", 47.107, 51.903),
-    City("kostanay", "Қостанай", "Костанай", 53.214, 63.624),
-    City("kyzylorda", "Қызылорда", "Кызылорда", 44.853, 65.509),
-    City("oral", "Орал", "Уральск", 51.233, 51.367),
-    City("petropavl", "Петропавл", "Петропавловск", 54.865, 69.136),
-    City("aktau", "Ақтау", "Актау", 43.65, 51.16),
-    City("taldykorgan", "Талдықорған", "Талдыкорган", 45.017, 78.373),
-    City("turkistan", "Түркістан", "Туркестан", 43.297, 68.251),
-    City("kokshetau", "Көкшетау", "Кокшетау", 53.283, 69.383),
-]
-CITY_BY_ID: Dict[str, City] = {c.id: c for c in CITIES}
-
-# Дороги в РК на 20–35 % длиннее прямой; 1,25 — осторожное среднее.
-ROAD_FACTOR = 1.25
-
-
-def distance_km(from_id: str, to_id: str) -> int:
-    """Дорожное расстояние: расстояние по дуге большого круга (гаверсинус) × 1,25.
-    Детерминированно и без API-ключей; маршрутизатор можно подключить позже."""
-    if from_id == to_id:
-        return 15  # доставка внутри города
-    a, b = CITY_BY_ID.get(from_id), CITY_BY_ID.get(to_id)
-    if a is None or b is None:
-        raise ValueError(f"Unknown city: {from_id if a is None else to_id}")
-    r = 6371.0
-    rad = lambda d: (d * math.pi) / 180  # noqa: E731 — тот же порядок операций, что в JS
-    d_lat = rad(b.lat - a.lat)
-    d_lon = rad(b.lon - a.lon)
-    h = math.sin(d_lat / 2) ** 2 + math.cos(rad(a.lat)) * math.cos(rad(b.lat)) * math.sin(d_lon / 2) ** 2
-    return js_round(2 * r * math.asin(math.sqrt(h)) * ROAD_FACTOR)
-
-
-class FREIGHT:
-    TRUCK_CAPACITY_T = 20.0  # стандартная 20-тонная фура
-    TARIFF_PER_KM = 450.0  # ₸/км для гружёной фуры (среднерыночно)
-    RETURN_SHARE = 0.5  # порожний обратный рейс — 50 % тарифа
-    FUEL_SHARE = 0.4  # топливо ≈ 40 % тарифа: цена топлива двигает только эту часть
-    MIN_PER_TRIP = 60_000.0  # минимальная стоимость рейса, ₸
-
-
-@dataclass(frozen=True)
-class FreightQuote:
-    distance_km: float
-    trucks: int
-    cost: float
-
-
-def freight_cost(dist_km: float, tonnes: float, fuel_delta_pct: float = 0.0, transport_delta_pct: float = 0.0) -> FreightQuote:
-    """Cost_logistics = фуры × max(мин. рейс, км × тариф × (1 + обратный рейс))."""
-    trucks = max(1, math.ceil(tonnes / FREIGHT.TRUCK_CAPACITY_T))
-    tariff = FREIGHT.TARIFF_PER_KM * (1 + FREIGHT.FUEL_SHARE * (fuel_delta_pct / 100)) * (1 + transport_delta_pct / 100)
-    per_trip = max(FREIGHT.MIN_PER_TRIP, dist_km * tariff * (1 + FREIGHT.RETURN_SHARE))
-    return FreightQuote(distance_km=dist_km, trucks=trucks, cost=trucks * per_trip)
 
 
 # =========================================================================== #
@@ -432,12 +354,25 @@ def input_confidence(tender: TenderSpec, scenario: Scenario) -> float:
 def analyze_tender(tender: TenderSpec, company: CompanyTwin, scenario: Optional[Scenario] = None) -> AnalysisResult:
     """Лот + цифровой двойник (+ сценарий) → прибыль, денежный поток, риски, TOS, вердикт."""
     sc = scenario or Scenario()
-    delivery_day = tender.delivery_days + sc.delivery_delta_days + sc.late_days
+    cargo = sc.cargo_tonnes_override if sc.cargo_tonnes_override is not None else tender.cargo_tonnes
+    route = logistics_plan(
+        company.base_city_id,
+        tender.city_id,
+        cargo,
+        sc.transport_mode,
+        tender.delivery_days,
+        sc.fuel_delta_pct,
+        sc.transport_delta_pct,
+    )
+    freight = route.selected
+    explicit_mode = sc.transport_mode != "auto" and company.base_city_id != tender.city_id
+    transit_delta = freight.transit_days - route.road_reference_days if explicit_mode else 0
+    effective_late_days = max(0, sc.late_days + transit_delta)
+    delivery_day = max(0, tender.delivery_days + sc.delivery_delta_days + sc.late_days + transit_delta)
     pay_day = delivery_day + tender.payment_delay_days + sc.payment_delay_delta
     horizon = pay_day + 5
 
-    dist = distance_km(company.base_city_id, tender.city_id)
-    freight = freight_cost(dist, sc.cargo_tonnes_override or tender.cargo_tonnes, sc.fuel_delta_pct, sc.transport_delta_pct)
+    dist = freight.distance_km
 
     s = tender.contract_amount
     bid_security = s * (tender.bid_security_rate if tender.bid_security_rate is not None else KZ.BID_SECURITY_RATE)
@@ -455,17 +390,18 @@ def analyze_tender(tender: TenderSpec, company: CompanyTwin, scenario: Optional[
     # Для собственного транспорта не заявляем нулевую цену: остаются топливо,
     # водитель и амортизация. Пока точная внутренняя ставка не указана, берём
     # топливную долю рыночного рейса (40%).
+    own_fleet_factor = FREIGHT.FUEL_SHARE if sc.own_transport and freight.mode in ("city", "truck", "gazelle") else 1.0
     logistics_cost = (
         sc.logistics_cost_override
         if sc.logistics_cost_override is not None
-        else freight.cost * (FREIGHT.FUEL_SHARE if sc.own_transport else 1.0)
+        else freight.cost * own_fleet_factor
     )
 
     costs: Dict[str, float] = {
         "purchase": purchase_cost,
         "logistics": logistics_cost,
         "operating": min((company.monthly_opex / 30) * company.opex_allocation * horizon, s * MAX_OPEX_SHARE),
-        "penalty": statutory_penalty(s, tender.penalty_rate, sc.late_days),
+        "penalty": statutory_penalty(s, tender.penalty_rate, effective_late_days),
         # Гарантия исполнения должна быть открыта, пока заказчик не заплатит
         "guarantee": bank_guarantee_fee(performance_security, pay_day - SIGNING_DAY),
         "bank": 0.0,
@@ -521,7 +457,8 @@ def analyze_tender(tender: TenderSpec, company: CompanyTwin, scenario: Optional[
 
     cf_risk, max_deficit, gap_day, days_in_deficit = cash_flow_risk_score(sim.rounded, company.working_capital)
     l_score = logistics_score(dist, company.max_distance_km)
-    legal_risk, legal_reasons = legal_risk_score(tender, company, sc)
+    legal_scenario = sc.model_copy(update={"late_days": effective_late_days})
+    legal_risk, legal_reasons = legal_risk_score(tender, company, legal_scenario)
 
     components = {
         "marginScore": clamp((margin_pct / TARGET_MARGIN_PCT) * 100),
@@ -567,7 +504,11 @@ def analyze_tender(tender: TenderSpec, company: CompanyTwin, scenario: Optional[
         pay_day=pay_day,
         delivery_day=delivery_day,
         distance_km=dist,
-        trucks=freight.trucks,
+        trucks=freight.units,
+        transport_mode=freight.mode,
+        transport_units=freight.units,
+        transit_days=freight.transit_days,
+        logistics_rate_kind=freight.rate_kind,
         timeline=sim.timeline,
         verdict=verdict,  # type: ignore[arg-type]
         reasons=reasons,
@@ -587,7 +528,9 @@ SCENARIO_LEVERS: List[Tuple[str, int, Dict[str, object]]] = [
     ("supplier", 2, {"supplier_delta_pct": 10}),  # 📦 Закупка +10 %
     ("payment", 4, {"payment_delay_delta": 30}),  # ⏱ Постоплата +30 дней
     ("advance", 8, {"advance_percentage_override": 30, "verified_fields": ["advance_percentage"]}),
-    ("own_transport", 16, {"own_transport": True, "verified_fields": ["city_id"]}),
+    # Собственный транспорт означает дорожный сценарий: иначе авто-рекомендация
+    # могла выбрать Ж/Д, к которому скидка собственного автопарка неприменима.
+    ("own_transport", 16, {"own_transport": True, "transport_mode": "truck", "verified_fields": ["city_id"]}),
 ]
 # Сохраняем старый публичный контракт: ALL_LEVERS_MASK — стресс-сценарии,
 # используемые parity-тестами. SUPPORTED включает также полезные 1-click условия.
@@ -603,6 +546,8 @@ def scenario_from_mask(mask: int) -> Scenario:
                 if k == "verified_fields":
                     fields[k] = list(dict.fromkeys([*(fields.get(k, []) or []), *v]))  # type: ignore[arg-type]
                 elif isinstance(v, bool):
+                    fields[k] = v
+                elif isinstance(v, str):
                     fields[k] = v
                 else:
                     fields[k] = float(fields.get(k, 0) or 0) + v  # type: ignore[operator]
