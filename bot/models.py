@@ -46,6 +46,11 @@ class SpecPage(_Camel):
     text: str
 
 
+class TenderDocument(_Camel):
+    name: str
+    url: str
+
+
 class HiddenRequirement(_Camel):
     """Подозрительный или ограничивающий конкуренцию пункт, найденный NLP-«ситом»."""
 
@@ -135,6 +140,16 @@ class TenderSpec(_Camel):
     # Срок подачи заявок, ISO-дата
     deadline: str = ""
     spec_pages: List[SpecPage] = Field(default_factory=list)
+    # Поля для ежедневной рассылки (TenderPlus): публикация, способ закупки, цена за единицу, ТЗ
+    announcement_no: Optional[str] = None
+    published_at: Optional[str] = None
+    purchase_method: Optional[str] = None
+    unit_price_kzt: Optional[float] = None
+    quantity: Optional[float] = None
+    unit: Optional[str] = None
+    delivery_place: Optional[str] = None
+    bid_start_at: Optional[str] = None
+    documents: List[TenderDocument] = Field(default_factory=list)
     # Категория и позиции позволяют искать реальные supplier quotes, а не применять
     # одну долю себестоимости ко всем предметам закупки.
     category: str = "other"

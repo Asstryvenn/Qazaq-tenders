@@ -17,6 +17,7 @@ Qazaq Tenders — Telegram-бот (aiogram 3.x): персональный AI-а�
 from __future__ import annotations
 
 import asyncio
+import datetime as dt
 import logging
 import re
 from dataclasses import dataclass, field
@@ -25,7 +26,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from aiogram import Bot, Dispatcher, F, Router
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError
+from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError, TelegramRetryAfter
 from aiogram.filters import Command, CommandObject, CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
@@ -65,6 +66,7 @@ from cards import (
     twin_keyboard,
     twin_view,
 )
+from digest import DigestFilters, digest_card, digest_header, filters_view, lot_matches, normalize_keywords, published_within
 from company_fetcher import RegistryError, fetch_company, is_valid_bin
 from config import Settings, load_settings
 from documents import MAX_FILE_BYTES, DocumentError, detect_kind, extract_pages, find_url, pages_from_url
@@ -901,9 +903,9 @@ async def on_error(event: ErrorEvent) -> bool:
 
 COMMANDS = {
     "ru": [("start", "Начать"), ("menu", "Главное меню"), ("digest", "Топ-3 лота для вас"), ("search", "Поиск лотов"),
-           ("setup", "Цифровой двойник"), ("set", "Уточнить параметры"), ("help", "Помощь"), ("cancel", "Отменить")],
+           ("setup", "Цифровой двойник"), ("set", "Уточнить параметры"), ("filters", "Фильтры рассылки"), ("help", "Помощь"), ("cancel", "Отменить")],
     "kk": [("start", "Бастау"), ("menu", "Басты мәзір"), ("digest", "Сізге ең қолайлы 3 лот"), ("search", "Лот іздеу"),
-           ("setup", "Цифрлық егіз"), ("set", "Параметрлерді нақтылау"), ("help", "Көмек"), ("cancel", "Тоқтату")],
+           ("setup", "Цифрлық егіз"), ("set", "Параметрлерді нақтылау"), ("filters", "Тарату сүзгілері"), ("help", "Көмек"), ("cancel", "Тоқтату")],
 }
 
 
@@ -911,6 +913,7 @@ async def on_startup(bot: Bot, app: App) -> None:
     await bot.set_my_commands([BotCommand(command=c, description=d) for c, d in COMMANDS["ru"]])
     await bot.set_my_commands([BotCommand(command=c, description=d) for c, d in COMMANDS["kk"]], language_code="kk")
     app.tasks.append(asyncio.create_task(alerts_loop(bot, app)))
+    app.tasks.append(asyncio.create_task(daily_digest_loop(bot, app)))
     me = await bot.get_me()
     log.info("bot @%s started · AI %s · feed %s", me.username, "on" if app.ai.available else "off", app.settings.qt_api_base)
 
@@ -1020,3 +1023,103 @@ async def cmd_bin(message: Message, command: CommandObject, state: FSMContext, b
 async def form_bin(message: Message, state: FSMContext, bot: Bot, app: App) -> None:
     await state.clear()
     await run_bin_lookup(message, bot, app, message.text or "")
+
+
+
+# =========================================================================== #
+# Умная ежедневная рассылка: /filters и дайджест в 08:00 (Алматы)              #
+# =========================================================================== #
+
+ALMATY_TZ = dt.timezone(dt.timedelta(hours=5))
+DIGEST_HOUR = 8
+DIGEST_MAX_CARDS = 10
+
+
+@router.message(Command("filters"))
+async def cmd_filters(message: Message, command: CommandObject, bot: Bot, app: App) -> None:
+    """/filters · keywords … · budget 1-300 · regions astana, almaty | all · on | off | now"""
+    user = await get_user(app, message.chat.id, message.from_user.language_code if message.from_user else None)
+    lang = user["lang"]
+    f = await app.storage.get_digest_filters(message.chat.id)
+    action, _, raw = (command.args or "").strip().partition(" ")
+    action, raw = action.lower(), raw.strip()
+    if action == "keywords":
+        f.keywords = normalize_keywords(raw)
+    elif action == "budget":
+        nums = [float(x.replace(",", ".")) for x in re.findall(r"\d+(?:[.,]\d+)?", raw)]
+        if len(nums) != 2 or nums[0] > nums[1]:
+            await message.answer("<code>/filters budget 1-300</code>")
+            return
+        f.min_budget, f.max_budget = nums[0] * 1e6, nums[1] * 1e6
+    elif action == "regions":
+        f.regions = [] if raw.lower() in ("all", "все", "барлығы", "") else [c for c in (match_city(x) for x in re.split(r"[,;]", raw)) if c]
+    elif action in ("on", "off"):
+        f.enabled = action == "on"
+    elif action == "now":
+        if user["twin"] is None:
+            await message.answer(t("need_twin", lang))
+            return
+        sent = await send_user_digest(bot, app, message.chat.id, lang, user["twin"], f, window_hours=24)
+        if not sent:
+            await message.answer("24 сағатта сәйкес лот жоқ." if lang == "kz" else "За 24 часа подходящих лотов нет.")
+        return
+    if action:
+        await app.storage.save_digest_filters(message.chat.id, f)
+    await message.answer(filters_view(f, lang))
+
+
+async def send_user_digest(bot: Bot, app: App, chat_id: int, lang: str, twin: CompanyTwin, f: DigestFilters, window_hours: float = 24) -> int:
+    """Новые лоты за окно → фильтры → расчёт с живыми ставками ATI → карточки. Возвращает число лотов."""
+    lots, _ = await app.feed.get(force=True)
+    fresh = [s for s in lots if published_within(s, window_hours) and lot_matches(s, f)][:40]
+    rows = []
+    for spec in fresh:
+        sc = await with_live_rates(app, twin, spec, Scenario())
+        rows.append((spec, await asyncio.to_thread(analyze_tender, spec, twin, sc)))
+    rows.sort(key=lambda r: r[1].tos, reverse=True)
+    rows = rows[:DIGEST_MAX_CARDS]
+    if not rows:
+        return 0
+    messages = [digest_header(len(rows), lang)] + [digest_card(s, r, twin, lang, app.settings.qt_api_base) for s, r in rows]
+    for text in messages:
+        for _ in range(3):
+            try:
+                await bot.send_message(chat_id, text)
+                break
+            except TelegramRetryAfter as e:  # лимит Telegram — ждём сколько сказано
+                await asyncio.sleep(e.retry_after + 0.2)
+        await asyncio.sleep(1.1)  # ≤ 1 сообщение в секунду на чат
+    return len(rows)
+
+
+async def run_daily_digest(bot: Bot, app: App) -> None:
+    today = dt.datetime.now(ALMATY_TZ).date().isoformat()
+    for sub in await app.storage.digest_subscribers():
+        f = DigestFilters.model_validate_json(sub["filters_json"])
+        if not f.enabled or sub["last_sent_day"] == today:
+            continue
+        twin = CompanyTwin.model_validate_json(sub["twin_json"])
+        try:
+            await send_user_digest(bot, app, sub["chat_id"], sub["lang"], twin, f)
+            await app.storage.mark_digest_sent(sub["chat_id"], today)
+        except TelegramForbiddenError:
+            f.enabled = False
+            await app.storage.save_digest_filters(sub["chat_id"], f)
+        except Exception:  # noqa: BLE001 — один пользователь не должен остановить рассылку
+            log.exception("digest failed for %s", sub["chat_id"])
+        await asyncio.sleep(0.05)  # ≤ 20 сообщений в секунду по всем чатам
+
+
+async def daily_digest_loop(bot: Bot, app: App) -> None:
+    while True:
+        now = dt.datetime.now(ALMATY_TZ)
+        target = now.replace(hour=DIGEST_HOUR, minute=0, second=0, microsecond=0)
+        if target <= now:
+            target += dt.timedelta(days=1)
+        await asyncio.sleep((target - now).total_seconds())
+        try:
+            await run_daily_digest(bot, app)
+        except asyncio.CancelledError:
+            raise
+        except Exception:  # noqa: BLE001
+            log.exception("daily digest failed")

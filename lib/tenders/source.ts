@@ -140,15 +140,23 @@ const TP_QUERY = `
       lot_source_id
       title
       cost
+      one_cost
+      counts
+      ed
       place
       partnerLink
+      documents { name downloadLink }
       region { name }
       lotBuy {
         buy
+        pub_date
+        begin_date
         end_date
         organizer
         organization { short_name }
         partner { name }
+        tenderTypePartner { name }
+        documents { name downloadLink }
       }
     }
   }
@@ -162,9 +170,17 @@ interface TpLot {
   cost?: number | null;
   place?: string | null;
   partnerLink?: string | null;
+  one_cost?: number | null;
+  counts?: number | null;
+  ed?: string | null;
+  documents?: { name?: string | null; downloadLink?: string | null }[] | null;
   region?: { name?: string | null } | null;
   lotBuy?: {
     buy?: string | null;
+    pub_date?: string | null;
+    begin_date?: string | null;
+    tenderTypePartner?: { name?: string | null } | null;
+    documents?: { name?: string | null; downloadLink?: string | null }[] | null;
     end_date?: string | null;
     organizer?: string | null;
     organization?: { short_name?: string | null } | null;
@@ -211,6 +227,12 @@ function tpDate(v?: string | null): string {
   return dmy ? `${dmy[3]}-${dmy[2]}-${dmy[1]}` : v.slice(0, 10);
 }
 
+/** TenderPlus time "2026-08-05 09:44:30" is Almaty time → ISO with +05:00. */
+function tpIso(v?: string | null): string | undefined {
+  const m = v?.match(/^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2}(?::\d{2})?)/);
+  return m ? `${m[1]}T${m[2].length === 5 ? `${m[2]}:00` : m[2]}+05:00` : undefined;
+}
+
 /** Announcement data only — delivery/payment terms are explicit estimates (`estimated: true`). */
 function fromTenderPlus(l: TpLot): TenderSpec | null {
   const cost = Number(l.cost);
@@ -240,6 +262,18 @@ function fromTenderPlus(l: TpLot): TenderSpec | null {
     hiddenRequirements: [],
     deadline: tpDate(l.lotBuy?.end_date),
     specPages: [],
+    announcementNo: l.lotBuy?.buy ?? undefined,
+    publishedAt: tpIso(l.lotBuy?.pub_date),
+    purchaseMethod: l.lotBuy?.tenderTypePartner?.name?.trim() || undefined,
+    unitPriceKzt: Number.isFinite(Number(l.one_cost)) && Number(l.one_cost) > 0 ? Number(l.one_cost) : undefined,
+    quantity: Number(l.counts) > 0 ? Number(l.counts) : undefined,
+    unit: l.ed?.trim() || undefined,
+    deliveryPlace: l.place?.trim() || undefined,
+    bidStartAt: tpIso(l.lotBuy?.begin_date),
+    documents: [...(l.documents ?? []), ...(l.lotBuy?.documents ?? [])]
+      .filter((d): d is { name: string; downloadLink: string } => !!d?.downloadLink && /^https?:\/\//.test(d.downloadLink))
+      .map((d) => ({ name: (d.name || "document").trim(), url: d.downloadLink.replace(/([^:])\/\/+/g, "$1/") }))
+      .slice(0, 6),
   };
 }
 

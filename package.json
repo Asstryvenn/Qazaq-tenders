@@ -9,7 +9,8 @@
     "lint": "next lint",
     "theme:gen": "node scripts/gen-light-theme.mjs",
     "test:admin": "node --test tests/*.test.mjs",
-    "test:admin:e2e": "node scripts/test-admin-access.mjs"
+    "test:admin:e2e": "node scripts/test-admin-access.mjs",
+    "test:digest": "node --test tests/digest.test.mjs && node scripts/test-digest.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

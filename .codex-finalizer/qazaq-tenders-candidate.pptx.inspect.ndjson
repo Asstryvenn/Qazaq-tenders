@@ -1,0 +1,164 @@
+{"kind":"deck","id":"pr/4nb1bn","name":"Deck"}
+{"kind":"layout","layoutId":"b1c47419-8ee1-4bd0-b543-b509b442ba5f","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"59ffbda2-acd0-4a4d-b942-76a9084c9df1","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/sqllqc","slide":1,"title":"QAZAQ","textShapes":5}
+{"kind":"textbox","id":"sh/u14jihkv","slide":1,"text":"QAZAQ\nTENDERS","textPreview":"QAZAQ | TENDERS","textChars":13,"textLines":2,"bbox":[64,90,610,210]}
+{"kind":"textbox","id":"sh/hov2dwj6","slide":1,"text":"Шағын және орта бизнеске мемлекеттік сатып алудың экономикалық тиімділігін бағалайтын интеллектуалды платформа","textPreview":"Шағын және орта бизнеске мемлекеттік сатып алудың экономикалық тиімділігін бағалайтын интеллектуалды платформа","textChars":110,"textLines":1,"bbox":[68,326,730,120]}
+{"kind":"textbox","id":"sh/g3m1kr21","slide":1,"text":"Нұрали Байбосынов  |  11A","textPreview":"Нұрали Байбосынов  |  11A","textChars":25,"textLines":1,"bbox":[68,540,520,42]}
+{"kind":"textbox","id":"sh/3qdkf61c","slide":1,"text":"www.qazaqtenders.kz","textPreview":"www.qazaqtenders.kz","textChars":19,"textLines":1,"bbox":[68,594,420,32]}
+{"kind":"textbox","id":"sh/2p43m1kr","slide":1,"text":"2026","textPreview":"2026","textChars":4,"textLines":1,"bbox":[1080,590,120,34]}
+{"kind":"notes","id":"nt/sqllqc","slide":1,"text":"Қайырлы күн, құрметті қазылар алқасы! Qazaq Tenders кәсіпкерге тендердің пайдасын, тәуекелін және қажетті айналым қаражатын алдын ала бағалауға көмектеседі."}
+{"kind":"slide","id":"sl/yoy1oy","slide":2,"title":"Qazaq Tenders","textShapes":17}
+{"kind":"textbox","id":"sh/83ihwfe9","slide":2,"text":"Qazaq Tenders","textPreview":"Qazaq Tenders","textChars":13,"textLines":1,"bbox":[58,30,220,30]}
+{"kind":"textbox","id":"sh/7i9g3udo","slide":2,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[1160,30,60,28]}
+{"kind":"textbox","id":"sh/6h0zupw3","slide":2,"text":"Бүгінгі жоспар","textPreview":"Бүгінгі жоспар","textChars":14,"textLines":1,"bbox":[58,82,1160,68]}
+{"kind":"textbox","id":"sh/lgry1kvi","slide":2,"text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[80,175,52,38]}
+{"kind":"textbox","id":"sh/kfihsfex","slide":2,"text":"Өзектілік және мәселе","textPreview":"Өзектілік және мәселе","textChars":21,"textLines":1,"bbox":[155,171,850,45]}
+{"kind":"textbox","id":"sh/je9gzadc","slide":2,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[80,237,52,38]}
+{"kind":"textbox","id":"sh/yd0zq5wr","slide":2,"text":"Qazaq Tenders шешімі","textPreview":"Qazaq Tenders шешімі","textChars":20,"textLines":1,"bbox":[155,233,850,45]}
+{"kind":"textbox","id":"sh/xc7yx0f6","slide":2,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[80,299,52,38]}
+{"kind":"textbox","id":"sh/wbyhove1","slide":2,"text":"Жүйе архитектурасы","textPreview":"Жүйе архитектурасы","textChars":18,"textLines":1,"bbox":[155,295,850,45]}
+{"kind":"textbox","id":"sh/q50jalwr","slide":2,"text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[80,361,52,38]}
+{"kind":"textbox","id":"sh/r69kj6dc","slide":2,"text":"Экономикалық модель","textPreview":"Экономикалық модель","textChars":19,"textLines":1,"bbox":[155,357,850,45]}
+{"kind":"textbox","id":"sh/c7ilcbeh","slide":2,"text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[80,423,52,38]}
+{"kind":"textbox","id":"sh/d8r2lgv2","slide":2,"text":"Логистика және жеткізушілер","textPreview":"Логистика және жеткізушілер","textChars":27,"textLines":1,"bbox":[155,419,850,45]}
+{"kind":"textbox","id":"sh/21gj61wf","slide":2,"text":"06","textPreview":"06","textChars":2,"textLines":1,"bbox":[80,485,52,38]}
+{"kind":"textbox","id":"sh/329kf6d0","slide":2,"text":"Есептік нәтиже","textPreview":"Есептік нәтиже","textChars":14,"textLines":1,"bbox":[155,481,850,45]}
+{"kind":"textbox","id":"sh/43i18bel","slide":2,"text":"07","textPreview":"07","textChars":2,"textLines":1,"bbox":[80,547,52,38]}
+{"kind":"textbox","id":"sh/p4r2hgv6","slide":2,"text":"Тексеру және қорытынды","textPreview":"Тексеру және қорытынды","textChars":22,"textLines":1,"bbox":[155,543,850,45]}
+{"kind":"notes","id":"nt/yoy1oy","slide":2,"text":"Алдымен мәселені көрсетемін, одан кейін жүйенің жұмысын, формулаларын және нақты есептік сценарийді түсіндіремін."}
+{"kind":"slide","id":"sl/zjtpen","slide":3,"title":"Qazaq Tenders","textShapes":9}
+{"kind":"textbox","id":"sh/7uhwfu9w","slide":3,"text":"Qazaq Tenders","textPreview":"Qazaq Tenders","textChars":13,"textLines":1,"bbox":[58,30,220,30]}
+{"kind":"textbox","id":"sh/8vqdozah","slide":3,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[1160,30,60,28]}
+{"kind":"textbox","id":"sh/9wjeh4r2","slide":3,"text":"Өзектілік","textPreview":"Өзектілік","textChars":9,"textLines":1,"bbox":[58,82,1160,68]}
+{"kind":"textbox","id":"sh/yp8vipsf","slide":3,"text":"2,17 млн","textPreview":"2,17 млн","textChars":8,"textLines":1,"bbox":[70,180,350,90]}
+{"kind":"textbox","id":"sh/zqhcba90","slide":3,"text":"Қазақстандағы белсенді ШОБ субъектілері","textPreview":"Қазақстандағы белсенді ШОБ субъектілері","textChars":39,"textLines":1,"bbox":[72,270,430,62]}
+{"kind":"textbox","id":"sh/krqdkfal","slide":3,"text":"40,9%","textPreview":"40,9%","textChars":5,"textLines":1,"bbox":[670,180,300,90]}
+{"kind":"textbox","id":"sh/lszedkr6","slide":3,"text":"ШОБ-тың ЖІӨ-дегі үлесі","textPreview":"ШОБ-тың ЖІӨ-дегі үлесі","textChars":22,"textLines":1,"bbox":[672,270,360,62]}
+{"kind":"textbox","id":"sh/a1ove5sj","slide":3,"text":"Мемлекеттік сатып алу бизнеске үлкен мүмкіндік береді. Бірақ құжаттарды қате түсіну, шығынды толық есептемеу және төлемді күту шағын кәсіпорын үшін нақты қаржылық тәуекел туғызады.","textPreview":"Мемлекеттік сатып алу бизнеске үлкен мүмкіндік береді. Бірақ құжаттарды қате түсіну, шығынды толық есептемеу және төлемді күту шағын кәсі...","textChars":180,"textLines":1,"bbox":[72,405,1090,150]}
+{"kind":"textbox","id":"sh/b2xc7a94","slide":3,"text":"Дереккөз: ҚР Ұлттық статистика бюросы, 01.01.2026","textPreview":"Дереккөз: ҚР Ұлттық статистика бюросы, 01.01.2026","textChars":49,"textLines":1,"bbox":[72,635,700,24]}
+{"kind":"notes","id":"nt/zjtpen","slide":3,"text":"Қазақстанда 2,17 миллион белсенді ШОБ субъектісі бар, ал олардың ЖІӨ-дегі үлесі 40,9 пайыз. Сондықтан мемлекеттік сатып алудағы шешім сапасы экономика үшін маңызды."}
+{"kind":"slide","id":"sl/5suymz","slide":4,"title":"Qazaq Tenders","textShapes":13}
+{"kind":"textbox","id":"sh/xszalw7y","slide":4,"text":"Qazaq Tenders","textPreview":"Qazaq Tenders","textChars":13,"textLines":1,"bbox":[58,30,220,30]}
+{"kind":"textbox","id":"sh/a58rq1o7","slide":4,"text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[1160,30,60,28]}
+{"kind":"textbox","id":"sh/v6hsj6ps","slide":4,"text":"Кәсіпкердің негізгі тәуекелдері","textPreview":"Кәсіпкердің негізгі тәуекелдері","textChars":31,"textLines":1,"bbox":[58,82,1160,68]}
+{"kind":"textbox","id":"sh/83q9or6h","slide":4,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[75,175,55,55]}
+{"kind":"textbox","id":"sh/94zahw7m","slide":4,"text":"Күрделі құжаттар","textPreview":"Күрделі құжаттар","textChars":16,"textLines":1,"bbox":[160,168,370,48]}
+{"kind":"textbox","id":"sh/m1ormhob","slide":4,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[75,280,55,55]}
+{"kind":"textbox","id":"sh/n2xsfmpw","slide":4,"text":"Жасырын шығындар","textPreview":"Жасырын шығындар","textChars":16,"textLines":1,"bbox":[160,273,370,48]}
+{"kind":"textbox","id":"sh/szat0v6l","slide":4,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[75,385,55,55]}
+{"kind":"textbox","id":"sh/t0jatg76","slide":4,"text":"Кассалық алшақтық","textPreview":"Кассалық алшақтық","textChars":17,"textLines":1,"bbox":[160,378,370,48]}
+{"kind":"textbox","id":"sh/dofi90z6","slide":4,"text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[75,490,55,55]}
+{"kind":"textbox","id":"sh/sn6hgvi1","slide":4,"text":"Арнайы талаптар","textPreview":"Арнайы талаптар","textChars":15,"textLines":1,"bbox":[160,483,370,48]}
+{"kind":"textbox","id":"sh/rmd07qhg","slide":4,"text":"Техникалық ерекшелік пен шарттардан бір маңызды талаптың жоғалуы өтінімнен бас тартуға әкелуі мүмкін. Пайда оң болғанның өзінде айналым капиталы жеткіліксіз болуы ықтимал.","textPreview":"Техникалық ерекшелік пен шарттардан бір маңызды талаптың жоғалуы өтінімнен бас тартуға әкелуі мүмкін. Пайда оң болғанның өзінде айналым к...","textChars":171,"textLines":1,"bbox":[610,190,530,250]}
+{"kind":"textbox","id":"sh/ql4ze50v","slide":4,"text":"Мәселе: кәсіпкер шешімді толық қаржылық модельсіз қабылдайды","textPreview":"Мәселе: кәсіпкер шешімді толық қаржылық модельсіз қабылдайды","textChars":60,"textLines":1,"bbox":[610,500,530,82]}
+{"kind":"notes","id":"nt/5suymz","slide":4,"text":"Жалпы тендер сомасы кәсіпкердің нақты табысын көрсетпейді. Салық, банк комиссиясы, логистика және төлем мерзімі бірге есептелуі керек."}
+{"kind":"slide","id":"sl/4qp94m","slide":5,"title":"Qazaq Tenders","textShapes":14}
+{"kind":"textbox","id":"sh/jqto7yt4","slide":5,"text":"Qazaq Tenders","textPreview":"Qazaq Tenders","textChars":13,"textLines":1,"bbox":[58,30,220,30]}
+{"kind":"textbox","id":"sh/kr2pg3ap","slide":5,"text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[1160,30,60,28]}
+{"kind":"textbox","id":"sh/5sb698ba","slide":5,"text":"Qazaq Tenders шешімі","textPreview":"Qazaq Tenders шешімі","textChars":20,"textLines":1,"bbox":[58,82,1160,68]}
+{"kind":"textbox","id":"sh/6tk7itsv","slide":5,"text":"●","textPreview":"●","textChars":1,"textLines":1,"bbox":[74,175,28,40]}
+{"kind":"textbox","id":"sh/7utobytg","slide":5,"text":"PDF, DOCX және API деректерін талдау","textPreview":"PDF, DOCX және API деректерін талдау","textChars":36,"textLines":1,"bbox":[112,173,1050,52]}
+{"kind":"textbox","id":"sh/sv2pk3a1","slide":5,"text":"●","textPreview":"●","textChars":1,"textLines":1,"bbox":[74,245,28,40]}
+{"kind":"textbox","id":"sh/twb6d8b6","slide":5,"text":"Техникалық ерекшеліктегі арнайы талаптарды бөлек шығару","textPreview":"Техникалық ерекшеліктегі арнайы талаптарды бөлек шығару","textChars":55,"textLines":1,"bbox":[112,243,1050,52]}
+{"kind":"textbox","id":"sh/uxk7mdsr","slide":5,"text":"●","textPreview":"●","textChars":1,"textLines":1,"bbox":[74,315,28,40]}
+{"kind":"textbox","id":"sh/fyd8fi9c","slide":5,"text":"Пайда, маржа және күнделікті Cash Flow есептеу","textPreview":"Пайда, маржа және күнделікті Cash Flow есептеу","textChars":46,"textLines":1,"bbox":[112,313,1050,52]}
+{"kind":"textbox","id":"sh/3mlkz69c","slide":5,"text":"●","textPreview":"●","textChars":1,"textLines":1,"bbox":[74,385,28,40]}
+{"kind":"textbox","id":"sh/ilc3q18r","slide":5,"text":"Көлік пен жеткізуші сценарийлерін бір батырмамен салыстыру","textPreview":"Көлік пен жеткізуші сценарийлерін бір батырмамен салыстыру","textChars":58,"textLines":1,"bbox":[112,383,1050,52]}
+{"kind":"textbox","id":"sh/5o321gr2","slide":5,"text":"●","textPreview":"●","textChars":1,"textLines":1,"bbox":[74,455,28,40]}
+{"kind":"textbox","id":"sh/4nulsbqx","slide":5,"text":"Нәтижені 0–100 аралығындағы TOS индексімен түсіндіру","textPreview":"Нәтижені 0–100 аралығындағы TOS индексімен түсіндіру","textChars":52,"textLines":1,"bbox":[112,453,1050,52]}
+{"kind":"textbox","id":"sh/vi1kv690","slide":5,"text":"Пайдаланушы ұзақ форма толтырмайды. Жүйе бастапқы мәндерді өзі ұсынады, ал кәсіпкер оларды бір рет басып түзетеді.","textPreview":"Пайдаланушы ұзақ форма толтырмайды. Жүйе бастапқы мәндерді өзі ұсынады, ал кәсіпкер оларды бір рет басып түзетеді.","textChars":114,"textLines":1,"bbox":[75,570,1070,66]}
+{"kind":"notes","id":"nt/4qp94m","slide":5,"text":"Пайдаланушы тендерді ашады. Жүйе құжатты оқып, есепті бірден жасайды. Өз жағдайы өзгеше болса, сатып алу бағасын, авансты немесе көлік түрін бір батырмамен өзгертеді."}
+{"kind":"slide","id":"sl/8clvvm","slide":6,"title":"Qazaq Tenders","textShapes":15}
+{"kind":"textbox","id":"sh/c7mtkrap","slide":6,"text":"Qazaq Tenders","textPreview":"Qazaq Tenders","textChars":13,"textLines":1,"bbox":[58,30,220,30]}
+{"kind":"textbox","id":"sh/b6dsr6t4","slide":6,"text":"06","textPreview":"06","textChars":2,"textLines":1,"bbox":[1160,30,60,28]}
+{"kind":"textbox","id":"sh/a54bi1sz","slide":6,"text":"Екі қабатты архитектура","textPreview":"Екі қабатты архитектура","textChars":23,"textLines":1,"bbox":[58,82,1160,68]}
+{"kind":"textbox","id":"sh/lcfaxgbm","slide":6,"text":"PDF / DOCX / API","textPreview":"PDF / DOCX / API","textChars":16,"textLines":1,"bbox":[60,225,250,68]}
+{"kind":"textbox","id":"sh/kb6toba1","slide":6,"text":"Кіріс деректері","textPreview":"Кіріс деректері","textChars":15,"textLines":1,"bbox":[70,315,230,70]}
+{"kind":"textbox","id":"sh/zadsv6tg","slide":6,"text":"›","textPreview":"›","textChars":1,"textLines":1,"bbox":[320,235,30,50]}
+{"kind":"textbox","id":"sh/y94bm1sv","slide":6,"text":"AI қабаты","textPreview":"AI қабаты","textChars":9,"textLines":1,"bbox":[360,225,250,68]}
+{"kind":"textbox","id":"sh/1gbalcb2","slide":6,"text":"Фактілер мен талаптар","textPreview":"Фактілер мен талаптар","textChars":21,"textLines":1,"bbox":[370,315,230,70]}
+{"kind":"textbox","id":"sh/0f29c7ah","slide":6,"text":"›","textPreview":"›","textChars":1,"textLines":1,"bbox":[620,235,30,50]}
+{"kind":"textbox","id":"sh/u1wzq1sz","slide":6,"text":"Экономикалық қабат","textPreview":"Экономикалық қабат","textChars":18,"textLines":1,"bbox":[660,225,250,68]}
+{"kind":"textbox","id":"sh/v250j6tk","slide":6,"text":"Формулалар мен күнтізбе","textPreview":"Формулалар мен күнтізбе","textChars":23,"textLines":1,"bbox":[670,315,230,70]}
+{"kind":"textbox","id":"sh/w3ehsba5","slide":6,"text":"›","textPreview":"›","textChars":1,"textLines":1,"bbox":[920,235,30,50]}
+{"kind":"textbox","id":"sh/h4nilgba","slide":6,"text":"Веб және Telegram","textPreview":"Веб және Telegram","textChars":17,"textLines":1,"bbox":[960,225,250,68]}
+{"kind":"textbox","id":"sh/i5gzulsv","slide":6,"text":"Түсіндірілетін нәтиже","textPreview":"Түсіндірілетін нәтиже","textChars":21,"textLines":1,"bbox":[970,315,230,70]}
+{"kind":"textbox","id":"sh/j6p0nqtg","slide":6,"text":"AI құжатты түсінеді. Экономикалық қабат есепті детерминирленген формулалармен жүргізеді.","textPreview":"AI құжатты түсінеді. Экономикалық қабат есепті детерминирленген формулалармен жүргізеді.","textChars":88,"textLines":1,"bbox":[90,500,1100,75]}
+{"kind":"notes","id":"nt/8clvvm","slide":6,"text":"AI қабаты құжаттан деректерді шығарады. Ол пайда санын ойдан шығармайды. Барлық ақша көрсеткішін жеке экономикалық қозғалтқыш есептейді."}
+{"kind":"slide","id":"sl/htft6l","slide":7,"title":"Qazaq Tenders","textShapes":13}
+{"kind":"textbox","id":"sh/mps3ml4b","slide":7,"text":"Qazaq Tenders","textPreview":"Qazaq Tenders","textChars":13,"textLines":1,"bbox":[58,30,220,30]}
+{"kind":"textbox","id":"sh/9sjmh03m","slide":7,"text":"07","textPreview":"07","textChars":2,"textLines":1,"bbox":[1160,30,60,28]}
+{"kind":"textbox","id":"sh/8ralovm1","slide":7,"text":"Экономикалық модель","textPreview":"Экономикалық модель","textChars":19,"textLines":1,"bbox":[58,82,1160,68]}
+{"kind":"textbox","id":"sh/z2h4bqlk","slide":7,"text":"Profit = S − (Cpurchase + Clogistics + Ctax + Cbank + Coperation + Cpenalty)","textPreview":"Profit = S − (Cpurchase + Clogistics + Ctax + Cbank + Coperation + Cpenalty)","textChars":76,"textLines":1,"bbox":[72,180,1130,80]}
+{"kind":"textbox","id":"sh/y183il4z","slide":7,"text":"TOS = 0,35 × Margin + 0,30 × Cash Flow + 0,15 × Logistics + 0,20 × Legal","textPreview":"TOS = 0,35 × Margin + 0,30 × Cash Flow + 0,15 × Logistics + 0,20 × Legal","textChars":72,"textLines":1,"bbox":[72,300,1130,80]}
+{"kind":"textbox","id":"sh/lozmd03q","slide":7,"text":"35%","textPreview":"35%","textChars":3,"textLines":1,"bbox":[95,460,180,70]}
+{"kind":"textbox","id":"sh/0nqlkvm5","slide":7,"text":"Маржа","textPreview":"Маржа","textChars":5,"textLines":1,"bbox":[95,530,180,38]}
+{"kind":"textbox","id":"sh/byh476lo","slide":7,"text":"30%","textPreview":"30%","textChars":3,"textLines":1,"bbox":[375,460,180,70]}
+{"kind":"textbox","id":"sh/qxo3e143","slide":7,"text":"Cash Flow","textPreview":"Cash Flow","textChars":9,"textLines":1,"bbox":[375,530,180,38]}
+{"kind":"textbox","id":"sh/writsvul","slide":7,"text":"15%","textPreview":"15%","textChars":3,"textLines":1,"bbox":[655,460,180,70]}
+{"kind":"textbox","id":"sh/xsra1gb6","slide":7,"text":"Логистика","textPreview":"Логистика","textChars":9,"textLines":1,"bbox":[655,530,180,38]}
+{"kind":"textbox","id":"sh/a50bqlcf","slide":7,"text":"20%","textPreview":"20%","textChars":3,"textLines":1,"bbox":[935,460,180,70]}
+{"kind":"textbox","id":"sh/v69szqt0","slide":7,"text":"Құқықтық тәуекел","textPreview":"Құқықтық тәуекел","textChars":16,"textLines":1,"bbox":[895,530,260,38]}
+{"kind":"notes","id":"nt/htft6l","slide":7,"text":"TOS шешімді төрт өлшем арқылы көрсетеді. Салмақтар бастапқы сараптамалық параметрлер. Кейін оларды аяқталған келісімшарттардың деректерімен калибрлеу қажет."}
+{"kind":"slide","id":"sl/hr6b7r","slide":8,"title":"Qazaq Tenders","textShapes":4}
+{"kind":"textbox","id":"sh/rqdoni90","slide":8,"text":"Qazaq Tenders","textPreview":"Qazaq Tenders","textChars":13,"textLines":1,"bbox":[58,30,220,30]}
+{"kind":"textbox","id":"sh/crmpwnal","slide":8,"text":"08","textPreview":"08","textChars":2,"textLines":1,"bbox":[1160,30,60,28]}
+{"kind":"textbox","id":"sh/dsv6psr6","slide":8,"text":"Smart Defaults және дерек сенімділігі","textPreview":"Smart Defaults және дерек сенімділігі","textChars":37,"textLines":1,"bbox":[58,82,1160,68]}
+{"kind":"textbox","id":"sh/32tojy94","slide":8,"text":"Confidence Level болжам дәлдігі емес. Ол кіріс деректерінің қаншасы расталғанын көрсетеді.","textPreview":"Confidence Level болжам дәлдігі емес. Ол кіріс деректерінің қаншасы расталғанын көрсетеді.","textChars":90,"textLines":1,"bbox":[95,560,1090,58]}
+{"kind":"table","id":"tb/rqhwne1k","slide":8,"name":"","rows":5,"cols":3,"preview":"Дерек белгісі | Мағынасы | Сенімділік","bbox":[90,185,1100,320]}
+{"kind":"notes","id":"nt/hr6b7r","slide":8,"text":"Жүйе нақты факт пен болжамды мәнді араластырмайды. Confidence Level 95 пайыз болса, бұл деректердің басым бөлігі тексерілгенін білдіреді, экономикалық нәтиженің 95 пайыз дәлдігін емес."}
+{"kind":"slide","id":"sl/roqkhe","slide":9,"title":"Qazaq Tenders","textShapes":14}
+{"kind":"textbox","id":"sh/2dore1o7","slide":9,"text":"Qazaq Tenders","textPreview":"Qazaq Tenders","textChars":13,"textLines":1,"bbox":[58,30,220,30]}
+{"kind":"textbox","id":"sh/pgfq9wni","slide":9,"text":"09","textPreview":"09","textChars":2,"textLines":1,"bbox":[1160,30,60,28]}
+{"kind":"textbox","id":"sh/of69gr6d","slide":9,"text":"Логистика және жеткізушілер","textPreview":"Логистика және жеткізушілер","textChars":27,"textLines":1,"bbox":[58,82,1160,68]}
+{"kind":"textbox","id":"sh/bihsb65o","slide":9,"text":"Газель","textPreview":"Газель","textChars":6,"textLines":1,"bbox":[75,190,245,65]}
+{"kind":"textbox","id":"sh/ahori1o3","slide":9,"text":"Автофура","textPreview":"Автофура","textChars":8,"textLines":1,"bbox":[367,190,245,65]}
+{"kind":"textbox","id":"sh/xkzadgnu","slide":9,"text":"Теміржол","textPreview":"Теміржол","textChars":8,"textLines":1,"bbox":[659,190,245,65]}
+{"kind":"textbox","id":"sh/cjq9kb69","slide":9,"text":"Авиа","textPreview":"Авиа","textChars":4,"textLines":1,"bbox":[951,190,245,65]}
+{"kind":"textbox","id":"sh/rmd8z25k","slide":9,"text":"●","textPreview":"●","textChars":1,"textLines":1,"bbox":[74,310,28,40]}
+{"kind":"textbox","id":"sh/ql4r6hoz","slide":9,"text":"Қала мен салмаққа сәйкес көлік тарифі есептеледі","textPreview":"Қала мен салмаққа сәйкес көлік тарифі есептеледі","textChars":48,"textLines":1,"bbox":[112,308,1050,52]}
+{"kind":"textbox","id":"sh/wfilkny5","slide":9,"text":"●","textPreview":"●","textChars":1,"textLines":1,"bbox":[74,380,28,40]}
+{"kind":"textbox","id":"sh/h0rmdsfq","slide":9,"text":"Көлік ауысқанда пайда, мерзім және TOS қайта есептеледі","textPreview":"Көлік ауысқанда пайда, мерзім және TOS қайта есептеледі","textChars":55,"textLines":1,"bbox":[112,378,1050,52]}
+{"kind":"textbox","id":"sh/udg3idgz","slide":9,"text":"●","textPreview":"●","textChars":1,"textLines":1,"bbox":[74,450,28,40]}
+{"kind":"textbox","id":"sh/ve94bihk","slide":9,"text":"Жеткізуші бағасы, қаласы, байланысы және сертификаты көрсетіледі","textPreview":"Жеткізуші бағасы, қаласы, байланысы және сертификаты көрсетіледі","textChars":64,"textLines":1,"bbox":[112,448,1050,52]}
+{"kind":"textbox","id":"sh/43ilo7y1","slide":9,"text":"Нақты API дерегі Verified, ал мысал каталог міндетті түрде DEMO деп белгіленеді.","textPreview":"Нақты API дерегі Verified, ал мысал каталог міндетті түрде DEMO деп белгіленеді.","textChars":80,"textLines":1,"bbox":[75,570,1080,55]}
+{"kind":"notes","id":"nt/roqkhe","slide":9,"text":"Көлік түрін өзгерткенде логистика шығыны ғана емес, жеткізу мерзімі, кешігу қаупі және ақша ағыны да өзгереді."}
+{"kind":"slide","id":"sl/yp4xze","slide":10,"title":"Qazaq Tenders","textShapes":8}
+{"kind":"textbox","id":"sh/q14bydwn","slide":10,"text":"Qazaq Tenders","textPreview":"Qazaq Tenders","textChars":13,"textLines":1,"bbox":[58,30,220,30]}
+{"kind":"textbox","id":"sh/d4vu9sfe","slide":10,"text":"10","textPreview":"10","textChars":2,"textLines":1,"bbox":[1160,30,60,28]}
+{"kind":"textbox","id":"sh/c3mt0net","slide":10,"text":"84 млн ₸ лот бойынша сценарий","textPreview":"84 млн ₸ лот бойынша сценарий","textChars":29,"textLines":1,"bbox":[58,82,1160,68]}
+{"kind":"textbox","id":"sh/y5ob2xwz","slide":10,"text":"73,4","textPreview":"73,4","textChars":4,"textLines":1,"bbox":[850,205,260,90]}
+{"kind":"textbox","id":"sh/lsfudsva","slide":10,"text":"TOS, 30% аванс","textPreview":"TOS, 30% аванс","textChars":14,"textLines":1,"bbox":[850,295,260,42]}
+{"kind":"textbox","id":"sh/0r6t47e5","slide":10,"text":"14,81 млн ₸","textPreview":"14,81 млн ₸","textChars":11,"textLines":1,"bbox":[820,385,320,70]}
+{"kind":"textbox","id":"sh/nuxcf2dg","slide":10,"text":"таза пайда","textPreview":"таза пайда","textChars":10,"textLines":1,"bbox":[850,455,260,36]}
+{"kind":"textbox","id":"sh/mtov6xwv","slide":10,"text":"Кассалық алшақтық жоқ","textPreview":"Кассалық алшақтық жоқ","textChars":21,"textLines":1,"bbox":[805,535,350,48]}
+{"kind":"chart","id":"ch/nmhs3q9k","slide":10,"name":"","chartType":"bar","bbox":[70,185,690,385]}
+{"kind":"notes","id":"nt/yp4xze","slide":10,"text":"Аванссыз автоматты сценарийде пайда 14,55 миллион теңге, бірақ кассалық тапшылық 13,19 миллион теңге. 30 пайыз аванс тапшылықты жойып, TOS көрсеткішін 73,4 балға көтереді."}
+{"kind":"slide","id":"sl/evdpft","slide":11,"title":"Qazaq Tenders","textShapes":12}
+{"kind":"textbox","id":"sh/9ofuhov6","slide":11,"text":"Qazaq Tenders","textPreview":"Qazaq Tenders","textChars":13,"textLines":1,"bbox":[58,30,220,30]}
+{"kind":"textbox","id":"sh/mlovmtwf","slide":11,"text":"11","textPreview":"11","textChars":2,"textLines":1,"bbox":[1160,30,60,28]}
+{"kind":"textbox","id":"sh/7mxcfed0","slide":11,"text":"Бағдарламалық тексеру","textPreview":"Бағдарламалық тексеру","textChars":21,"textLines":1,"bbox":[58,82,1160,68]}
+{"kind":"textbox","id":"sh/wr6ds3eh","slide":11,"text":"450","textPreview":"450","textChars":3,"textLines":1,"bbox":[80,190,300,110]}
+{"kind":"textbox","id":"sh/hsfel8v2","slide":11,"text":"автоматтандырылған тест","textPreview":"автоматтандырылған тест","textChars":23,"textLines":1,"bbox":[82,305,390,52]}
+{"kind":"textbox","id":"sh/upovqtwr","slide":11,"text":"210","textPreview":"210","textChars":3,"textLines":1,"bbox":[680,190,300,110]}
+{"kind":"textbox","id":"sh/vqxwjydw","slide":11,"text":"веб және Python паритет сценарийі","textPreview":"веб және Python паритет сценарийі","textChars":33,"textLines":1,"bbox":[682,305,440,60]}
+{"kind":"textbox","id":"sh/cvmdgzed","slide":11,"text":"●","textPreview":"●","textChars":1,"textLines":1,"bbox":[74,430,28,40]}
+{"kind":"textbox","id":"sh/xwvu94vy","slide":11,"text":"Негізгі формулалар қайталанатын нәтиже береді","textPreview":"Негізгі формулалар қайталанатын нәтиже береді","textChars":45,"textLines":1,"bbox":[112,428,1050,52]}
+{"kind":"textbox","id":"sh/54buhwvi","slide":11,"text":"●","textPreview":"●","textChars":1,"textLines":1,"bbox":[74,500,28,40]}
+{"kind":"textbox","id":"sh/432d8rex","slide":11,"text":"Нақты және болжамды деректер бөлек таңбаланады","textPreview":"Нақты және болжамды деректер бөлек таңбаланады","textChars":46,"textLines":1,"bbox":[112,498,1050,52]}
+{"kind":"textbox","id":"sh/ji9cfmdc","slide":11,"text":"Бұл тексерулер кодтың тұрақтылығын растайды. Нарықтық болжам дәлдігін бөлек пилоттық зерттеу бағалайды.","textPreview":"Бұл тексерулер кодтың тұрақтылығын растайды. Нарықтық болжам дәлдігін бөлек пилоттық зерттеу бағалайды.","textChars":103,"textLines":1,"bbox":[75,600,1090,50]}
+{"kind":"notes","id":"nt/evdpft","slide":11,"text":"450 автоматтандырылған тест есептеу қозғалтқышының тұрақтылығын тексереді. Бірақ бұл 95 пайыздық экономикалық болжам дәлелденді деген мәлімдеме емес."}
+{"kind":"slide","id":"sl/s3lhwb","slide":12,"title":"Qazaq Tenders","textShapes":11}
+{"kind":"textbox","id":"sh/bq94za5c","slide":12,"text":"Qazaq Tenders","textPreview":"Qazaq Tenders","textChars":13,"textLines":1,"bbox":[58,30,220,30]}
+{"kind":"textbox","id":"sh/wri58fmh","slide":12,"text":"12","textPreview":"12","textChars":2,"textLines":1,"bbox":[1160,30,60,28]}
+{"kind":"textbox","id":"sh/xsrm1kn2","slide":12,"text":"Қорытынды","textPreview":"Қорытынды","textChars":9,"textLines":1,"bbox":[58,82,1160,68]}
+{"kind":"textbox","id":"sh/ytknap4n","slide":12,"text":"Qazaq Tenders кәсіпкерге тендердің пайдасын ғана емес, оған жету үшін қажет ақша мен тәуекелді де алдын ала көрсетеді.","textPreview":"Qazaq Tenders кәсіпкерге тендердің пайдасын ғана емес, оған жету үшін қажет ақша мен тәуекелді де алдын ала көрсетеді.","textChars":118,"textLines":1,"bbox":[88,190,1080,150]}
+{"kind":"textbox","id":"sh/jeto3u58","slide":12,"text":"●","textPreview":"●","textChars":1,"textLines":1,"bbox":[74,390,28,40]}
+{"kind":"textbox","id":"sh/kf25czmt","slide":12,"text":"Құжаттағы маңызды талаптар жоғалмайды","textPreview":"Құжаттағы маңызды талаптар жоғалмайды","textChars":37,"textLines":1,"bbox":[112,388,1050,52]}
+{"kind":"textbox","id":"sh/lgb654ne","slide":12,"text":"●","textPreview":"●","textChars":1,"textLines":1,"bbox":[74,460,28,40]}
+{"kind":"textbox","id":"sh/6hkne94z","slide":12,"text":"Қаржылық нәтиже ашық формуламен есептеледі","textPreview":"Қаржылық нәтиже ашық формуламен есептеледі","textChars":42,"textLines":1,"bbox":[112,458,1050,52]}
+{"kind":"textbox","id":"sh/7ito7u54","slide":12,"text":"●","textPreview":"●","textChars":1,"textLines":1,"bbox":[74,530,28,40]}
+{"kind":"textbox","id":"sh/nu983ad8","slide":12,"text":"Сценарийлер бір батырмамен салыстырылады","textPreview":"Сценарийлер бір батырмамен салыстырылады","textChars":40,"textLines":1,"bbox":[112,528,1050,52]}
+{"kind":"textbox","id":"sh/mt0ru5wn","slide":12,"text":"Назарларыңызға рақмет","textPreview":"Назарларыңызға рақмет","textChars":21,"textLines":1,"bbox":[88,625,1080,36]}
+{"kind":"notes","id":"nt/s3lhwb","slide":12,"text":"Жүйе кәсіпкердің орнына шешім қабылдамайды. Ол шешімнің салдарын алдын ала көруге мүмкіндік береді. Назарларыңызға рақмет, сұрақтарыңызға жауап беруге дайынмын."}

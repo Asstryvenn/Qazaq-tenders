@@ -44,6 +44,11 @@ CREATE TABLE IF NOT EXISTS seen (
     key     TEXT    NOT NULL,
     PRIMARY KEY (chat_id, key)
 );
+CREATE TABLE IF NOT EXISTS digest_filters (
+    chat_id       INTEGER PRIMARY KEY,
+    filters_json  TEXT    NOT NULL,
+    last_sent_day TEXT
+);
 CREATE TABLE IF NOT EXISTS ai_usage (
     chat_id INTEGER NOT NULL,
     day     TEXT    NOT NULL,
@@ -212,3 +217,26 @@ class Storage:
             return True
 
         return await self._run(op)
+
+
+    # ------------------------------ умная рассылка ------------------------------ #
+
+    async def get_digest_filters(self, chat_id: int):
+        from digest import DigestFilters
+        row = await self._run(lambda db: db.execute("SELECT filters_json FROM digest_filters WHERE chat_id = ?", (chat_id,)).fetchone())
+        return DigestFilters.model_validate_json(row["filters_json"]) if row else DigestFilters()
+
+    async def save_digest_filters(self, chat_id: int, filters) -> None:
+        data = filters.model_dump_json()
+        await self._run(lambda db: db.execute(
+            "INSERT INTO digest_filters (chat_id, filters_json) VALUES (?, ?) "
+            "ON CONFLICT(chat_id) DO UPDATE SET filters_json = excluded.filters_json", (chat_id, data)))
+
+    async def digest_subscribers(self):
+        rows = await self._run(lambda db: db.execute(
+            "SELECT d.chat_id, d.filters_json, d.last_sent_day, u.lang, u.twin_json FROM digest_filters d "
+            "JOIN users u ON u.chat_id = d.chat_id WHERE u.twin_json IS NOT NULL").fetchall())
+        return [dict(r) for r in rows]
+
+    async def mark_digest_sent(self, chat_id: int, day: str) -> None:
+        await self._run(lambda db: db.execute("UPDATE digest_filters SET last_sent_day = ? WHERE chat_id = ?", (day, chat_id)))

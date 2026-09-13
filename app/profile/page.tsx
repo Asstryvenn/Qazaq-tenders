@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { useBilling } from "@/lib/billing-client";
 import { priceLabel, TIERS } from "@/lib/chat-client";
 import { can } from "@/lib/plans";
+import { DigestFilters } from "@/components/DigestFilters";
 
 function Toggle({ on, onChange, label }: { on: boolean; onChange: (v: boolean) => void; label: string }) {
   return (
@@ -208,6 +209,8 @@ export default function ProfilePage() {
             })}
           </p>
         </GlassCard>
+
+        <DigestFilters />
 
         {/* Plan */}
         <GlassCard interactive={false} className="p-6 lg:col-span-2">

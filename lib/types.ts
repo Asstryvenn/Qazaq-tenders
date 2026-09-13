@@ -59,6 +59,20 @@ export interface TenderSpec {
   /** Bid submission deadline, ISO date */
   deadline: string;
   specPages: SpecPage[];
+  /** Announcement number on the source platform */
+  announcementNo?: string;
+  /** ISO time the lot was published (digest: «new in the last 24 h») */
+  publishedAt?: string;
+  /** Procurement method: open tender, auction, request for price quotations… */
+  purchaseMethod?: string;
+  unitPriceKzt?: number;
+  quantity?: number;
+  unit?: string;
+  /** Delivery address as published */
+  deliveryPlace?: string;
+  /** Bid acceptance start (ISO); `deadline` is the end */
+  bidStartAt?: string;
+  documents?: TenderDocument[];
   category?: string;
   items?: Array<{ name: string; quantity: number; unit: string; estimatedUnitWeightKg?: number | null }>;
   fieldSources?: Record<string, { source: "document" | "supplier_api" | "category_default" | "fallback" | "user_verified"; isSmartDefault: boolean; confidence: number; evidence: string }>;
@@ -91,6 +105,12 @@ export interface QualificationRequirement {
   proofRu?: string;
   /** Universal portal boilerplate is kept out of the lot-specific UI. */
   isBase: boolean;
+}
+
+/** File attached to the announcement (technical specification, templates). */
+export interface TenderDocument {
+  name: string;
+  url: string;
 }
 
 export interface HiddenRequirement {

@@ -11,7 +11,8 @@ export type EventType =
   | "pdf_analysis"
   | "logistics_choice"
   | "integration_error"
-  | "admin_action";
+  | "admin_action"
+  | "digest_sent";
 
 /** Types the browser may report through /api/events. */
 export const CLIENT_EVENT_TYPES: ReadonlySet<string> = new Set(["tender_analyzed", "logistics_choice"]);
