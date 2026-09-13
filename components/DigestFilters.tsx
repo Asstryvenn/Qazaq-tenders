@@ -28,7 +28,7 @@ export function DigestFilters() {
   const [email, setEmail] = useState(false);
   const [enabled, setEnabled] = useState(true);
   const [busy, setBusy] = useState<"load" | "save" | "preview" | null>("load");
-  const [preview, setPreview] = useState<{ matched: number; lots: number; card?: string } | null>(null);
+  const [preview, setPreview] = useState<{ matched: number; lots: number; fallback: boolean; card?: string } | null>(null);
   const [missing, setMissing] = useState(false);
 
   useEffect(() => {
@@ -87,8 +87,15 @@ export function DigestFilters() {
     setBusy(null);
     if (!res.ok) return toast({ kind: "error", title: tr({ kz: "Қате", ru: "Ошибка" }), body: d.error });
     const me = d.users?.[0];
-    setPreview({ matched: me?.matched ?? 0, lots: d.lotsInWindow ?? 0, card: me?.cards?.[0] });
-    if (send) toast({ kind: "success", title: tr({ kz: "Жіберілді", ru: "Отправлено" }), body: `Telegram: ${me?.telegram ?? "—"} · Email: ${me?.email ?? "—"}` });
+    setPreview({ matched: me?.matched ?? 0, lots: d.lotsInWindow ?? 0, fallback: !!me?.fallback, card: me?.cards?.[0] });
+    if (!send) return;
+    if (me?.telegram === "sent")
+      toast({ kind: "success", title: tr({ kz: "Telegram-ға жіберілді", ru: "Отправлено в Telegram" }), body: me.fallback ? tr({ kz: "Жаңа лот жоқ — TOS бойынша үздік 5 лот", ru: "Новых лотов нет — прислали 5 лучших по TOS" }) : undefined });
+    else if (me?.telegram === "no-chat")
+      toast({ kind: "error", title: tr({ kz: "Telegram қосылмаған", ru: "Telegram не подключён" }), body: tr({ kz: "Төмендегі «Telegram-ды қосу» батырмасын басыңыз", ru: "Нажмите «Подключить Telegram» ниже на этой странице" }) });
+    else if (me?.telegram === "blocked")
+      toast({ kind: "error", title: tr({ kz: "Бот бұғатталған", ru: "Бот заблокирован" }), body: tr({ kz: "Telegram-да ботты бұғаттан шығарып, /start басыңыз", ru: "Разблокируйте бота в Telegram и нажмите /start" }) });
+    else toast({ kind: "error", title: tr({ kz: "Жіберілмеді", ru: "Не отправлено" }), body: me?.error ?? me?.telegram ?? "—" });
   };
 
   if (!session)
@@ -199,6 +206,9 @@ export function DigestFilters() {
 
       {preview && (
         <div className="mt-4 rounded-xl border border-white/10 bg-black/20 p-4 text-sm text-slate-300">
+          {preview.fallback && (
+            <p className="mb-2 text-xs text-amber-200">{tr({ kz: "24 сағатта сәйкес жаңа лот жоқ — TOS бойынша үздік 5 лот көрсетілді.", ru: "За 24 часа подходящих новых лотов нет — показаны 5 лучших по TOS." })}</p>
+          )}
           <p>
             {tr({ kz: "24 сағаттағы жаңа лоттар", ru: "Новых лотов за 24 ч" })}: <b className="text-white">{preview.lots}</b> · {tr({ kz: "сүзгіге сай", ru: "подходят под фильтры" })}: <b className="text-white">{preview.matched}</b>
           </p>

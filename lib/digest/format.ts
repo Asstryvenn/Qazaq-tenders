@@ -163,6 +163,13 @@ export function digestHeader(count: number, lang: DigestLang): string {
     : `☀️ <b>Утренний дайджест</b>: ${count} новых лотов по вашим фильтрам (по убыванию TOS)`;
 }
 
+/** Header when no new lots matched and the best lots by TOS are shown instead (Smart Fallback). */
+export function digestFallbackHeader(count: number, lang: DigestLang): string {
+  return lang === "kz"
+    ? `🧪 <b>Тест дайджест</b>: соңғы 24 сағатта сүзгіге сай жаңа лот жоқ — TOS бойынша ең үздік ${count} лот`
+    : `🧪 <b>Тестовый дайджест</b>: за 24 часа новых лотов по вашим фильтрам нет — вот ${count} лучших лотов по TOS`;
+}
+
 /** Email body with the same two blocks, inline styles for mail clients. */
 export function renderEmail(models: CardModel[], lang: DigestLang): { subject: string; html: string } {
   const t = L[lang];

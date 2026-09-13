@@ -2,6 +2,8 @@
  * GET /api/digest/preview?windowHours=24[&send=1] — the signed-in user's digest.
  * Without `send` nothing is delivered and the rendered cards are returned; `send=1` delivers to
  * the user's own Telegram/email only. Limited to 10 runs per user per hour.
+ * With no new matching lots in the window, the 5 best lots by TOS are used (Smart Fallback),
+ * and a test send goes to the linked Telegram chat even if the Telegram channel is off.
  */
 import { NextResponse } from "next/server";
 import { getRequestUser } from "@/lib/server/auth";
@@ -27,6 +29,9 @@ export async function GET(req: Request) {
     dryRun: url.searchParams.get("send") !== "1",
     onlyUserId: user.id,
     lang: url.searchParams.get("lang") === "kz" ? "kz" : "ru",
+    // Test runs never come back empty (Smart Fallback) and always go to the linked Telegram.
+    fallbackTop: 5,
+    forceTelegram: url.searchParams.get("send") === "1",
   });
   return NextResponse.json(summary);
 }

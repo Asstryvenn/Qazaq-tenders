@@ -6,7 +6,7 @@ import { Presentation, PresentationFile } from '@oai/artifact-tool';
 const workspaceDir = '/Users/nuralibaibossynov/qazaq-tenders';
 const SKILL_DIR = '/Users/nuralibaibossynov/.codex/plugins/cache/openai-primary-runtime/presentations/26.909.12148/skills/presentations';
 const TMP_DIR = path.join(workspaceDir, 'tmp/presentation');
-const FINAL_PPTX = path.join(workspaceDir, 'output/presentation/Qazaq_Tenders_konkurs_presentation.pptx');
+const FINAL_PPTX = path.join(workspaceDir, 'output/presentation/Qazaq_Tenders_konkurs_presentation_v2.pptx');
 const RUNTIME_PYTHON = '/Users/nuralibaibossynov/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3';
 await fs.mkdir(TMP_DIR, { recursive: true });
 await fs.mkdir(path.dirname(FINAL_PPTX), { recursive: true });
@@ -69,7 +69,7 @@ function notes(slide, text){ slide.speakerNotes.textFrame.setText(text); }
 {
  const s=base('Кәсіпкердің негізгі тәуекелдері',4);
  ['Күрделі құжаттар','Жасырын шығындар','Кассалық алшақтық','Арнайы талаптар'].forEach((t,i)=>{
-   box(s,String(i+1),75,175+i*105,55,55,28,C.bg,true,'center').fill={color:C.green};
+   box(s,String(i+1),75,175+i*105,55,55,28,C.green,true,'center');
    box(s,t,160,168+i*105,370,48,27,C.white,true);
  });
  box(s,'Техникалық ерекшелік пен шарттардан бір маңызды талаптың жоғалуы өтінімнен бас тартуға әкелуі мүмкін. Пайда оң болғанның өзінде айналым капиталы жеткіліксіз болуы ықтимал.',610,190,530,250,27,C.mint,false);
@@ -92,7 +92,7 @@ function notes(slide, text){ slide.speakerNotes.textFrame.setText(text); }
  const s=base('Екі қабатты архитектура',6);
  const labels=[['PDF / DOCX / API','Кіріс деректері'],['AI қабаты','Фактілер мен талаптар'],['Экономикалық қабат','Формулалар мен күнтізбе'],['Веб және Telegram','Түсіндірілетін нәтиже']];
  labels.forEach((a,i)=>{
-   box(s,a[0],60+i*300,225,250,68,27,i===1?C.bg:C.white,true,'center').fill={color:i===1?C.green:C.bg2};
+   box(s,a[0],60+i*300,225,250,68,27,i===1?C.green:C.white,true,'center');
    box(s,a[1],70+i*300,315,230,70,19,C.gray,false,'center');
    if(i<3) box(s,'›',320+i*300,235,30,50,40,C.green,true,'center');
  });
@@ -116,14 +116,14 @@ function notes(slide, text){ slide.speakerNotes.textFrame.setText(text); }
  const rows=[['Document','Тендер құжатындағы нақты факт','Жоғары'],['Supplier API','Серіктестен алынған баға','Жоғары'],['Smart Default','Санаттық бастапқы бағалау','Орташа'],['User Verified','Пайдаланушы растаған мән','Жоғары']];
  const table=s.tables.add({left:90,top:185,width:1100,height:320,rows:rows.length+1,columns:3,values:[['Дерек белгісі','Мағынасы','Сенімділік'],...rows]});
  const data=[['Дерек белгісі','Мағынасы','Сенімділік'],...rows];
- for(let r=0;r<data.length;r++) for(let c=0;c<3;c++){const cell=table.getCell(r,c);cell.fill={color:r===0?C.green:(r%2?C.bg2:C.bg)};cell.text.style={typeface:font,fontSize:r===0?21:19,bold:r===0,color:r===0?C.bg:C.white,autoFit:'shrinkText'};}
+ for(let r=0;r<data.length;r++) for(let c=0;c<3;c++){const cell=table.getCell(r,c);cell.text.style={typeface:font,fontSize:r===0?21:19,bold:r===0,color:r===0?C.green:C.white,autoFit:'shrinkText'};}
  box(s,'Confidence Level болжам дәлдігі емес. Ол кіріс деректерінің қаншасы расталғанын көрсетеді.',95,560,1090,58,23,C.amber,true,'center');
  notes(s,'Жүйе нақты факт пен болжамды мәнді араластырмайды. Confidence Level 95 пайыз болса, бұл деректердің басым бөлігі тексерілгенін білдіреді, экономикалық нәтиженің 95 пайыз дәлдігін емес.');
 }
 // 9
 {
  const s=base('Логистика және жеткізушілер',9);
- ['Газель','Автофура','Теміржол','Авиа'].forEach((t,i)=>{box(s,t,75+i*292,190,245,65,27,i===2?C.bg:C.white,true,'center').fill={color:i===2?C.green:C.bg2};});
+ ['Газель','Автофура','Теміржол','Авиа'].forEach((t,i)=>{box(s,t,75+i*292,190,245,65,27,i===2?C.green:C.white,true,'center');});
  bullet(s,'Қала мен салмаққа сәйкес көлік тарифі есептеледі',310);
  bullet(s,'Көлік ауысқанда пайда, мерзім және TOS қайта есептеледі',380);
  bullet(s,'Жеткізуші бағасы, қаласы, байланысы және сертификаты көрсетіледі',450);
@@ -164,5 +164,5 @@ const stagingDir=path.join(workspaceDir,'.codex-finalizer'); await fs.mkdir(stag
 const candidatePath=path.join(stagingDir,'qazaq-tenders-candidate.pptx');
 await (await PresentationFile.exportPptx(deck)).save(candidatePath);
 const requirements={workspaceDir,explicitTotalSlideCount:12,requiredNativeTableOwnerSlides:[8],requiredNativeChartOwnerSlides:[10],materializeLiteralChartWorkbooks:true};
-await finalizePresentation({...requirements,candidatePath,finalPath:FINAL_PPTX,pythonExecutable:RUNTIME_PYTHON,integrityValidatorPath:path.join(SKILL_DIR,'container_tools/inspect_presentation_package_integrity.py'),layoutValidatorPath:path.join(SKILL_DIR,'container_tools/inspect_presentation_layout_geometry.py'),layoutArgs:['--expected-slide-size-emu','12192000,6858000','--validate-heading-fit','--require-native-table-slide','8'],requiredNativeTableOwnerSlides:[8],fontPolicy:{basis:'design',families:[font]},verifyArtifactToolImport:true,receiptPath:path.join(stagingDir,'Qazaq_Tenders_konkurs_presentation.validation.json')});
+await finalizePresentation({...requirements,candidatePath,finalPath:FINAL_PPTX,pythonExecutable:RUNTIME_PYTHON,integrityValidatorPath:path.join(SKILL_DIR,'container_tools/inspect_presentation_package_integrity.py'),layoutValidatorPath:path.join(SKILL_DIR,'container_tools/inspect_presentation_layout_geometry.py'),layoutArgs:['--expected-slide-size-emu','12192000,6858000','--validate-heading-fit','--require-native-table-slide','8'],requiredNativeTableOwnerSlides:[8],fontPolicy:{basis:'design',families:[font]},verifyArtifactToolImport:true,receiptPath:path.join(stagingDir,'Qazaq_Tenders_konkurs_presentation_v2.validation.json')});
 console.log(FINAL_PPTX);

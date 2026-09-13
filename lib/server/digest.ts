@@ -15,7 +15,7 @@ import { DEMO_COMPANY } from "../mock-data";
 import { fromRow, type CompanyRow } from "../profile-row";
 import { NEUTRAL_SCENARIO, type AnalysisResult, type CompanyProfile, type TenderSpec } from "../types";
 import { DEFAULT_FILTERS, lotMatches, publishedWithin, type DigestFilters } from "../digest/match";
-import { cardModel, digestHeader, packMessages, renderEmail, renderTelegramCard, type DigestLang } from "../digest/format";
+import { cardModel, digestFallbackHeader, digestHeader, packMessages, renderEmail, renderTelegramCard, type DigestLang } from "../digest/format";
 
 export const MAX_CARDS = 10;
 
@@ -35,6 +35,8 @@ export interface UserDigestResult {
   telegram: "sent" | "skipped" | "no-chat" | "blocked" | "error";
   email: "sent" | "skipped" | "not-configured" | "error";
   error?: string;
+  /** No new matching lots — the best lots by TOS were used instead. */
+  fallback?: boolean;
   cards?: string[];
 }
 
@@ -93,7 +95,17 @@ export async function newLots(windowHours: number): Promise<TenderSpec[]> {
   return feed.tenders.filter((t) => publishedWithin(t, windowHours));
 }
 
-export async function runDailyDigest(opts: { siteUrl: string; windowHours?: number; dryRun?: boolean; onlyUserId?: string; lang?: DigestLang }): Promise<DigestSummary> {
+export async function runDailyDigest(opts: {
+  siteUrl: string;
+  windowHours?: number;
+  dryRun?: boolean;
+  onlyUserId?: string;
+  lang?: DigestLang;
+  /** Test sends: with no new matching lots, use the N best lots by TOS instead of skipping. */
+  fallbackTop?: number;
+  /** Test sends: deliver to the linked Telegram chat even if the channel is switched off. */
+  forceTelegram?: boolean;
+}): Promise<DigestSummary> {
   const windowHours = opts.windowHours ?? 24;
   const dryRun = !!opts.dryRun;
   const lang = opts.lang ?? "ru";
@@ -103,10 +115,14 @@ export async function runDailyDigest(opts: { siteUrl: string; windowHours?: numb
   let q = admin.from("digest_filters").select("user_id, keywords, min_budget, max_budget, regions, send_telegram, send_email").eq("enabled", true);
   if (opts.onlyUserId) q = q.eq("user_id", opts.onlyUserId);
   const { data: filterRows, error } = await q;
-  if (error) return { status: "db-missing", windowHours, lotsInWindow: 0, users: [], dryRun };
+  let rows = (filterRows ?? []) as FilterRow[];
+  // A user testing their own digest gets default filters even before saving any (or before migration 0007).
+  if (opts.onlyUserId && (error || !rows.length))
+    rows = [{ user_id: opts.onlyUserId, keywords: [], min_budget: null, max_budget: null, regions: [], send_telegram: true, send_email: false }];
+  else if (error) return { status: "db-missing", windowHours, lotsInWindow: 0, users: [], dryRun };
 
-  const lots = await newLots(windowHours);
-  const rows = (filterRows ?? []) as FilterRow[];
+  const feed = await fetchTenders();
+  const lots = feed.tenders.filter((t) => publishedWithin(t, windowHours));
   if (!rows.length) return { status: "ok", windowHours, lotsInWindow: lots.length, users: [], dryRun };
 
   const ids = rows.map((r) => r.user_id);
@@ -123,18 +139,31 @@ export async function runDailyDigest(opts: { siteUrl: string; windowHours?: numb
 
   const users = await pool(rows, 8, async (row): Promise<UserDigestResult> => {
     const company = companyBy.get(row.user_id) ?? DEMO_COMPANY;
-    const { matched, top } = await analyzeForUser(lots, toFilters(row), company, rates);
+    const filters = toFilters(row);
+    let { matched, top } = await analyzeForUser(lots, filters, company, rates);
+    let fallback = false;
+    if (!top.length && opts.fallbackTop) {
+      // Smart Fallback: best lots by TOS — first those matching the filters at any date, then any lot.
+      const real = feed.tenders.filter((t) => !t.isDemo);
+      const base = real.length ? real : feed.tenders;
+      let r = await analyzeForUser(base, filters, company, rates);
+      if (!r.top.length) r = await analyzeForUser(base, { ...filters, keywords: [], regions: [], minBudget: 0, maxBudget: Number.MAX_SAFE_INTEGER }, company, rates);
+      top = r.top.slice(0, opts.fallbackTop);
+      fallback = top.length > 0;
+    }
     const { models, telegram } = renderCards(top, company, opts.siteUrl, lang);
-    const res: UserDigestResult = { userId: row.user_id, matched, telegram: "skipped", email: "skipped" };
+    const res: UserDigestResult = { userId: row.user_id, matched, fallback, telegram: "skipped", email: "skipped" };
     if (dryRun) return { ...res, cards: telegram };
     if (!top.length) return res;
 
     const chat = chatBy.get(row.user_id);
-    if (row.send_telegram !== false) {
-      if (!queue || !chat?.telegram_enabled || !chat.telegram_chat_id) res.telegram = "no-chat";
+    if (row.send_telegram !== false || opts.forceTelegram) {
+      const linked = !!chat?.telegram_chat_id && (chat.telegram_enabled || !!opts.forceTelegram);
+      if (!queue || !linked) res.telegram = "no-chat";
       else {
-        for (const msg of packMessages([digestHeader(top.length, lang), ...telegram])) {
-          const r = await queue.send(chat.telegram_chat_id, msg);
+        const header = fallback ? digestFallbackHeader(top.length, lang) : digestHeader(top.length, lang);
+        for (const msg of packMessages([header, ...telegram])) {
+          const r = await queue.send(chat!.telegram_chat_id!, msg);
           if (!r.ok) {
             res.telegram = r.blocked ? "blocked" : "error";
             res.error = r.error;
