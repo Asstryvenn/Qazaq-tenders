@@ -12,7 +12,7 @@ export type Lang = "kz" | "ru";
 /* ------------------------------------------------------------------ */
 
 const kz = {
-  nav: { how: "Қалай жұмыс істейді", engine: "Қозғалтқыш", dashboard: "Дашборд", open: "Симуляторды ашу", login: "Кіру", register: "Тіркелу", logout: "Шығу", profile: "Профиль" },
+  nav: { how: "Қалай жұмыс істейді", engine: "Мүмкіндіктер", dashboard: "Дашборд", open: "Симуляторды ашу", login: "Кіру", register: "Тіркелу", logout: "Шығу", profile: "Профиль" },
   verdict: { go: "Қатысу", caution: "Абай болыңыз", "no-go": "Қатыспау" } as Record<Verdict, string>,
   units: { mln: "млн ₸", th: "мың ₸", day: "күн", days: "күн", km: "км", people: "адам", yr: "жыл" },
   hero: {
@@ -231,7 +231,7 @@ const kz = {
 type Dict = typeof kz;
 
 const ru: Dict = {
-  nav: { how: "Как работает", engine: "Движок", dashboard: "Дашборд", open: "Открыть симулятор", login: "Войти", register: "Регистрация", logout: "Выйти", profile: "Профиль" },
+  nav: { how: "Как работает", engine: "Возможности", dashboard: "Дашборд", open: "Открыть симулятор", login: "Войти", register: "Регистрация", logout: "Выйти", profile: "Профиль" },
   verdict: { go: "Участвовать", caution: "Осторожно", "no-go": "Не участвовать" },
   units: { mln: "млн ₸", th: "тыс ₸", day: "день", days: "дн", km: "км", people: "чел.", yr: "г." },
   hero: {

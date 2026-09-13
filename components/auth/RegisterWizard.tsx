@@ -268,10 +268,10 @@ export function RegisterWizard() {
                       role="radio"
                       aria-checked={f.regime === r}
                       onClick={() => set("regime", r)}
-                      className={cn("rounded-lg px-3 py-2.5 text-left transition-colors", f.regime === r ? "bg-accent-blue text-ink shadow-glow" : "text-slate-300 hover:bg-white/5")}
+                      className={cn("rounded-lg px-3 py-2.5 text-left transition-colors", f.regime === r ? "bg-accent-blue keep-white text-white shadow-glow" : "text-slate-300 hover:bg-white/5")}
                     >
                       <span className="block text-sm font-semibold">{t.onb.regimes[r].title}</span>
-                      <span className={cn("block text-[11px]", f.regime === r ? "text-ink/70" : "text-slate-500")}>{t.onb.regimes[r].desc}</span>
+                      <span className={cn("block text-[11px]", f.regime === r ? "keep-white text-white/80" : "text-slate-500")}>{t.onb.regimes[r].desc}</span>
                     </button>
                   ))}
                 </div>

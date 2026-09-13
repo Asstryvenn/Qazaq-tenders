@@ -27,7 +27,7 @@ function LangToggle() {
           aria-pressed={lang === o.v}
           className={cn(
             "relative z-10 rounded-md px-2.5 py-1 text-xs font-semibold transition-colors",
-            lang === o.v ? "text-ink" : "text-slate-400 hover:text-slate-200"
+            lang === o.v ? "keep-white text-white" : "text-slate-400 hover:text-slate-200"
           )}
         >
           {lang === o.v && (

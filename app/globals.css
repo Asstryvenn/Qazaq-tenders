@@ -12,7 +12,7 @@
   }
   body {
     @apply bg-ink text-slate-200 antialiased;
-    background-image: radial-gradient(120% 90% at 50% -10%, #0b3a78 0%, #032147 60%);
+    background-image: radial-gradient(120% 90% at 50% -10%, #0d1526 0%, #030712 55%);
     background-attachment: fixed;
   }
   ::selection {
@@ -57,7 +57,7 @@ input[type="range"] {
 input[type="range"]::-webkit-slider-runnable-track {
   height: 4px;
   border-radius: 999px;
-  background: linear-gradient(90deg, #00B2FE var(--fill, 0%), rgba(255, 255, 255, 0.14) var(--fill, 0%));
+  background: linear-gradient(90deg, #3b82f6 var(--fill, 0%), rgba(255, 255, 255, 0.14) var(--fill, 0%));
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -65,8 +65,8 @@ input[type="range"]::-webkit-slider-thumb {
   width: 16px;
   margin-top: -6px;
   border-radius: 999px;
-  background: #00B2FE;
-  box-shadow: 0 0 0 4px rgba(0, 178, 254, 0.2), 0 0 18px rgba(0, 178, 254, 0.8);
+  background: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.18), 0 0 18px rgba(59, 130, 246, 0.8);
   cursor: pointer;
   transition: transform 0.15s ease;
 }
@@ -83,8 +83,8 @@ input[type="range"]::-moz-range-thumb {
   width: 16px;
   border: none;
   border-radius: 999px;
-  background: #00B2FE;
-  box-shadow: 0 0 18px rgba(0, 178, 254, 0.8);
+  background: #3b82f6;
+  box-shadow: 0 0 18px rgba(59, 130, 246, 0.8);
   cursor: pointer;
 }
 
@@ -130,7 +130,7 @@ html.light ::-webkit-scrollbar-thumb {
   background: rgba(15, 23, 42, 0.15);
 }
 html.light input[type="range"]::-webkit-slider-runnable-track {
-  background: linear-gradient(90deg, #00B2FE var(--fill, 0%), rgba(15, 23, 42, 0.12) var(--fill, 0%));
+  background: linear-gradient(90deg, #3b82f6 var(--fill, 0%), rgba(15, 23, 42, 0.12) var(--fill, 0%));
 }
 /* Animated background: drop the dark vignette, turn the white grid lines dark */
 html.light .bg-vignette {

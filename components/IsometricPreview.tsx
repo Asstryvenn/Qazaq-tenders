@@ -1,25 +1,44 @@
 "use client";
 
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { MapPin, TrendingUp } from "lucide-react";
+import { CheckCircle2, MapPin } from "lucide-react";
 import { Badge } from "./ui/Badge";
 import { useI18n } from "@/lib/i18n";
 
-const SPARK = [42, 48, 45, 61, 58, 72, 68, 84, 79, 92];
-
-/** Isometric, tilt-on-hover preview card with a glowing TOS badge. */
+/** Example lot card for the hero: the three numbers an owner actually looks at. */
 export function IsometricPreview() {
-  const { t, lang } = useI18n();
-  const c = t.hero.card;
+  const { tr } = useI18n();
   const px = useMotionValue(0.5);
   const py = useMotionValue(0.5);
-  const rx = useSpring(useTransform(py, [0, 1], [10, -10]), { stiffness: 140, damping: 18 });
-  const ry = useSpring(useTransform(px, [0, 1], [-14, 14]), { stiffness: 140, damping: 18 });
+  const rx = useSpring(useTransform(py, [0, 1], [8, -8]), { stiffness: 140, damping: 18 });
+  const ry = useSpring(useTransform(px, [0, 1], [-12, 12]), { stiffness: 140, damping: 18 });
 
-  const path = SPARK.map((v, i) => `${(i / (SPARK.length - 1)) * 260},${70 - (v / 100) * 58}`).join(" ");
+  const metrics = [
+    {
+      label: tr({ kz: "Таза пайда", ru: "Чистая прибыль" }),
+      value: tr({ kz: "+2,1 млн ₸", ru: "+2,1 млн ₸" }),
+      hint: tr({ kz: "барлық шығыннан кейін", ru: "после всех расходов" }),
+      tone: "text-emerald-300",
+      ring: "border-emerald-400/30 bg-emerald-500/[0.07]",
+    },
+    {
+      label: tr({ kz: "Кассалық алшақтық", ru: "Кассовый разрыв" }),
+      value: tr({ kz: "ЖОҚ", ru: "НЕТ" }),
+      hint: tr({ kz: "ақша жетеді", ru: "денег хватает" }),
+      tone: "text-sky-300",
+      ring: "border-sky-400/30 bg-sky-500/[0.07]",
+    },
+    {
+      label: tr({ kz: "TOS балы", ru: "Балл TOS" }),
+      value: "85/100",
+      hint: tr({ kz: "тиімділік индексі", ru: "индекс выгоды" }),
+      tone: "text-emerald-300",
+      ring: "border-emerald-400/30 bg-emerald-500/[0.07]",
+    },
+  ];
 
   return (
-    <div className="[perspective:1400px]" >
+    <div className="w-full max-w-md [perspective:1400px]">
       <motion.div
         onPointerMove={(e) => {
           const r = e.currentTarget.getBoundingClientRect();
@@ -34,97 +53,55 @@ export function IsometricPreview() {
         animate={{ opacity: 1, y: 0, rotateX: 0 }}
         transition={{ duration: 0.9, ease: "easeOut", delay: 0.35 }}
         style={{ rotateX: rx, rotateY: ry, transformStyle: "preserve-3d" }}
-        className="hairline glass-strong relative w-full max-w-md p-6 shadow-[0_50px_100px_-30px_rgba(0,0,0,0.9)]"
+        className="hairline glass-strong relative w-full p-6 shadow-[0_50px_100px_-30px_rgba(0,0,0,0.9)]"
       >
-        {/* Ambient glow behind the card */}
-        <div className="pointer-events-none absolute -inset-10 -z-10 rounded-[3rem] bg-[radial-gradient(circle_at_50%_40%,rgba(16,185,129,0.22),transparent_65%)] blur-2xl" />
+        <div className="pointer-events-none absolute -inset-10 -z-10 rounded-[3rem] bg-[radial-gradient(circle_at_50%_40%,rgba(59,130,246,0.25),transparent_65%)] blur-2xl" />
 
-        <div className="flex items-start justify-between gap-4" style={{ transform: "translateZ(40px)" }}>
-          <div>
-            <Badge tone="blue" pulse className="mb-2">
-              {c.active}
-            </Badge>
-            <h3 className="text-sm font-medium leading-snug text-white">
-              {lang === "kz" ? "Облыстық мектептерге компьютерлік жабдық жеткізу" : "Поставка компьютерного оборудования для областных школ"}
-            </h3>
-            <p className="mt-1 text-xs text-slate-400">{lang === "kz" ? "Білім басқармасы · Талдықорған" : "Управление образования · Талдыкорган"}</p>
-          </div>
-
-          {/* Glowing TOS badge */}
-          <motion.div
-            animate={{ boxShadow: ["0 0 22px -4px #10b981", "0 0 40px -2px #10b981", "0 0 22px -4px #10b981"] }}
-            transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
-            className="grid shrink-0 place-items-center rounded-2xl border border-emerald-300/60 bg-emerald-950/80 px-3.5 py-2.5 ring-1 ring-inset ring-emerald-400/20"
-            style={{ transform: "translateZ(70px)" }}
-          >
-            <span className="font-mono text-2xl font-bold leading-none text-emerald-200 [text-shadow:0_0_14px_rgba(16,185,129,0.8)]">85</span>
-            <span className="mt-1 text-[10px] font-semibold uppercase tracking-widest text-emerald-300">TOS</span>
-          </motion.div>
+        <div style={{ transform: "translateZ(40px)" }}>
+          <Badge tone="blue" pulse className="mb-3">
+            {tr({ kz: "Лот мысалы", ru: "Пример лота" })}
+          </Badge>
+          <h3 className="text-base font-semibold leading-snug text-white">
+            {tr({ kz: "Мектептерге компьютерлік жабдық жеткізу", ru: "Поставка компьютеров для школ" })}
+          </h3>
+          <p className="mt-1 flex items-center gap-1.5 text-xs text-slate-400">
+            <MapPin className="h-3.5 w-3.5" />
+            {tr({ kz: "Талдықорған · 84 млн ₸", ru: "Талдыкорган · 84 млн ₸" })}
+          </p>
         </div>
 
-        <div
-          className="mt-5 grid grid-cols-3 gap-3 text-center"
-          style={{ transform: "translateZ(30px)" }}
-        >
-          {[
-            { label: c.margin, value: "17.3%", color: "#6ee7b7" },
-            { label: c.gap, value: c.none, color: "#93c5fd" },
-            { label: c.reach, value: `260 ${t.units.km}`, color: "#c7d2fe" },
-          ].map((m) => (
-            <div key={m.label} className="rounded-xl border border-white/5 bg-white/[0.03] py-2.5">
-              <p className="font-mono text-sm font-medium" style={{ color: m.color }}>
-                {m.value}
-              </p>
-              <p className="mt-0.5 text-[10px] uppercase tracking-wider text-slate-500">{m.label}</p>
-            </div>
+        <div className="mt-5 space-y-2.5" style={{ transform: "translateZ(30px)" }}>
+          {metrics.map((m, i) => (
+            <motion.div
+              key={m.label}
+              initial={{ opacity: 0, x: 16 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.8 + i * 0.15, duration: 0.5 }}
+              className={`flex items-center justify-between rounded-xl border px-4 py-3 ${m.ring}`}
+            >
+              <div>
+                <p className="text-sm font-medium text-slate-200">{m.label}</p>
+                <p className="text-[11px] text-slate-400">{m.hint}</p>
+              </div>
+              <p className={`font-mono text-xl font-bold ${m.tone}`}>{m.value}</p>
+            </motion.div>
           ))}
         </div>
 
-        {/* Mini cash-flow sparkline */}
-        <div className="mt-5 rounded-xl border border-white/5 bg-white/[0.02] p-3" style={{ transform: "translateZ(20px)" }}>
-          <div className="mb-2 flex items-center justify-between text-[10px] uppercase tracking-wider text-slate-500">
-            <span>{c.flow}</span>
-            <span className="text-emerald-400">CF_t &gt; 0</span>
-          </div>
-          <svg viewBox="0 0 260 76" className="h-16 w-full overflow-visible">
-            <defs>
-              <linearGradient id="hero-spark" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#10b981" stopOpacity="0.45" />
-                <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
-              </linearGradient>
-              <filter id="hero-glow">
-                <feGaussianBlur stdDeviation="3" result="b" />
-                <feMerge>
-                  <feMergeNode in="b" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
-            <polygon points={`0,76 ${path} 260,76`} fill="url(#hero-spark)" />
-            <motion.polyline
-              points={path}
-              fill="none"
-              stroke="#10b981"
-              strokeWidth="2"
-              strokeLinecap="round"
-              filter="url(#hero-glow)"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 1.6, delay: 0.9, ease: "easeInOut" }}
+        {/* TOS progress */}
+        <div className="mt-5" style={{ transform: "translateZ(20px)" }}>
+          <div className="h-2 overflow-hidden rounded-full bg-white/10">
+            <motion.div
+              className="h-full rounded-full bg-gradient-to-r from-blue-500 to-emerald-400"
+              initial={{ width: 0 }}
+              animate={{ width: "85%" }}
+              transition={{ duration: 1.4, delay: 1.2, ease: "easeOut" }}
             />
-          </svg>
-        </div>
-
-        <div
-          className="mt-4 flex items-center justify-between text-xs text-slate-400"
-          style={{ transform: "translateZ(20px)" }}
-        >
-          <span className="flex items-center gap-1.5">
-            <TrendingUp className="h-3.5 w-3.5 text-emerald-400" /> 84 {t.units.mln}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <MapPin className="h-3.5 w-3.5" /> {c.deferral}
-          </span>
+          </div>
+          <p className="mt-3 flex items-center gap-2 text-sm font-medium text-emerald-300">
+            <CheckCircle2 className="h-4 w-4" />
+            {tr({ kz: "Шешім: қатысуға болады", ru: "Вердикт: можно участвовать" })}
+          </p>
         </div>
       </motion.div>
     </div>

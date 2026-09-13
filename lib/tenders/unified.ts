@@ -98,7 +98,7 @@ export const SOURCES: Record<TenderSource, SourceMeta> = {
     host: "upload",
     url: "",
     kind: "user",
-    color: "#00B2FE",
+    color: "#3b82f6",
     kz: "Жүктелген техникалық ерекшелік",
     ru: "Загруженная техническая спецификация",
   },

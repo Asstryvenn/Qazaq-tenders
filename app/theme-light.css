@@ -2,6 +2,7 @@
 html.light .bg-black\/20 { background-color: rgba(15, 23, 42, 0.03); }
 html.light .bg-black\/30 { background-color: rgba(15, 23, 42, 0.045); }
 html.light .bg-ink-800 { background-color: rgba(255, 255, 255, 1); }
+html.light .bg-ink-800\/80 { background-color: rgba(255, 255, 255, 0.8); }
 html.light .bg-ink-800\/90 { background-color: rgba(255, 255, 255, 0.9); }
 html.light .bg-ink-800\/95 { background-color: rgba(255, 255, 255, 0.95); }
 html.light .bg-ink-800\/\[0\.97\] { background-color: rgba(255, 255, 255, 0.97); }
@@ -80,6 +81,7 @@ html.light .text-violet-200 { color: #6d28d9; }
 html.light .text-violet-300 { color: #6d28d9; }
 html.light .text-violet-300\/60 { color: #6d28d9; }
 html.light .text-white:not([class*="bg-accent"], [class*="bg-gradient"], [class*="bg-rose-5"], [class*="bg-blue-5"], .keep-white, [class*="bg-accent"] *, [class*="bg-gradient"] *, .keep-white *) { color: rgba(15, 23, 42, 1); }
+html.light .text-white\/80:not([class*="bg-accent"], [class*="bg-gradient"], [class*="bg-rose-5"], [class*="bg-blue-5"], .keep-white, [class*="bg-accent"] *, [class*="bg-gradient"] *, .keep-white *) { color: rgba(15, 23, 42, 0.8); }
 html.light .to-emerald-400.bg-clip-text { --tw-gradient-to: #059669 var(--tw-gradient-to-position); }
 html.light .to-pink-200.bg-clip-text { --tw-gradient-to: #be185d var(--tw-gradient-to-position); }
 html.light .to-pink-300.bg-clip-text { --tw-gradient-to: #be185d var(--tw-gradient-to-position); }

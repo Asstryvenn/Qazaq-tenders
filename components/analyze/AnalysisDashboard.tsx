@@ -26,7 +26,7 @@ import { useBilling } from "@/lib/billing-client";
 const SEV = {
   high: { tone: "crimson" as const, color: "#f43f5e", kz: "Жоғары қауіп", ru: "Высокий риск" },
   medium: { tone: "amber" as const, color: "#f59e0b", kz: "Орташа", ru: "Средний" },
-  low: { tone: "blue" as const, color: "#00B2FE", kz: "Төмен", ru: "Низкий" },
+  low: { tone: "blue" as const, color: "#3b82f6", kz: "Төмен", ru: "Низкий" },
 };
 
 /** Everything the engine and the extraction produced for one uploaded PDF. */
@@ -121,7 +121,7 @@ export function AnalysisDashboard({ upload, onUpdate, onDelete }: { upload: Uplo
 
   const finance = result
     ? [
-        { name: tr({ kz: "Бюджет", ru: "Бюджет" }), value: S, color: "#00B2FE" },
+        { name: tr({ kz: "Бюджет", ru: "Бюджет" }), value: S, color: "#3b82f6" },
         { name: tr({ kz: "Өзіндік құн", ru: "Себестоимость" }), value: Math.round(result.costs.purchase), color: "#6366f1" },
         { name: tr({ kz: "Салықтар", ru: "Налоги" }), value: Math.round(result.costs.tax), color: "#f59e0b" },
         {
@@ -159,7 +159,7 @@ export function AnalysisDashboard({ upload, onUpdate, onDelete }: { upload: Uplo
           )}
           <Link
             href={`/ai-studio?tender=${encodeURIComponent(spec.id)}`}
-            className={cn("inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-opacity", ready ? "bg-accent-blue text-ink" : "pointer-events-none bg-white/10 text-slate-500")}
+            className={cn("inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-opacity", ready ? "bg-accent-blue keep-white text-white" : "pointer-events-none bg-white/10 text-slate-500")}
           >
             <Sparkles className="h-4 w-4" /> {tr({ kz: "AI Studio-да сұрау", ru: "Спросить в AI Studio" })}
           </Link>
