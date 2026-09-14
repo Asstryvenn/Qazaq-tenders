@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { CircleHelp } from "lucide-react";
 import { useEffect } from "react";
 import { tosTone, Verdict } from "@/lib/engine";
 import { useI18n } from "@/lib/i18n";
@@ -10,11 +11,15 @@ export function TosGauge({
   value,
   verdict,
   size = 196,
+  onExplain,
+  explainLabel,
 }: {
   value: number;
   /** When given, drives the colour and label instead of the raw score. */
   verdict?: Verdict;
   size?: number;
+  onExplain?: () => void;
+  explainLabel?: string;
 }) {
   const { t, tr } = useI18n();
   const tone = tosTone(verdict ?? value);
@@ -31,7 +36,7 @@ export function TosGauge({
     raw.set(value);
   }, [value, raw]);
 
-  return (
+  const gauge = (
     <div className="relative grid place-items-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
         <defs>
@@ -82,6 +87,23 @@ export function TosGauge({
       </div>
     </div>
   );
+
+  if (!onExplain) return gauge;
+
+  return (
+    <button
+      type="button"
+      onClick={onExplain}
+      aria-label={explainLabel}
+      aria-haspopup="dialog"
+      className="group relative rounded-full outline-none transition-transform hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-sky-400/70 focus-visible:ring-offset-4 focus-visible:ring-offset-ink"
+    >
+      {gauge}
+      <span className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full border border-sky-300/30 bg-ink-800/90 text-sky-200 shadow-lg transition-colors group-hover:bg-sky-400/20">
+        <CircleHelp className="h-4 w-4" />
+      </span>
+    </button>
+  );
 }
 
 /** Horizontal contribution bar for one TOS component. */
@@ -90,20 +112,27 @@ export function ScoreBar({
   value,
   weight,
   color,
+  onExplain,
+  explainLabel,
 }: {
   label: string;
   value: number;
   weight: number;
   color: string;
+  onExplain?: () => void;
+  explainLabel?: string;
 }) {
   const { t } = useI18n();
-  return (
-    <div className="space-y-2">
+  const content = (
+    <div className="space-y-2 p-2">
       <div className="flex items-center justify-between gap-3 text-sm">
         <span className="min-w-0 truncate text-slate-300">
-          {label} <span className="text-xs text-slate-500">· {t.dash.score.weight} {weight}</span>
+          {label} <span className="text-xs text-slate-500">· {t.dash.score.weight} {Math.round(weight * 100)}%</span>
         </span>
-        <span className="font-mono font-semibold tabular-nums text-white">{value.toFixed(0)}</span>
+        <span className="flex items-center gap-1.5 font-mono font-semibold tabular-nums text-white">
+          {value.toFixed(0)}
+          {onExplain && <CircleHelp className="h-3.5 w-3.5 text-sky-300 opacity-70 transition-opacity group-hover:opacity-100" />}
+        </span>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-white/[0.07]">
         <motion.div
@@ -115,5 +144,19 @@ export function ScoreBar({
         />
       </div>
     </div>
+  );
+
+  if (!onExplain) return content;
+
+  return (
+    <button
+      type="button"
+      onClick={onExplain}
+      aria-label={explainLabel}
+      aria-haspopup="dialog"
+      className="group -m-2 block w-[calc(100%+1rem)] rounded-xl text-left outline-none transition-colors hover:bg-white/[0.04] focus-visible:ring-2 focus-visible:ring-sky-400/60"
+    >
+      {content}
+    </button>
   );
 }

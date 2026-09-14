@@ -72,7 +72,7 @@ const kz = {
     deferral: "кейінге шегеру",
     vsBase: "базалық сценарийге",
     score: {
-      margin: "Маржиналдылық M_rel",
+      margin: "Маржа балы M_score",
       liquidity: "Өтімділік тұрақтылығы",
       logistics: "Логистика L_score",
       legal: "Құқықтық тазалық",
@@ -291,7 +291,7 @@ const ru: Dict = {
     deferral: "отсрочка",
     vsBase: "к базовому сценарию",
     score: {
-      margin: "Маржинальность M_rel",
+      margin: "Балл маржи M_score",
       liquidity: "Устойчивость ликвидности",
       logistics: "Логистика L_score",
       legal: "Правовая чистота",

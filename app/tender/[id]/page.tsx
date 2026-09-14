@@ -27,6 +27,7 @@ import { getTenderAttachment } from "@/lib/uploads";
 import { NEUTRAL_SCENARIO, Scenario, TenderSpec } from "@/lib/types";
 import type { SupplierOffer } from "@/lib/suppliers";
 import { LogisticsSelector } from "@/components/LogisticsSelector";
+import { ScoreExplanationModal, type ScoreExplanationKind } from "@/components/ScoreExplanationModal";
 
 export default function TenderPage({ params }: { params: { id: string } }) {
   const { t, tr, kzt, city, lotTitle } = useI18n();
@@ -34,6 +35,7 @@ export default function TenderPage({ params }: { params: { id: string } }) {
   const [tender, setTender] = useState<TenderSpec | null | undefined>(undefined);
   const [scenario, setScenario] = useState<Scenario>(NEUTRAL_SCENARIO);
   const [selectedSupplierId, setSelectedSupplierId] = useState<string>();
+  const [scoreExplanation, setScoreExplanation] = useState<ScoreExplanationKind | null>(null);
 
   useEffect(() => {
     fetch(`/api/tenders/${params.id}`)
@@ -169,7 +171,12 @@ export default function TenderPage({ params }: { params: { id: string } }) {
         <GlassCard glow={glow} interactive={false} className="p-7 lg:col-span-7">
           <div className="grid items-center gap-9 sm:grid-cols-[auto_minmax(0,1fr)]">
             <div className="mx-auto flex flex-col items-center">
-              <TosGauge value={result.tos} verdict={result.verdict} />
+              <TosGauge
+                value={result.tos}
+                verdict={result.verdict}
+                onExplain={() => setScoreExplanation("tos")}
+                explainLabel={tr({ kz: "TOS есебі мен формуласын ашу", ru: "Открыть расчёт и формулу TOS" })}
+              />
               <p
                 className="mt-3 h-4 text-center font-mono text-xs"
                 style={{ color: delta < 0 ? "#fda4af" : "#6ee7b7", visibility: Math.abs(delta) > 0.05 ? "visible" : "hidden" }}
@@ -179,10 +186,13 @@ export default function TenderPage({ params }: { params: { id: string } }) {
               </p>
             </div>
             <div className="space-y-5">
-              <ScoreBar label={t.dash.score.margin} value={result.components.marginScore} weight={TOS_WEIGHTS.w1} color="#10b981" />
-              <ScoreBar label={t.dash.score.liquidity} value={result.components.cashFlowScore} weight={TOS_WEIGHTS.w2} color="#3b82f6" />
-              <ScoreBar label={t.dash.score.logistics} value={result.components.logisticsScore} weight={TOS_WEIGHTS.w3} color="#818cf8" />
-              <ScoreBar label={t.dash.score.legal} value={result.components.legalScore} weight={TOS_WEIGHTS.w4} color="#f59e0b" />
+              <ScoreBar label={t.dash.score.margin} value={result.components.marginScore} weight={TOS_WEIGHTS.w1} color="#10b981" onExplain={() => setScoreExplanation("margin")} explainLabel={tr({ kz: "Маржа есебін ашу", ru: "Открыть расчёт маржи" })} />
+              <ScoreBar label={t.dash.score.liquidity} value={result.components.cashFlowScore} weight={TOS_WEIGHTS.w2} color="#3b82f6" onExplain={() => setScoreExplanation("liquidity")} explainLabel={tr({ kz: "Өтімділік есебін ашу", ru: "Открыть расчёт ликвидности" })} />
+              <ScoreBar label={t.dash.score.logistics} value={result.components.logisticsScore} weight={TOS_WEIGHTS.w3} color="#818cf8" onExplain={() => setScoreExplanation("logistics")} explainLabel={tr({ kz: "Логистика есебін ашу", ru: "Открыть расчёт логистики" })} />
+              <ScoreBar label={t.dash.score.legal} value={result.components.legalScore} weight={TOS_WEIGHTS.w4} color="#f59e0b" onExplain={() => setScoreExplanation("legal")} explainLabel={tr({ kz: "Құқықтық балл есебін ашу", ru: "Открыть расчёт правового балла" })} />
+              <p className="text-center text-[11px] text-slate-500">
+                {tr({ kz: "Баллды басыңыз — формула мен дереккөз ашылады", ru: "Нажмите на балл — откроются формула и источник данных" })}
+              </p>
             </div>
           </div>
           <div className="mt-8 border-t border-white/10 pt-6">
@@ -249,6 +259,15 @@ export default function TenderPage({ params }: { params: { id: string } }) {
       >
         <Sparkles className="h-4 w-4" /> AI Studio
       </Link>
+
+      <ScoreExplanationModal
+        kind={scoreExplanation}
+        onClose={() => setScoreExplanation(null)}
+        result={result}
+        tender={tender}
+        company={company}
+        scenario={scenario}
+      />
     </div>
   );
 }
