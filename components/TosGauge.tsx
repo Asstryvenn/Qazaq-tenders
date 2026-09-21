@@ -42,7 +42,7 @@ export function TosGauge({
         <defs>
           <linearGradient id={`tos-grad-${tone.key}`} x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor={tone.color} stopOpacity="0.6" />
-            <stop offset="100%" stopColor={tone.text} />
+            <stop offset="100%" style={{ stopColor: tone.text }} />
           </linearGradient>
           <filter id="tos-glow" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="5" result="blur" />

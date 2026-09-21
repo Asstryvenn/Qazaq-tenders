@@ -18,7 +18,7 @@ function ChartTooltip({ active, payload }: any) {
         <span className="text-slate-300">
           {t.dash.day} {p.day}
         </span>
-        <span className="font-mono text-sm font-semibold" style={{ color: negative ? "#fda4af" : "#6ee7b7" }}>
+        <span className="font-mono text-sm font-semibold" style={{ color: negative ? "var(--neg)" : "var(--pos)" }}>
           {kzt(p.balance)}
         </span>
       </div>
@@ -92,7 +92,7 @@ export function CashFlowChart({ result, height = 300 }: { result: AnalysisResult
               x={result.gapDay}
               stroke="#f43f5e"
               strokeDasharray="3 3"
-              label={{ value: t.dash.cfMarker(result.gapDay), fill: "#fda4af", fontSize: 11, position: "insideTopRight" }}
+              label={{ value: t.dash.cfMarker(result.gapDay), fill: "#f43f5e", fontSize: 11, position: "insideTopRight" }}
             />
           )}
 

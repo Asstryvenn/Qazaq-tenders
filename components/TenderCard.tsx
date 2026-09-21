@@ -88,7 +88,7 @@ export function TenderCard({
           <dt className="flex items-center gap-1 text-slate-400">
             <CalendarClock className="h-3 w-3" /> {t.feed.expires}
           </dt>
-          <dd className="mt-1 font-mono font-semibold" style={{ color: daysLeft <= 2 ? "#fda4af" : daysLeft <= 7 ? "#fcd34d" : "#f1f5f9" }}>
+          <dd className="mt-1 font-mono font-semibold" style={{ color: daysLeft <= 2 ? "var(--neg)" : daysLeft <= 7 ? "var(--warn)" : "var(--fg)" }}>
             {tender.deadline}
           </dd>
         </div>

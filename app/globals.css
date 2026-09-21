@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  /* Dark (default): lifted teal-slate, cards clearly separated from the ground */
+  /* Dark (default): Deep Sea + Emerald */
   --c-app-bg: 11 19 25; /* #0B1319 */
   --c-surface: 19 34 42; /* #13222A */
   --c-surface-2: 26 45 55;
@@ -13,7 +13,18 @@
   --c-sea-foam: 196 223 230;
   --card-bg: rgba(19, 34, 42, 0.8);
   --card-border: rgba(255, 255, 255, 0.1);
+  --card-border-hover: rgba(16, 185, 129, 0.5);
   --card-shadow: none;
+  /* Semantic text colours used in inline styles — never hard-code hex in components */
+  --fg: #ffffff;
+  --fg-2: #e2e8f0;
+  --fg-muted: #94a3b8;
+  --pos: #34d399; /* emerald-400 */
+  --neg: #f87171; /* red-400 */
+  --warn: #fcd34d;
+  --tone-go: #6ee7b7;
+  --tone-caution: #fcd34d;
+  --tone-nogo: #fda4af;
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
@@ -49,6 +60,9 @@
     background-color: var(--card-bg);
     border-color: var(--card-border);
     box-shadow: var(--card-shadow);
+  }
+  .glass:hover:is(a *, [role='button'], .cursor-pointer) {
+    border-color: var(--card-border-hover);
   }
   /* Gradient hairline that lights up the top edge of a card */
   .hairline::before {
@@ -117,21 +131,31 @@ input[type="range"]::-moz-range-thumb {
 html.light {
   color-scheme: light;
 }
-/* Light: its own palette, not an inversion — slate-50 ground, white cards, gray-200 borders */
+/* Light: Premium Beige (old-money banking) — sand ground, white cards, espresso text */
 html.light {
-  --c-app-bg: 248 250 252; /* slate-50 */
+  --c-app-bg: 244 241 234; /* #F4F1EA */
   --c-surface: 255 255 255;
-  --c-surface-2: 241 245 249;
-  --c-deep-water: 224 238 241;
-  --c-ocean: 204 228 232;
-  --c-wave: 30 110 120; /* darker teal for AA contrast on white */
+  --c-surface-2: 250 248 244;
+  --c-deep-water: 236 231 221;
+  --c-ocean: 229 224 216;
+  --c-wave: 7 87 91; /* #07575B — AA on white and beige */
   --c-sea-foam: 7 87 91;
   --card-bg: #ffffff;
-  --card-border: #e5e7eb;
-  --card-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --card-border: #e5e0d8;
+  --card-border-hover: #059669;
+  --card-shadow: 0 1px 2px rgba(41, 37, 36, 0.06);
+  --fg: #292524; /* espresso */
+  --fg-2: #44403c;
+  --fg-muted: #78716c; /* taupe */
+  --pos: #059669; /* emerald-600 */
+  --neg: #dc2626; /* red-600 */
+  --warn: #b45309;
+  --tone-go: #047857;
+  --tone-caution: #b45309;
+  --tone-nogo: #be123c;
 }
 html.light body {
-  color: #0f172a;
+  color: #292524;
 }
 html.light .hairline::before {
   background: linear-gradient(90deg, transparent, rgba(15, 23, 42, 0.16), transparent);
@@ -143,10 +167,10 @@ html.light .shadow-card {
   box-shadow: 0 20px 50px -24px rgba(15, 23, 42, 0.25);
 }
 html.light ::-webkit-scrollbar-thumb {
-  background: rgba(15, 23, 42, 0.15);
+  background: rgba(41, 37, 36, 0.18);
 }
 html.light input[type="range"]::-webkit-slider-runnable-track {
-  background: linear-gradient(90deg, #66A5AD var(--fill, 0%), rgba(15, 23, 42, 0.12) var(--fill, 0%));
+  background: linear-gradient(90deg, #07575B var(--fill, 0%), #e5e0d8 var(--fill, 0%));
 }
 /* Animated background: drop the dark vignette, turn the white grid lines dark */
 html.light .bg-vignette {

@@ -8,7 +8,8 @@ import { join } from "node:path";
 
 const ROOTS = ["app", "components", "lib"];
 const PAL = {
-  slate: { 100: "#f1f5f9", 200: "#e2e8f0", 300: "#cbd5e1", 400: "#94a3b8", 500: "#64748b", 600: "#475569", 700: "#334155", 800: "#1e293b", 900: "#0f172a" },
+  // Warm stone (espresso/taupe) for the Premium Beige light theme
+  slate: { 100: "#f5f5f4", 200: "#e7e5e4", 300: "#d6d3d1", 400: "#a8a29e", 500: "#78716c", 600: "#57534e", 700: "#44403c", 800: "#292524", 900: "#1c1917" },
   emerald: { 100: "#d1fae5", 200: "#a7f3d0", 300: "#6ee7b7", 400: "#34d399", 500: "#10b981", 600: "#059669", 700: "#047857", 800: "#065f46" },
   rose: { 100: "#ffe4e6", 200: "#fecdd3", 300: "#fda4af", 400: "#fb7185", 500: "#f43f5e", 600: "#e11d48", 700: "#be123c", 800: "#9f1239" },
   amber: { 100: "#fef3c7", 200: "#fde68a", 300: "#fcd34d", 400: "#fbbf24", 500: "#f59e0b", 600: "#d97706", 700: "#b45309", 800: "#92400e" },
@@ -18,8 +19,8 @@ const PAL = {
   pink: { 100: "#fce7f3", 200: "#fbcfe8", 300: "#f9a8d4", 400: "#f472b6", 500: "#ec4899", 600: "#db2777", 700: "#be185d", 800: "#9d174d" },
   indigo: { 300: "#a5b4fc", 400: "#818cf8", 500: "#6366f1", 600: "#4f46e5", 700: "#4338ca" },
 };
-const INK = { "": "#f8fafc", 900: "#f1f5f9", 800: "#ffffff", 700: "#f1f5f9" };
-const DARK = [15, 23, 42]; // slate-900
+const INK = { "": "#F4F1EA", 900: "#FAF8F4", 800: "#ffffff", 700: "#FAF8F4" };
+const DARK = [41, 37, 36]; // #292524 espresso
 
 const files = [];
 const walk = (d) => {

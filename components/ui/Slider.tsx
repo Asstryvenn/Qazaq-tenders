@@ -24,8 +24,8 @@ export function Slider({
   return (
     <div className="space-y-2.5">
       <div className="flex items-baseline justify-between gap-3">
-        <label className="text-sm text-slate-200">{label}</label>
-        <span className="font-mono text-sm font-semibold tabular-nums text-blue-200">
+        <label className="text-sm text-[#44403C] dark:text-slate-200">{label}</label>
+        <span className="font-mono text-sm font-semibold tabular-nums text-[#07575B] dark:text-[#C4DFE6]">
           {value > 0 ? "+" : ""}
           {value}
           {suffix}
@@ -42,7 +42,7 @@ export function Slider({
         className="w-full cursor-pointer"
         style={{ ["--fill" as string]: `${pct}%` }}
       />
-      {hint && <p className="text-xs text-slate-400">{hint}</p>}
+      {hint && <p className="text-xs text-[#78716C] dark:text-slate-400">{hint}</p>}
     </div>
   );
 }

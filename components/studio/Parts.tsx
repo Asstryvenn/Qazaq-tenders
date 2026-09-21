@@ -190,7 +190,7 @@ function Metric({ label, value, delta, good, color }: { label: string; value: st
         {value}
       </p>
       {delta && (
-        <p className="font-mono text-xs tabular-nums" style={{ color: good ? "#6ee7b7" : "#fda4af" }}>
+        <p className="font-mono text-xs tabular-nums" style={{ color: good ? "var(--pos)" : "var(--neg)" }}>
           {delta}
         </p>
       )}

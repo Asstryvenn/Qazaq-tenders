@@ -64,7 +64,7 @@ export function ProfitBreakdown({ result, contractAmount }: { result: AnalysisRe
         </span>
         <span
           className="whitespace-nowrap font-mono text-base font-bold tabular-nums"
-          style={{ color: result.netProfit >= 0 ? "#6ee7b7" : "#fda4af" }}
+          style={{ color: result.netProfit >= 0 ? "var(--pos)" : "var(--neg)" }}
         >
           {kzt(result.netProfit)}
           <span className="ml-2 text-sm font-medium text-slate-300">

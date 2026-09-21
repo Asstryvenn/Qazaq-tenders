@@ -61,7 +61,7 @@ export function WhatIfPanel({
           <p className="mt-1 font-mono text-2xl font-bold tabular-nums" style={{ color: tone.text }}>
             <AnimatedNumber value={result.tos} format={(v) => v.toFixed(1)} />
           </p>
-          <p className="mt-0.5 font-mono text-xs tabular-nums" style={{ color: delta < -0.05 ? "#fda4af" : delta > 0.05 ? "#6ee7b7" : "#64748b" }}>
+          <p className="mt-0.5 font-mono text-xs tabular-nums" style={{ color: delta < -0.05 ? "var(--neg)" : delta > 0.05 ? "var(--pos)" : "#64748b" }}>
             {delta > 0 ? "+" : ""}
             {delta.toFixed(1)}
           </p>
@@ -70,7 +70,7 @@ export function WhatIfPanel({
           <p className="truncate text-[11px] uppercase tracking-wider text-slate-400">{t.dash.netProfit}</p>
           <p
             className="mt-1 font-mono text-lg font-bold tabular-nums"
-            style={{ color: result.netProfit >= 0 ? "#6ee7b7" : "#fda4af" }}
+            style={{ color: result.netProfit >= 0 ? "var(--pos)" : "var(--neg)" }}
           >
             <AnimatedNumber value={result.netProfit} format={kzt} />
           </p>
@@ -88,7 +88,7 @@ export function WhatIfPanel({
 
       <div className="mt-auto flex items-center justify-between border-t border-white/10 pt-4 text-sm">
         <span className="text-slate-400">{t.dash.gapCost}</span>
-        <span className="font-mono tabular-nums" style={{ color: result.costs.bank > 0 ? "#fda4af" : "#e2e8f0" }}>
+        <span className="font-mono tabular-nums" style={{ color: result.costs.bank > 0 ? "var(--neg)" : "var(--fg-2)" }}>
           {kzt(result.costs.bank)}
         </span>
       </div>

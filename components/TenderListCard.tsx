@@ -33,11 +33,11 @@ export function TenderListCard({
   const src = SOURCES[tender.source];
   const href = `/tender/${encodeURIComponent(tender.id)}`;
   const daysLeft = Math.ceil((new Date(`${tender.deadline}T23:59:00+05:00`).getTime() - Date.now()) / 86_400_000);
-  const deadlineTone = daysLeft <= 2 ? "text-rose-600 dark:text-rose-300" : daysLeft <= 7 ? "text-amber-600 dark:text-amber-200" : "text-slate-800 dark:text-slate-100";
+  const deadlineTone = daysLeft <= 2 ? "text-rose-600 dark:text-rose-300" : daysLeft <= 7 ? "text-amber-600 dark:text-amber-200" : "text-[#44403C] dark:text-slate-100";
 
   const metrics = [
-    { Icon: Wallet, label: t.feed.budget, value: kzt(tender.contractAmount), className: "text-slate-900 dark:text-white text-base font-semibold" },
-    { Icon: MapPin, label: t.feed.location, value: city(tender.cityId), className: "text-slate-800 dark:text-slate-100 font-sans" },
+    { Icon: Wallet, label: t.feed.budget, value: kzt(tender.contractAmount), className: "text-[#292524] dark:text-white text-base font-semibold" },
+    { Icon: MapPin, label: t.feed.location, value: city(tender.cityId), className: "text-[#44403C] dark:text-slate-100 font-sans" },
     { Icon: CalendarClock, label: t.feed.expires, value: tender.deadline || "—", className: deadlineTone },
   ];
 
@@ -47,25 +47,25 @@ export function TenderListCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: Math.min(index, 12) * 0.03, duration: 0.3 }}
       onClick={() => router.push(href)}
-      className="group flex w-full cursor-pointer flex-col gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm backdrop-blur-md transition-all duration-300 hover:border-wave/50 hover:shadow-md dark:border-white/10 dark:bg-[#13222A]/80 dark:shadow-none dark:hover:border-[#66A5AD]/50 dark:hover:bg-[#172a33]/90 lg:flex-row lg:items-center lg:gap-6 lg:p-5"
+      className="group flex w-full cursor-pointer flex-col gap-4 rounded-xl border border-[#E5E0D8] bg-white p-4 shadow-sm backdrop-blur-md transition-all duration-300 hover:border-emerald-600/40 hover:shadow-md dark:border-white/10 dark:bg-[#13222A]/80 dark:shadow-none dark:hover:border-[#10B981]/50 dark:hover:bg-[#172a33]/90 lg:flex-row lg:items-center lg:gap-6 lg:p-5"
     >
       {/* Identity — 40% */}
       <div className="min-w-0 lg:basis-[40%]">
         <div className="flex items-center gap-2">
-          <span className="rounded border border-gray-200 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#07575B] dark:border-white/15 dark:text-[#C4DFE6]">{src.name}</span>
+          <span className="rounded border border-[#E5E0D8] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#07575B] dark:border-white/15 dark:text-[#C4DFE6]">{src.name}</span>
           <span className="truncate font-mono text-[11px] text-slate-500">{tender.externalId}</span>
           {tender.estimated && <span className="text-[10px] uppercase tracking-wider text-slate-500">· {t.feed.estimated}</span>}
         </div>
-        <Link href={href} onClick={(e) => e.stopPropagation()} className="mt-2 line-clamp-2 block text-[15px] font-semibold leading-snug text-slate-900 transition-colors duration-300 group-hover:text-[#07575B] dark:text-white dark:group-hover:text-[#C4DFE6]">
+        <Link href={href} onClick={(e) => e.stopPropagation()} className="mt-2 line-clamp-2 block text-[15px] font-semibold leading-snug text-[#292524] transition-colors duration-300 group-hover:text-[#07575B] dark:text-white dark:group-hover:text-[#C4DFE6]">
           {lotTitle(tender)}
         </Link>
-        <p className="mt-1 line-clamp-1 text-xs text-slate-600 dark:text-slate-400">{tender.customer}</p>
+        <p className="mt-1 line-clamp-1 text-xs text-[#78716C] dark:text-slate-400">{tender.customer}</p>
       </div>
 
       {/* Financial metrics — 40% */}
       <dl className="grid grid-cols-3 gap-2 lg:basis-[40%]">
         {metrics.map(({ Icon, label, value, className }) => (
-          <div key={label} className="min-w-0 rounded-md bg-slate-100 px-3 py-1.5 dark:bg-white/5">
+          <div key={label} className="min-w-0 rounded-md bg-[#F4F1EA] px-3 py-1.5 dark:bg-white/5">
             <dt className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-slate-500">
               <Icon className="h-3 w-3 shrink-0" /> <span className="truncate">{label}</span>
             </dt>
@@ -94,7 +94,7 @@ export function TenderListCard({
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="inline-flex items-center justify-center gap-1 rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-slate-700 transition-all duration-300 hover:border-wave hover:text-slate-900 dark:border-white/15 dark:text-slate-200 dark:hover:bg-[#07575B]/40 dark:hover:text-white"
+            className="inline-flex items-center justify-center gap-1 rounded-md border border-[#D6CFC4] px-3 py-1.5 text-xs font-medium text-[#44403C] transition-all duration-300 hover:border-wave hover:text-slate-900 dark:border-white/15 dark:text-slate-200 dark:hover:bg-[#07575B]/40 dark:hover:text-white"
           >
             {tr({ kz: "Қатысу", ru: "Участвовать" })} <ArrowUpRight className="h-3 w-3" />
           </a>

@@ -332,11 +332,11 @@ export function analyzeTender(
 
 export type Verdict = AnalysisResult["verdict"];
 
-/** `color` is the saturated accent, `text` a lighter shade that keeps AA contrast on dark glass. */
+/** `color` is the saturated accent; `text` is a theme variable (pastel in dark, deep in light) for AA contrast. */
 export const TONES = {
-  go: { key: "go" as const, color: "#10b981", text: "#6ee7b7" },
-  caution: { key: "caution" as const, color: "#f59e0b", text: "#fcd34d" },
-  "no-go": { key: "no-go" as const, color: "#f43f5e", text: "#fda4af" },
+  go: { key: "go" as const, color: "#10b981", text: "var(--tone-go)" },
+  caution: { key: "caution" as const, color: "#f59e0b", text: "var(--tone-caution)" },
+  "no-go": { key: "no-go" as const, color: "#f43f5e", text: "var(--tone-nogo)" },
 };
 
 /** Always driven by the verdict when available, so a cash gap never shows as green. */

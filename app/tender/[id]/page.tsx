@@ -179,7 +179,7 @@ export default function TenderPage({ params }: { params: { id: string } }) {
               />
               <p
                 className="mt-3 h-4 text-center font-mono text-xs"
-                style={{ color: delta < 0 ? "#fda4af" : "#6ee7b7", visibility: Math.abs(delta) > 0.05 ? "visible" : "hidden" }}
+                style={{ color: delta < 0 ? "var(--neg)" : "var(--pos)", visibility: Math.abs(delta) > 0.05 ? "visible" : "hidden" }}
               >
                 {delta > 0 ? "+" : ""}
                 {delta.toFixed(1)} {t.dash.vsBase}
