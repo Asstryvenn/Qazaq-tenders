@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import { BellRing, Building2, Coins, Users, Wallet } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { BellRing, Building2, ChevronDown, Coins, MapPinned, Search, SlidersHorizontal, Users, Wallet, X } from "lucide-react";
 import { TenderListCard } from "@/components/TenderListCard";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -15,6 +15,7 @@ import type { TenderSpec } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useBilling } from "@/lib/billing-client";
 import { can } from "@/lib/plans";
+import { CITIES } from "@/lib/logistics";
 
 export default function DashboardPage() {
   const { t, kzt, city, tr, lotTitle, lang } = useI18n();
@@ -23,17 +24,38 @@ export default function DashboardPage() {
   const { settings } = useNotificationSettings();
   const billing = useBilling();
   const [filter, setFilter] = useState<TenderSource | "all">("all");
+  const [query, setQuery] = useState("");
+  const [cityFilter, setCityFilter] = useState("all");
+  const [sort, setSort] = useState<"tos" | "budgetAsc" | "budgetDesc">("tos");
+  const [showAll, setShowAll] = useState(false);
+  const listRef = useRef<HTMLDivElement>(null);
 
   // Lots scored against the active digital twin (shared with the notification centre).
   const rows = useMemo(
     () =>
       (feed?.tenders ?? [])
         .filter((x) => filter === "all" || x.source === filter)
+        .filter((x) => cityFilter === "all" || x.cityId === cityFilter)
+        .filter((x) => {
+          const needle = query.trim().toLocaleLowerCase();
+          return !needle || `${x.title} ${x.titleKz} ${x.customer}`.toLocaleLowerCase().includes(needle);
+        })
         .map((tender) => ({ tender, result: results.get(tender.id)! }))
         .filter((r) => r.result)
-        .sort((a, b) => b.result.tos - a.result.tos),
-    [feed, results, filter]
+        .sort((a, b) => sort === "budgetAsc" ? a.tender.contractAmount - b.tender.contractAmount : sort === "budgetDesc" ? b.tender.contractAmount - a.tender.contractAmount : b.result.tos - a.result.tos),
+    [feed, results, filter, cityFilter, query, sort]
   );
+
+  const visibleRows = showAll ? rows : rows.slice(0, 10);
+  const cityCounts = useMemo(() => (feed?.tenders ?? []).reduce<Record<string, number>>((acc, tender) => {
+    acc[tender.cityId] = (acc[tender.cityId] ?? 0) + 1;
+    return acc;
+  }, {}), [feed]);
+  const selectCity = (id: string) => {
+    setCityFilter(id);
+    setShowAll(false);
+    requestAnimationFrame(() => listRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  };
 
   const sendTelegram = async (tender: TenderSpec) => {
     if (!can(billing.plan, "telegram")) {
@@ -143,6 +165,15 @@ export default function DashboardPage() {
         {feed && !feed.live && <span className="text-xs text-slate-500">· {t.feed.demo}</span>}
       </div>
 
+      <section ref={listRef} aria-label={tr({ kz: "Тендерді сүзу", ru: "Фильтры тендеров" })} className="mb-5 rounded-2xl border border-[#E5E0D8] bg-white p-4 shadow-sm dark:border-white/10 dark:bg-[#13222A]/80">
+        <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-[#292524] dark:text-white"><SlidersHorizontal className="h-4 w-4 text-wave" /> {tr({ kz: "Тендерді сүзу", ru: "Фильтры тендеров" })}</div>
+        <div className="grid gap-3 md:grid-cols-[minmax(220px,1.5fr)_1fr_1fr]">
+          <label className="relative block"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={tr({ kz: "Тендер немесе тапсырыс беруші", ru: "Тендер или заказчик" })} className="h-10 w-full rounded-lg border border-[#D6CFC4] bg-[#F8F6F1] pl-9 pr-9 text-sm text-[#292524] outline-none transition focus:border-wave dark:border-white/10 dark:bg-white/5 dark:text-white" />{query && <button onClick={() => setQuery("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500"><X className="h-4 w-4" /></button>}</label>
+          <Select label={tr({ kz: "Бюджет / TOS", ru: "Бюджет / TOS" })} value={sort} onChange={(v) => setSort(v as typeof sort)} options={[["tos", tr({ kz: "Ең релевантты (TOS)", ru: "Сначала релевантные (TOS)" })], ["budgetAsc", tr({ kz: "Бюджет: аздан көпке", ru: "Бюджет: по возрастанию" })], ["budgetDesc", tr({ kz: "Бюджет: көптен азға", ru: "Бюджет: по убыванию" })]]} />
+          <Select label={tr({ kz: "Қала / аймақ", ru: "Город / регион" })} value={cityFilter} onChange={selectCity} options={[["all", tr({ kz: "Барлық аймақтар", ru: "Все регионы" })], ...CITIES.map((c) => [c.id, city(c.id)] as [string, string])]} />
+        </div>
+      </section>
+
       {!feed ? (
         <div className="flex flex-col space-y-3">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -151,13 +182,26 @@ export default function DashboardPage() {
         </div>
       ) : (
         <div className="flex flex-col space-y-3">
-          {rows.map((row, i) => (
+          <AnimatePresence initial={false}>{visibleRows.map((row, i) => (
             <TenderListCard key={row.tender.id} tender={row.tender} result={row.result} index={i} onTelegram={() => sendTelegram(row.tender)} />
-          ))}
+          ))}</AnimatePresence>
+          {rows.length > 10 && <button onClick={() => setShowAll((v) => !v)} className="group mt-2 flex items-center justify-center gap-2 rounded-xl border border-dashed border-[#D6CFC4] px-4 py-3 text-sm font-medium text-[#07575B] transition hover:border-wave hover:bg-[#07575B]/5 dark:border-white/15 dark:text-sea-foam dark:hover:bg-white/5"><span className="grid h-5 w-5 place-items-center rounded border border-current">{showAll ? "−" : "+"}</span>{showAll ? tr({ kz: "Тізімді қысқарту", ru: "Свернуть список" }) : tr({ kz: "Барлық тендерлерді көрсету", ru: "Все тендеры" })}<span className="text-xs text-slate-500">({rows.length})</span></button>}
+          {!rows.length && <div className="rounded-xl border border-dashed border-[#D6CFC4] px-5 py-10 text-center text-sm text-slate-500 dark:border-white/10">{tr({ kz: "Сұраныс бойынша тендер табылмады", ru: "Тендеры по запросу не найдены" })}</div>}
         </div>
       )}
+
+      <KazakhstanMap counts={cityCounts} selected={cityFilter} onSelect={selectCity} city={city} tr={tr} />
     </div>
   );
+}
+
+function Select({ label, value, onChange, options }: { label: string; value: string; onChange: (value: string) => void; options: [string, string][] }) {
+  return <label className="relative block"><span className="sr-only">{label}</span><select value={value} onChange={(e) => onChange(e.target.value)} className="h-10 w-full appearance-none rounded-lg border border-[#D6CFC4] bg-[#F8F6F1] px-3 pr-9 text-sm text-[#292524] outline-none transition focus:border-wave dark:border-white/10 dark:bg-white/5 dark:text-white">{options.map(([id, text]) => <option key={id} value={id}>{text}</option>)}</select><ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" /></label>;
+}
+
+function KazakhstanMap({ counts, selected, onSelect, city, tr }: { counts: Record<string, number>; selected: string; onSelect: (id: string) => void; city: (id: string) => string; tr: (m: { kz: string; ru: string }) => string }) {
+  const spots = CITIES.map((item, index) => ({ ...item, x: 8 + ((index * 19) % 82), y: 24 + ((index * 37) % 52) }));
+  return <section className="mt-10 rounded-2xl border border-[#E5E0D8] bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#13222A]/80"><div className="mb-4 flex items-start justify-between gap-4"><div><div className="flex items-center gap-2 text-sm font-semibold text-[#292524] dark:text-white"><MapPinned className="h-4 w-4 text-wave" /> {tr({ kz: "Қазақстандағы тендерлер", ru: "Тендеры по Казахстану" })}</div><p className="mt-1 text-xs text-slate-500">{tr({ kz: "Аймақты таңдаңыз — тізім бірден сүзіледі", ru: "Выберите регион — список отфильтруется автоматически" })}</p></div><span className="rounded-full bg-[#07575B]/10 px-2.5 py-1 text-xs font-medium text-[#07575B] dark:bg-white/10 dark:text-sea-foam">{Object.values(counts).reduce((a, b) => a + b, 0)} {tr({ kz: "лот", ru: "лотов" })}</span></div><div className="relative h-[260px] overflow-hidden rounded-xl border border-[#E5E0D8] bg-[#F8F6F1] dark:border-white/10 dark:bg-[#0B1319]"><div className="absolute inset-[14%_8%] rotate-[-3deg] rounded-[45%_35%_42%_50%] border-2 border-[#07575B]/20 bg-[#07575B]/[0.06] dark:border-sea-foam/20 dark:bg-sea-foam/[0.04]" />{spots.map((spot) => { const count = counts[spot.id] ?? 0; return <button key={spot.id} onClick={() => onSelect(spot.id)} className={cn("group absolute -translate-x-1/2 -translate-y-1/2", selected === spot.id && "z-10")} style={{ left: `${spot.x}%`, top: `${spot.y}%` }} title={`${city(spot.id)}: ${count} ${tr({ kz: "тендер", ru: "тендера" })}`}><span className={cn("block h-3 w-3 rounded-full border-2 border-white bg-[#66A5AD] shadow-[0_0_0_4px_rgba(102,165,173,.15)] transition group-hover:scale-125 dark:border-[#13222A]", selected === spot.id && "scale-125 bg-[#10B981] shadow-[0_0_0_5px_rgba(16,185,129,.2)]")} /><span className="pointer-events-none absolute bottom-5 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded-md bg-[#13222A] px-2 py-1 text-[10px] text-white shadow-lg group-hover:block">{city(spot.id)}: {count}</span></button>; })}</div></section>;
 }
 
 function Chip({
