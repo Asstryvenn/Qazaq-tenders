@@ -13,6 +13,7 @@ import { Toaster } from "@/components/Toaster";
 import { BillingProvider } from "@/lib/billing-client";
 import { CheckoutModal } from "@/components/billing/CheckoutModal";
 import { AccountGate } from "@/components/AccountGate";
+import { AuthWallModal } from "@/components/auth/AuthWallModal";
 
 export const metadata: Metadata = {
   title: "Qazaq Tenders — бизнеске арналған тендер симуляторы",
@@ -42,6 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <AccountGate>{children}</AccountGate>
                 </main>
                 <AuthModal />
+                <AuthWallModal />
                 <OnboardingModal />
                 <CheckoutModal />
                 <Toaster />

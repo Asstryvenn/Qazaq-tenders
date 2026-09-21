@@ -6,8 +6,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useProfile } from "@/lib/profile";
 
 /** App screens that only exist after registration. */
-// /analyze is open to guests: the PDF is read locally and analysis resumes after sign-in.
-const PROTECTED = ["/dashboard", "/tender", "/ai-studio", "/profile"];
+// «Тендер нарығы» (/dashboard) and /analyze are open to guests — deep screens are not.
+const PROTECTED = ["/tender", "/ai-studio", "/profile"];
 
 const isProtected = (path: string) => PROTECTED.some((p) => path === p || path.startsWith(`${p}/`));
 
@@ -22,15 +22,10 @@ export function AccountGate({ children }: { children: React.ReactNode }) {
   const guarded = isProtected(pathname);
   const blocked = guarded && !loading && !hasAccount;
 
-  // Registered users skip the landing page and land on «Тендер нарығы» immediately.
-  useEffect(() => {
-    if (!loading && hasAccount && pathname === "/") router.replace("/dashboard");
-  }, [loading, hasAccount, pathname, router]);
-
   useEffect(() => {
     if (!blocked) return;
-    router.replace("/");
-    openModal("register");
+    router.replace("/dashboard");
+    openModal("gate");
   }, [blocked, router, openModal]);
 
   // No loading screen: the page renders at once and guests are redirected once the session check ends.

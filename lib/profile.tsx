@@ -11,7 +11,7 @@ const LOCAL_KEY = "qt-profile";
 /** Email of a sign-up whose local profile still has to be pushed to Supabase. */
 const PENDING_KEY = "qt-pending-sync";
 
-type ModalKind = "login" | "register" | "onboarding" | null;
+type ModalKind = "login" | "register" | "onboarding" | "gate" | null;
 
 /** How a registration completed — the UI words its confirmation accordingly. */
 export type RegisterMode = "confirmed" | "session" | "pending" | "local";

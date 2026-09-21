@@ -10,6 +10,7 @@ import { tosTone } from "@/lib/engine";
 import { useI18n } from "@/lib/i18n";
 import { SOURCES } from "@/lib/tenders/unified";
 import { cn } from "@/lib/utils";
+import { useAuthWall } from "@/lib/use-auth-wall";
 
 /**
  * Horizontal list card for «Тендер нарығы»: identity (40%) · financial metrics (40%) ·
@@ -28,6 +29,7 @@ export function TenderListCard({
 }) {
   const { t, kzt, city, lotTitle, tr } = useI18n();
   const router = useRouter();
+  const { guard, guardEvent } = useAuthWall();
   const [sending, setSending] = useState(false);
   const tone = tosTone(result.verdict);
   const src = SOURCES[tender.source];
@@ -46,7 +48,7 @@ export function TenderListCard({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: Math.min(index, 12) * 0.03, duration: 0.3 }}
-      onClick={() => router.push(href)}
+      onClick={() => guard(() => router.push(href))}
       className="group flex w-full cursor-pointer flex-col gap-4 rounded-xl border border-[#E5E0D8] bg-white p-4 shadow-sm backdrop-blur-md transition-all duration-300 hover:border-emerald-600/40 hover:shadow-md dark:border-white/10 dark:bg-[#13222A]/80 dark:shadow-none dark:hover:border-[#10B981]/50 dark:hover:bg-[#172a33]/90 lg:flex-row lg:items-center lg:gap-6 lg:p-5"
     >
       {/* Identity — 40% */}
@@ -56,7 +58,7 @@ export function TenderListCard({
           <span className="truncate font-mono text-[11px] text-slate-500">{tender.externalId}</span>
           {tender.estimated && <span className="text-[10px] uppercase tracking-wider text-slate-500">· {t.feed.estimated}</span>}
         </div>
-        <Link href={href} onClick={(e) => e.stopPropagation()} className="mt-2 line-clamp-2 block text-[15px] font-semibold leading-snug text-[#292524] transition-colors duration-300 group-hover:text-[#07575B] dark:text-white dark:group-hover:text-[#C4DFE6]">
+        <Link href={href} onClick={(e) => { e.stopPropagation(); guardEvent(e); }} className="mt-2 line-clamp-2 block text-[15px] font-semibold leading-snug text-[#292524] transition-colors duration-300 group-hover:text-[#07575B] dark:text-white dark:group-hover:text-[#C4DFE6]">
           {lotTitle(tender)}
         </Link>
         <p className="mt-1 line-clamp-1 text-xs text-[#78716C] dark:text-slate-400">{tender.customer}</p>
@@ -93,14 +95,20 @@ export function TenderListCard({
             href={tender.sourceUrl}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              guardEvent(e);
+            }}
             className="inline-flex items-center justify-center gap-1 rounded-md border border-[#D6CFC4] px-3 py-1.5 text-xs font-medium text-[#44403C] transition-all duration-300 hover:border-wave hover:text-slate-900 dark:border-white/15 dark:text-slate-200 dark:hover:bg-[#07575B]/40 dark:hover:text-white"
           >
             {tr({ kz: "Қатысу", ru: "Участвовать" })} <ArrowUpRight className="h-3 w-3" />
           </a>
           <Link
             href={href}
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              guardEvent(e);
+            }}
             className="inline-flex items-center justify-center rounded-md bg-[#07575B] px-3 py-1.5 text-xs font-semibold text-white transition-all duration-300 hover:bg-[#0a6a6f] dark:bg-[#66A5AD] dark:text-[#0B1319] dark:hover:bg-[#C4DFE6]"
           >
             {tr({ kz: "Талдау", ru: "Анализ" })}
@@ -110,6 +118,7 @@ export function TenderListCard({
           <button
             onClick={async (e) => {
               e.stopPropagation();
+              if (!guardEvent(e)) return;
               setSending(true);
               await onTelegram();
               setSending(false);

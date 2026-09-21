@@ -134,7 +134,7 @@ export function Navbar() {
       className="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-xl dark:border-white/10 dark:bg-app-bg/80"
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4">
-        <Link href={hasAccount ? "/dashboard" : "/"} className="flex items-center gap-2.5">
+        <Link href="/dashboard" className="flex items-center gap-2.5">
           <span className="relative grid h-9 w-9 place-items-center rounded-xl border border-blue-400/30 bg-accent-blue/15">
             <Activity className="h-4 w-4 text-blue-300" />
             <span className="absolute inset-0 animate-pulse-ring rounded-xl border border-blue-400/40" />
@@ -146,7 +146,7 @@ export function Navbar() {
 
         <div className="hidden items-center gap-7 md:flex">
           {[
-            { href: "/dashboard", label: t.nav.dashboard, show: hasAccount },
+            { href: "/dashboard", label: t.nav.dashboard, show: true },
             { href: "/analyze", label: tr({ kz: "PDF талдау", ru: "Анализ PDF" }), show: true },
             { href: "/ai-studio", label: "AI Studio", show: hasAccount },
             { href: "/admin", label: adminLabel, show: isAdmin },
