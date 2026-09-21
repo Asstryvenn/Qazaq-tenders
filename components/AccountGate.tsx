@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
 import { useProfile } from "@/lib/profile";
 
 /** App screens that only exist after registration. */
@@ -23,18 +22,19 @@ export function AccountGate({ children }: { children: React.ReactNode }) {
   const guarded = isProtected(pathname);
   const blocked = guarded && !loading && !hasAccount;
 
+  // Registered users skip the landing page and land on «Тендер нарығы» immediately.
+  useEffect(() => {
+    if (!loading && hasAccount && pathname === "/") router.replace("/dashboard");
+  }, [loading, hasAccount, pathname, router]);
+
   useEffect(() => {
     if (!blocked) return;
     router.replace("/");
     openModal("register");
   }, [blocked, router, openModal]);
 
-  if (guarded && (loading || !hasAccount))
-    return (
-      <div className="grid min-h-[60vh] place-items-center">
-        <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
-      </div>
-    );
+  // No loading screen: the page renders at once and guests are redirected once the session check ends.
+  if (blocked) return null;
   return <>{children}</>;
 }
 

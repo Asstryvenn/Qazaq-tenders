@@ -12,7 +12,7 @@
   }
   body {
     @apply bg-ink text-slate-200 antialiased;
-    background-image: radial-gradient(120% 90% at 50% -10%, #0d1526 0%, #030712 55%);
+    background-image: radial-gradient(110% 70% at 50% -10%, rgba(0, 59, 70, 0.35) 0%, #020a0c 60%);
     background-attachment: fixed;
   }
   ::selection {
@@ -32,19 +32,19 @@
 
 @layer components {
   .glass {
-    @apply rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md;
+    @apply rounded-xl border border-sea-foam/10 bg-deep-water/10 backdrop-blur-md;
   }
   .glass-strong {
-    @apply rounded-2xl border border-white/10 bg-white/[0.07] backdrop-blur-xl;
+    @apply rounded-xl border border-sea-foam/15 bg-deep-water/20 backdrop-blur-xl;
   }
   /* Gradient hairline that lights up the top edge of a card */
   .hairline::before {
     content: "";
     @apply pointer-events-none absolute inset-x-6 -top-px h-px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+    background: linear-gradient(90deg, transparent, rgba(196, 223, 230, 0.25), transparent);
   }
   .text-gradient {
-    @apply bg-gradient-to-br from-white via-white to-slate-400 bg-clip-text text-transparent;
+    @apply bg-gradient-to-br from-white via-white to-sea-foam bg-clip-text text-transparent;
   }
 }
 
@@ -57,7 +57,7 @@ input[type="range"] {
 input[type="range"]::-webkit-slider-runnable-track {
   height: 4px;
   border-radius: 999px;
-  background: linear-gradient(90deg, #3b82f6 var(--fill, 0%), rgba(255, 255, 255, 0.14) var(--fill, 0%));
+  background: linear-gradient(90deg, #66A5AD var(--fill, 0%), rgba(255, 255, 255, 0.14) var(--fill, 0%));
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -65,8 +65,8 @@ input[type="range"]::-webkit-slider-thumb {
   width: 16px;
   margin-top: -6px;
   border-radius: 999px;
-  background: #3b82f6;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.18), 0 0 18px rgba(59, 130, 246, 0.8);
+  background: #66A5AD;
+  box-shadow: 0 0 0 4px rgba(102, 165, 173, 0.2), 0 0 18px rgba(102, 165, 173, 0.6);
   cursor: pointer;
   transition: transform 0.15s ease;
 }
@@ -83,8 +83,8 @@ input[type="range"]::-moz-range-thumb {
   width: 16px;
   border: none;
   border-radius: 999px;
-  background: #3b82f6;
-  box-shadow: 0 0 18px rgba(59, 130, 246, 0.8);
+  background: #66A5AD;
+  box-shadow: 0 0 18px rgba(102, 165, 173, 0.6);
   cursor: pointer;
 }
 
@@ -130,7 +130,7 @@ html.light ::-webkit-scrollbar-thumb {
   background: rgba(15, 23, 42, 0.15);
 }
 html.light input[type="range"]::-webkit-slider-runnable-track {
-  background: linear-gradient(90deg, #3b82f6 var(--fill, 0%), rgba(15, 23, 42, 0.12) var(--fill, 0%));
+  background: linear-gradient(90deg, #66A5AD var(--fill, 0%), rgba(15, 23, 42, 0.12) var(--fill, 0%));
 }
 /* Animated background: drop the dark vignette, turn the white grid lines dark */
 html.light .bg-vignette {

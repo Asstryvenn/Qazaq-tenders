@@ -6,7 +6,6 @@ html.light .bg-ink-800\/80 { background-color: rgba(255, 255, 255, 0.8); }
 html.light .bg-ink-800\/90 { background-color: rgba(255, 255, 255, 0.9); }
 html.light .bg-ink-800\/95 { background-color: rgba(255, 255, 255, 0.95); }
 html.light .bg-ink-800\/\[0\.97\] { background-color: rgba(255, 255, 255, 0.97); }
-html.light .bg-ink-900\/85 { background-color: rgba(241, 245, 249, 0.85); }
 html.light .bg-ink\/40 { background-color: rgba(248, 250, 252, 0.4); }
 html.light .bg-ink\/60 { background-color: rgba(248, 250, 252, 0.6); }
 html.light .bg-ink\/70 { background-color: rgba(248, 250, 252, 0.7); }
@@ -33,12 +32,11 @@ html.light .border-white\/\[0\.06\] { border-color: rgba(15, 23, 42, 0.072); }
 html.light .border-white\/\[0\.07\] { border-color: rgba(15, 23, 42, 0.084); }
 html.light .from-blue-400.bg-clip-text { --tw-gradient-from: #2563eb var(--tw-gradient-from-position); --tw-gradient-to: rgb(37 99 235 / 0) var(--tw-gradient-to-position); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
 html.light .from-sky-200.bg-clip-text { --tw-gradient-from: #0369a1 var(--tw-gradient-from-position); --tw-gradient-to: rgb(3 105 161 / 0) var(--tw-gradient-to-position); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
-html.light .from-sky-300.bg-clip-text { --tw-gradient-from: #0369a1 var(--tw-gradient-from-position); --tw-gradient-to: rgb(3 105 161 / 0) var(--tw-gradient-to-position); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
 html.light .from-sky-400.bg-clip-text { --tw-gradient-from: #0284c7 var(--tw-gradient-from-position); --tw-gradient-to: rgb(2 132 199 / 0) var(--tw-gradient-to-position); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
-html.light .group:hover .group-hover\:text-violet-300 { color: #6d28d9; }
 html.light .hover\:bg-white\/10:hover { background-color: rgba(15, 23, 42, 0.07); }
 html.light .hover\:bg-white\/5:hover { background-color: rgba(15, 23, 42, 0.035); }
 html.light .hover\:bg-white\/\[0\.03\]:hover { background-color: rgba(15, 23, 42, 0.021); }
+html.light .hover\:bg-white\/\[0\.04\]:hover { background-color: rgba(15, 23, 42, 0.028); }
 html.light .hover\:bg-white\/\[0\.05\]:hover { background-color: rgba(15, 23, 42, 0.035); }
 html.light .hover\:bg-white\/\[0\.06\]:hover { background-color: rgba(15, 23, 42, 0.042); }
 html.light .hover\:border-white\/20:hover { border-color: rgba(15, 23, 42, 0.2); }
@@ -54,6 +52,7 @@ html.light .text-amber-100 { color: #b45309; }
 html.light .text-amber-100\/90 { color: #b45309; }
 html.light .text-amber-200 { color: #b45309; }
 html.light .text-amber-300 { color: #b45309; }
+html.light .text-blue-100 { color: #1d4ed8; }
 html.light .text-blue-200 { color: #1d4ed8; }
 html.light .text-blue-300 { color: #1d4ed8; }
 html.light .text-blue-400 { color: #2563eb; }
@@ -78,15 +77,10 @@ html.light .text-slate-600 { color: #64748b; }
 html.light .text-slate-700 { color: #334155; }
 html.light .text-slate-800 { color: #334155; }
 html.light .text-slate-900 { color: #334155; }
-html.light .text-violet-100 { color: #6d28d9; }
 html.light .text-violet-200 { color: #6d28d9; }
-html.light .text-violet-300 { color: #6d28d9; }
-html.light .text-violet-300\/60 { color: #6d28d9; }
 html.light .text-white:not([class*="bg-accent"], [class*="bg-gradient"], [class*="bg-rose-5"], [class*="bg-blue-5"], .keep-white, [class*="bg-accent"] *, [class*="bg-gradient"] *, .keep-white *) { color: rgba(15, 23, 42, 1); }
 html.light .text-white\/80:not([class*="bg-accent"], [class*="bg-gradient"], [class*="bg-rose-5"], [class*="bg-blue-5"], .keep-white, [class*="bg-accent"] *, [class*="bg-gradient"] *, .keep-white *) { color: rgba(15, 23, 42, 0.8); }
 html.light .to-emerald-400.bg-clip-text { --tw-gradient-to: #059669 var(--tw-gradient-to-position); }
 html.light .to-pink-200.bg-clip-text { --tw-gradient-to: #be185d var(--tw-gradient-to-position); }
-html.light .to-pink-300.bg-clip-text { --tw-gradient-to: #be185d var(--tw-gradient-to-position); }
 html.light .via-sky-300.bg-clip-text { --tw-gradient-to: rgb(3 105 161 / 0) var(--tw-gradient-to-position); --tw-gradient-stops: var(--tw-gradient-from), #0369a1 var(--tw-gradient-via-position), var(--tw-gradient-to); }
 html.light .via-violet-200.bg-clip-text { --tw-gradient-to: rgb(109 40 217 / 0) var(--tw-gradient-to-position); --tw-gradient-stops: var(--tw-gradient-from), #6d28d9 var(--tw-gradient-via-position), var(--tw-gradient-to); }
-html.light .via-violet-300.bg-clip-text { --tw-gradient-to: rgb(109 40 217 / 0) var(--tw-gradient-to-position); --tw-gradient-stops: var(--tw-gradient-from), #6d28d9 var(--tw-gradient-via-position), var(--tw-gradient-to); }

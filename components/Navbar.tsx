@@ -138,7 +138,7 @@ export function Navbar() {
             <span className="absolute inset-0 animate-pulse-ring rounded-xl border border-blue-400/40" />
           </span>
           <span className="text-sm font-semibold tracking-tight text-white">
-            Qazaq<span className="text-blue-400">Tenders</span>
+            Qazaq<span className="text-wave">Tenders</span>
           </span>
         </Link>
 
@@ -148,7 +148,7 @@ export function Navbar() {
             { href: "/#engine", label: t.nav.engine },
             { href: "/dashboard", label: t.nav.dashboard },
             { href: "/analyze", label: tr({ kz: "PDF талдау", ru: "Анализ PDF" }) },
-            { href: "/ai-studio", label: "AI Studio ✨" },
+            { href: "/ai-studio", label: "AI Studio" },
           ]
             // App screens appear only after registration.
             .filter((l) => hasAccount || l.href.startsWith("/#") || l.href === "/analyze")

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { AlertTriangle, ArrowUpRight, FileCheck2, Lock, Sparkles } from "lucide-react";
+import { AlertTriangle, ArrowUpRight, FileCheck2, Lock, Terminal } from "lucide-react";
 import { Fragment, useMemo, useState } from "react";
 import { analyzeTender, tosTone } from "@/lib/engine";
 import { useI18n } from "@/lib/i18n";
@@ -31,7 +31,7 @@ export function ThinkingBadge({ status }: { status: StatusKey }) {
       />
       <span className="relative flex items-center gap-2.5 rounded-full bg-ink-800 px-4 py-2">
         <motion.span animate={{ scale: [1, 1.25, 1], opacity: [0.7, 1, 0.7] }} transition={{ duration: 1.4, repeat: Infinity }}>
-          <Sparkles className="h-4 w-4 text-violet-300" />
+          <Terminal className="h-4 w-4 text-wave" />
         </motion.span>
         <motion.span
           key={status}

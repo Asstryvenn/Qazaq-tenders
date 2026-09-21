@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowUp, BarChart3, Brain, FileDown, Gauge, Lock, MessageSquare, PanelLeftClose, PanelLeftOpen, Plus, Sparkles, Trash2 } from "lucide-react";
+import { BarChart3, Briefcase, Brain, FileDown, Gauge, Lock, MessageSquare, PanelLeftClose, PanelLeftOpen, Plus, Trash2 } from "lucide-react";
 import { ThinkingBadge, RichText, ScenarioCard, LockedCard, LetterCard } from "@/components/studio/Parts";
+import { AssistantMark, StudioBackground, StudioComposer, StudioGreeting } from "@/components/studio/AiStudioChat";
 import { Button } from "@/components/ui/Button";
 import { CHIPS, priceLabel, streamChat, TIERS } from "@/lib/chat-client";
 import type { LockedFeature, ScenarioCardData, StatusKey, Tier } from "@/lib/chat-types";
@@ -203,19 +203,15 @@ export default function AiStudioPage() {
 
   return (
     <div className="relative flex h-[calc(100dvh-var(--nav-h,71px))] overflow-hidden">
-      <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-40 left-1/3 h-[36rem] w-[36rem] rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.22),transparent_65%)] blur-2xl" />
-        <div className="absolute -bottom-48 right-10 h-[32rem] w-[32rem] rounded-full bg-[radial-gradient(circle,rgba(236,72,153,0.14),transparent_65%)] blur-2xl" />
-        <div className="absolute bottom-10 left-10 h-[24rem] w-[24rem] rounded-full bg-[radial-gradient(circle,rgba(56,189,248,0.14),transparent_65%)] blur-2xl" />
-      </div>
+      <StudioBackground />
 
       {/* Sidebar */}
-      <aside className={cn("relative z-10 flex shrink-0 flex-col border-r border-white/10 bg-ink-900/85 backdrop-blur-xl transition-[width] duration-300", sidebar ? "w-72" : "w-16")}>
+      <aside className={cn("relative z-10 flex shrink-0 flex-col border-r border-white/10 bg-app-bg/80 backdrop-blur-xl transition-[width] duration-300", sidebar ? "w-72" : "w-16")}>
         <div className="flex items-center gap-2 p-3">
           <button onClick={() => setSidebar((v) => !v)} aria-label={tr({ kz: "Бүйір панельді ашу немесе жабу", ru: "Открыть или закрыть боковую панель" })} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-slate-300 transition-colors hover:bg-white/10 hover:text-white">
             {sidebar ? <PanelLeftClose className="h-5 w-5" /> : <PanelLeftOpen className="h-5 w-5" />}
           </button>
-          {sidebar && <span className="bg-gradient-to-r from-sky-300 via-violet-300 to-pink-300 bg-clip-text text-sm font-semibold text-transparent">AI Studio</span>}
+          {sidebar && <span className="text-sm font-semibold tracking-wide text-sea-foam">AI Studio</span>}
         </div>
 
         <div className="px-3">
@@ -327,7 +323,7 @@ export default function AiStudioPage() {
           <select
             value={tenderId}
             onChange={(e) => setTenderId(e.target.value)}
-            className="min-w-0 max-w-full flex-1 truncate rounded-xl border border-white/10 bg-ink-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-violet-400/60 sm:max-w-md"
+            className="min-w-0 max-w-full flex-1 truncate rounded-xl border border-white/10 bg-ink-800 px-3 py-2 text-sm text-slate-100 outline-none focus:border-wave/60 sm:max-w-md"
             aria-label={tr({ kz: "Тендер", ru: "Тендер" })}
           >
             {lots.map((t) => (
@@ -346,7 +342,7 @@ export default function AiStudioPage() {
               onClick={() => (can(plan, "deepReasoning") ? setDeep((v) => !v) : billing.openCheckout("max"))}
               title={tr({ kz: "Терең ойлау (o3-mini, MAX)", ru: "Глубокое мышление (o3-mini, MAX)" })}
               aria-pressed={deep}
-              className={cn("flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs", deep ? "border-violet-400/60 bg-violet-500/20 text-violet-100" : "border-white/10 text-slate-300 hover:bg-white/10")}
+              className={cn("flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs", deep ? "border-wave/60 bg-ocean/30 text-sea-foam" : "border-white/10 text-slate-300 hover:bg-white/10")}
             >
               {can(plan, "deepReasoning") ? <Brain className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />} o3-mini
             </button>
@@ -368,32 +364,22 @@ export default function AiStudioPage() {
         <div ref={scroller} className="min-h-0 flex-1 overflow-y-auto">
           <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6">
             {messages.length === 0 ? (
-              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="pt-[8vh]">
-                <h1 className="bg-gradient-to-r from-sky-300 via-violet-300 to-pink-300 bg-clip-text text-4xl font-semibold tracking-tight text-transparent sm:text-5xl">
-                  {tr({ kz: `Сәлем, ${firstName}`, ru: `Здравствуйте, ${firstName}` })}
-                </h1>
-                <p className="mt-3 text-2xl font-medium text-slate-500 sm:text-3xl">{tr({ kz: "Бүгін қай тендерді талдаймыз?", ru: "Какой тендер разберём сегодня?" })}</p>
-                <div className="mt-10 grid gap-3 sm:grid-cols-2">
-                  {CHIPS.map((c) => (
-                    <button key={c.ru} onClick={() => send(tr(c))} className="group rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left text-sm text-slate-200 transition-colors hover:border-violet-400/40 hover:bg-violet-500/[0.07]">
-                      {tr(c)}
-                      <Sparkles className="mt-3 h-4 w-4 text-violet-300/60 transition-colors group-hover:text-violet-300" />
-                    </button>
-                  ))}
-                </div>
-              </motion.div>
+              <StudioGreeting
+                greeting={tr({ kz: `Сәлем, ${firstName}`, ru: `Здравствуйте, ${firstName}` })}
+                subtitle={tr({ kz: "Бүгін қай тендерді талдаймыз?", ru: "Какой тендер разберём сегодня?" })}
+                suggestions={CHIPS.map((c) => tr(c))}
+                onPick={send}
+              />
             ) : (
               <div className="space-y-8">
                 {messages.map((m, i) =>
                   m.role === "user" ? (
                     <div key={m.id} className="flex justify-end">
-                      <p className="max-w-[85%] whitespace-pre-wrap rounded-3xl rounded-br-lg bg-white/[0.08] px-5 py-3 text-[15px] leading-relaxed text-slate-100">{m.content}</p>
+                      <p className="max-w-[85%] whitespace-pre-wrap rounded-lg border border-sea-foam/10 bg-deep-water/30 px-5 py-3 text-[15px] leading-relaxed text-slate-100">{m.content}</p>
                     </div>
                   ) : (
                     <div key={m.id} className="flex gap-4">
-                      <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gradient-to-br from-sky-400 via-violet-500 to-pink-500 shadow-[0_0_20px_-4px_rgba(167,139,250,0.8)]">
-                        <Sparkles className="h-4 w-4 text-white" />
-                      </span>
+                      <AssistantMark />
                       <div className="min-w-0 flex-1">
                         {m.content && (m.error ? <p className="text-[15px] text-rose-200">{m.content}</p> : <RichText text={m.content} />)}
                         {busy && i === messages.length - 1 && status && (
@@ -408,7 +394,7 @@ export default function AiStudioPage() {
                             <LockedCard key={j} feature={c.feature} need={c.need} onUpgrade={billing.openCheckout} />
                           ) : c.kind === "auth" ? (
                             <div key={j} className="flex flex-wrap items-center gap-3 rounded-2xl border border-sky-400/30 bg-sky-500/10 px-4 py-3 text-sm text-sky-100">
-                              <Sparkles className="h-4 w-4 shrink-0 text-sky-300" />
+                              <Briefcase className="h-4 w-4 shrink-0 text-wave" />
                               <span className="min-w-0 flex-1">{tr({ kz: "AI үшін тіркеліңіз — FREE тарифте күніне 5 сұраныс тегін.", ru: "Для AI зарегистрируйтесь — на FREE 5 запросов в день бесплатно." })}</span>
                               <Button className="px-3 py-1.5 text-xs" onClick={() => openModal("register")}>
                                 {tr({ kz: "Тіркелу", ru: "Регистрация" })}
@@ -447,42 +433,22 @@ export default function AiStudioPage() {
             {messages.length > 0 && (
               <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
                 {CHIPS.map((c) => (
-                  <button key={c.ru} onClick={() => send(tr(c))} disabled={busy || outOfQuota} className="shrink-0 rounded-full border border-white/10 bg-white/[0.05] px-3.5 py-1.5 text-xs text-slate-300 transition-colors hover:border-violet-400/40 hover:text-white disabled:opacity-50">
+                  <button key={c.ru} onClick={() => send(tr(c))} disabled={busy || outOfQuota} className="shrink-0 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-300 transition-all duration-300 hover:border-wave/60 hover:text-white disabled:opacity-50">
                     {tr(c)}
                   </button>
                 ))}
               </div>
             )}
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                send(input);
-              }}
-              className="flex items-end gap-2 rounded-[28px] border border-white/15 bg-ink-800/90 p-2 pl-5 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.8)] backdrop-blur-xl focus-within:border-violet-400/50"
-            >
-              <textarea
-                ref={textarea}
-                value={input}
-                onChange={(e) => {
-                  setInput(e.target.value);
-                  e.target.style.height = "auto";
-                  e.target.style.height = `${Math.min(e.target.scrollHeight, 160)}px`;
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    send(input);
-                  }
-                }}
-                rows={1}
-                disabled={outOfQuota}
-                placeholder={outOfQuota ? tr({ kz: "Лимит бітті — тарифті жаңартыңыз", ru: "Лимит исчерпан — улучшите тариф" }) : tr({ kz: "QazaqTenders AI-дан сұраңыз…", ru: "Спросите QazaqTenders AI…" })}
-                className="max-h-40 min-h-[44px] flex-1 resize-none bg-transparent py-3 text-[15px] text-white placeholder:text-slate-500 outline-none disabled:cursor-not-allowed"
-              />
-              <button type="submit" disabled={busy || !input.trim() || outOfQuota} aria-label={tr({ kz: "Жіберу", ru: "Отправить" })} className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-sky-400 via-violet-500 to-pink-500 text-white transition-opacity disabled:opacity-30">
-                <ArrowUp className="h-5 w-5" />
-              </button>
-            </form>
+            <StudioComposer
+              ref={textarea}
+              value={input}
+              onChange={setInput}
+              onSubmit={() => send(input)}
+              disabled={outOfQuota}
+              busy={busy}
+              placeholder={outOfQuota ? tr({ kz: "Лимит бітті — тарифті жаңартыңыз", ru: "Лимит исчерпан — улучшите тариф" }) : tr({ kz: "QazaqTenders AI-дан сұраңыз…", ru: "Спросите QazaqTenders AI…" })}
+              sendLabel={tr({ kz: "Жіберу", ru: "Отправить" })}
+            />
             <p className="mt-2 text-center text-[11px] text-slate-500">
               {meta.icon} {meta.name} · {deep ? "o3-mini" : meta.model.split(" ")[0]} · {tr({ kz: "сандарды қозғалтқыш есептейді", ru: "числа считает движок" })}
             </p>

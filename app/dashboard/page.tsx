@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { BellRing, Building2, Coins, Users, Wallet } from "lucide-react";
-import { TenderCard } from "@/components/TenderCard";
+import { TenderListCard } from "@/components/TenderListCard";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { useI18n } from "@/lib/i18n";
@@ -144,15 +144,15 @@ export default function DashboardPage() {
       </div>
 
       {!feed ? (
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="flex flex-col space-y-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="glass h-[240px] animate-pulse" />
+            <div key={i} className="glass h-[112px] animate-pulse" />
           ))}
         </div>
       ) : (
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="flex flex-col space-y-3">
           {rows.map((row, i) => (
-            <TenderCard key={row.tender.id} tender={row.tender} result={row.result} index={i} onTelegram={() => sendTelegram(row.tender)} />
+            <TenderListCard key={row.tender.id} tender={row.tender} result={row.result} index={i} onTelegram={() => sendTelegram(row.tender)} />
           ))}
         </div>
       )}

@@ -6,15 +6,21 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: { DEFAULT: "#030712", 900: "#050810", 800: "#090d16", 700: "#0e1424" },
-        accent: { blue: "#3b82f6", emerald: "#10b981", crimson: "#f43f5e", amber: "#f59e0b" },
+        // «Морская волна» — Enterprise/FinTech palette.
+        "deep-water": "#003B46", // translucent card / surface fills
+        ocean: "#07575B", // hover states, secondary buttons
+        wave: "#66A5AD", // primary accent: buttons, active icons, badges
+        "sea-foam": "#C4DFE6", // text highlights, heading gradients, hairline borders
+        "app-bg": "#020A0C", // near-black teal page background
+        ink: { DEFAULT: "#020A0C", 900: "#03100F", 800: "#061A1D", 700: "#0A2529" },
+        accent: { blue: "#66A5AD", emerald: "#10b981", crimson: "#f43f5e", amber: "#f59e0b" },
       },
       fontFamily: {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
         mono: ["ui-monospace", "SFMono-Regular", "monospace"],
       },
       boxShadow: {
-        glow: "0 0 40px -8px rgba(59,130,246,0.45)",
+        glow: "0 0 32px -12px rgba(102,165,173,0.35)",
         "glow-emerald": "0 0 40px -8px rgba(16,185,129,0.5)",
         "glow-crimson": "0 0 40px -8px rgba(244,63,94,0.5)",
         card: "0 24px 60px -24px rgba(0,0,0,0.85)",
