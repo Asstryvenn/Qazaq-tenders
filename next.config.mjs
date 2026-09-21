@@ -5,7 +5,11 @@ const nextConfig = {
   distDir: process.env.NEXT_DIST_DIR || ".next",
   // "Қозғалтқыш" is a section of the landing page, not a separate route.
   async redirects() {
-    return [{ source: "/engine", destination: "/#engine", permanent: false }];
+    return [
+      // No landing page: the root opens «Тендер нарығы» (server redirect with a Location header).
+      { source: "/", destination: "/dashboard", permanent: false },
+      { source: "/engine", destination: "/dashboard", permanent: false },
+    ];
   },
   webpack: (config) => {
     // pdf.js references the optional node-canvas package; it is never used in the browser.
