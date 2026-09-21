@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { AlertTriangle, Check, ClipboardList, ExternalLink, FileDown, HelpCircle, Loader2 } from "lucide-react";
+import { AlertTriangle, Check, ClipboardList, Clock, ExternalLink, FileDown, HelpCircle, Loader2 } from "lucide-react";
 import { deadlineAt, prepSchedule, readDocState, requiredDocs, writeDocState } from "@/lib/documents";
 import type { DocItem } from "@/lib/documents";
 import { downloadLetter } from "@/lib/letter-client";
@@ -330,7 +330,7 @@ function DeadlineBadge({ hoursLeft }: { hoursLeft: number }) {
         urgent ? "border-rose-400/50 bg-rose-500/15 text-rose-100" : "border-sky-400/40 bg-sky-500/10 text-sky-100"
       )}
     >
-      {urgent && <span className="h-1.5 w-1.5 animate-ping rounded-full bg-rose-300" />}⏳ {text}
+      {urgent && <span className="h-1.5 w-1.5 animate-ping rounded-full bg-rose-300" />}<Clock className="h-3 w-3" /> {text}
     </span>
   );
 }

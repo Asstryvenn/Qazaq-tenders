@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "./theme-light.css";
+import { ThemeProvider } from "@/lib/theme";
 import { AnimatedBackground } from "@/components/AnimatedBackground";
 import { Navbar } from "@/components/Navbar";
 import { I18nProvider } from "@/lib/i18n";
@@ -25,11 +26,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Apply the saved theme before first paint — no dark→light flash. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{if(localStorage.getItem("qt-theme")==="light"){var d=document.documentElement;d.classList.remove("dark");d.classList.add("light")}}catch(e){}`,
+            __html: `try{if(localStorage.getItem("qt-theme")==="light"){var d=document.documentElement;d.classList.remove("dark");d.classList.add("light");d.style.colorScheme="light"}}catch(e){}`,
           }}
         />
       </head>
       <body className="flex min-h-screen flex-col">
+        <ThemeProvider>
         <I18nProvider>
           <ProfileProvider>
             <NotificationsProvider>
@@ -47,6 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </NotificationsProvider>
           </ProfileProvider>
         </I18nProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

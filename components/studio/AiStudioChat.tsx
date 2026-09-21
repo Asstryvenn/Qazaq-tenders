@@ -34,7 +34,7 @@ export function StudioGreeting({
 }) {
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="pt-[8vh]">
-      <h1 className="bg-gradient-to-r from-white to-sea-foam bg-clip-text text-3xl font-semibold tracking-tight text-transparent sm:text-4xl">{greeting}</h1>
+      <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white sm:text-4xl">{greeting}</h1>
       <p className="mt-2 text-lg text-slate-400 sm:text-xl">{subtitle}</p>
       <div className="mt-8 flex flex-col gap-2">
         {suggestions.map((s, i) => {

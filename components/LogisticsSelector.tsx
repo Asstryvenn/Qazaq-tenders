@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { BadgeCheck, Plane, TrainFront, Truck } from "lucide-react";
+import { BadgeCheck, Building2, Car, Plane, TrainFront, Truck, type LucideIcon } from "lucide-react";
 import { ESTIMATED_RATE_LABEL, LIVE_RATE_LABEL, logisticsPlan, type LiveRoadRate, type LogisticsMode } from "@/lib/logistics";
 import type { AnalysisResult, CompanyProfile, Scenario, TenderSpec } from "@/lib/types";
 import { useI18n } from "@/lib/i18n";
@@ -10,12 +10,12 @@ import { track } from "@/lib/track";
 import { cn } from "@/lib/utils";
 import { GlassCard } from "./ui/GlassCard";
 
-const MODE_COPY: Record<LogisticsMode, { emoji: string; kz: string; ru: string }> = {
-  city: { emoji: "🏙️", kz: "Қала ішінде", ru: "По городу" },
-  truck: { emoji: "🚛", kz: "Авто-фура 20 т", ru: "Авто-фура 20 т" },
-  gazelle: { emoji: "🚚", kz: "Газель 3 т дейін", ru: "Газель до 3 т" },
-  rail: { emoji: "🚂", kz: "Теміржол контейнері", ru: "Ж/Д контейнер" },
-  air: { emoji: "✈️", kz: "Әуе экспрессі", ru: "Авиа-экспресс" },
+const MODE_COPY: Record<LogisticsMode, { Icon: LucideIcon; kz: string; ru: string }> = {
+  city: { Icon: Building2, kz: "Қала ішінде", ru: "По городу" },
+  truck: { Icon: Truck, kz: "Авто-фура 20 т", ru: "Авто-фура 20 т" },
+  gazelle: { Icon: Car, kz: "Газель 3 т дейін", ru: "Газель до 3 т" },
+  rail: { Icon: TrainFront, kz: "Теміржол контейнері", ru: "Ж/Д контейнер" },
+  air: { Icon: Plane, kz: "Әуе экспрессі", ru: "Авиа-экспресс" },
 };
 
 function rateText(mode: LogisticsMode, lang: "kz" | "ru") {
@@ -132,12 +132,12 @@ export function LogisticsSelector({
               }}
               className={cn(
                 "rounded-xl border p-3 text-left transition-colors",
-                active ? "border-sky-400/70 bg-sky-500/15" : "border-white/10 bg-white/[0.03] hover:border-sky-400/35 hover:bg-white/[0.06]"
+                active ? "border-wave bg-deep-water/40 dark:bg-[#07575B]/30" : "border-gray-200 bg-white hover:border-wave/50 dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.06]"
               )}
             >
               <div className="flex items-start justify-between gap-2">
-                <span className="text-sm font-semibold text-slate-100">{MODE_COPY[quote.mode].emoji} {lang === "kz" ? MODE_COPY[quote.mode].kz : MODE_COPY[quote.mode].ru}</span>
-                {recommended && <span className="rounded bg-emerald-400/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-emerald-200">{tr({ kz: "ұсынылады", ru: "рекомендуем" })}</span>}
+                <span className="flex items-center gap-1.5 text-sm font-semibold text-slate-900 dark:text-slate-100">{(() => { const I = MODE_COPY[quote.mode].Icon; return <I className="h-4 w-4 text-wave" />; })()} {lang === "kz" ? MODE_COPY[quote.mode].kz : MODE_COPY[quote.mode].ru}</span>
+                {recommended && <span className="rounded border border-[#66A5AD]/30 bg-[#07575B] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#C4DFE6]">{tr({ kz: "ұсынылады", ru: "рекомендуем" })}</span>}
               </div>
               <p className="mt-2 font-mono text-sm text-white">{kzt(quote.cost)}</p>
               <p className="mt-1 text-[11px] text-slate-400">{quote.distanceKm} {tr({ kz: "км", ru: "км" })} · {quote.transitDays} {tr({ kz: "күн", ru: "дн." })}</p>

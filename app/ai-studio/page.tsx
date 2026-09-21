@@ -291,7 +291,7 @@ export default function AiStudioPage() {
             </div>
           ) : (
             <button onClick={() => billing.openCheckout(plan === "free" ? "pro" : "max")} className="grid h-10 w-10 place-items-center rounded-xl text-lg hover:bg-white/10" title={`${meta.name} · ${quotaText}`}>
-              {meta.icon}
+              {meta.name.slice(0, 1)}
             </button>
           )}
           {sidebar && (
@@ -305,7 +305,7 @@ export default function AiStudioPage() {
                     onClick={() => locked && billing.openCheckout(t)}
                     className={cn("flex w-full items-center gap-2.5 rounded-xl px-2.5 py-1.5 text-left transition-colors", t === plan ? "bg-white/10" : "hover:bg-white/[0.05]")}
                   >
-                    <span>{m.icon}</span>
+                    <span className="h-2 w-2 rounded-full" style={{ background: m.color }} />
                     <span className="min-w-0 flex-1 truncate text-xs text-slate-200">{m.name}</span>
                     <span className="font-mono text-[11px] text-slate-400">{priceLabel(t, lang)}</span>
                     {locked && <Lock className="h-3 w-3 text-slate-500" />}

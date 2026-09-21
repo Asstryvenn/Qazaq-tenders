@@ -92,7 +92,7 @@ export function IsometricPreview() {
         <div className="mt-5" style={{ transform: "translateZ(20px)" }}>
           <div className="h-2 overflow-hidden rounded-full bg-white/10">
             <motion.div
-              className="h-full rounded-full bg-gradient-to-r from-blue-500 to-emerald-400"
+              className="h-full rounded-full bg-wave"
               initial={{ width: 0 }}
               animate={{ width: "85%" }}
               transition={{ duration: 1.4, delay: 1.2, ease: "easeOut" }}

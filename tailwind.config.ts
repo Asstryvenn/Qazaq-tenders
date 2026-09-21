@@ -7,13 +7,15 @@ const config: Config = {
     extend: {
       colors: {
         // «Морская волна» — Enterprise/FinTech palette.
-        "deep-water": "#003B46", // translucent card / surface fills
-        ocean: "#07575B", // hover states, secondary buttons
-        wave: "#66A5AD", // primary accent: buttons, active icons, badges
-        "sea-foam": "#C4DFE6", // text highlights, heading gradients, hairline borders
-        "app-bg": "#020A0C", // near-black teal page background
-        ink: { DEFAULT: "#020A0C", 900: "#03100F", 800: "#061A1D", 700: "#0A2529" },
-        accent: { blue: "#66A5AD", emerald: "#10b981", crimson: "#f43f5e", amber: "#f59e0b" },
+        // Theme tokens are CSS variables (app/globals.css) so light and dark both work.
+        "deep-water": "rgb(var(--c-deep-water) / <alpha-value>)", // tinted fills
+        ocean: "rgb(var(--c-ocean) / <alpha-value>)", // hover states, secondary
+        wave: "rgb(var(--c-wave) / <alpha-value>)", // primary accent
+        "sea-foam": "rgb(var(--c-sea-foam) / <alpha-value>)", // highlights, borders
+        "app-bg": "rgb(var(--c-app-bg) / <alpha-value>)", // page background
+        surface: "rgb(var(--c-surface) / <alpha-value>)", // cards
+        ink: { DEFAULT: "rgb(var(--c-app-bg) / <alpha-value>)", 900: "rgb(var(--c-app-bg) / <alpha-value>)", 800: "rgb(var(--c-surface) / <alpha-value>)", 700: "rgb(var(--c-surface-2) / <alpha-value>)" },
+        accent: { blue: "rgb(var(--c-wave) / <alpha-value>)", emerald: "#10b981", crimson: "#f43f5e", amber: "#f59e0b" },
       },
       fontFamily: {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],

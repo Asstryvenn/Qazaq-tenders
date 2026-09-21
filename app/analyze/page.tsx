@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FileText } from "lucide-react";
+import { AlertTriangle, FileText } from "lucide-react";
 import { Dropzone, type Stage } from "@/components/analyze/Dropzone";
 import { AnalysisDashboard } from "@/components/analyze/AnalysisDashboard";
 import { useBilling } from "@/lib/billing-client";
@@ -171,7 +171,7 @@ export default function AnalyzePage() {
 
       {health && !health.openai && !active && (
         <p className="mb-5 rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
-          ⚠️ {apiErrorMessage("OPENAI_KEY_MISSING", lang)}{" "}
+          <AlertTriangle className="mr-1.5 inline h-4 w-4 align-[-3px]" />{apiErrorMessage("OPENAI_KEY_MISSING", lang)}{" "}
           {tr({ kz: "Vercel → Settings → Environment Variables бөлімінде қосып, қайта deploy жасаңыз.", ru: "Добавьте его в Vercel → Settings → Environment Variables и сделайте Redeploy." })}
         </p>
       )}

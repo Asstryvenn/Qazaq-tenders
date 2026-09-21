@@ -100,9 +100,9 @@ export default function ProfilePage() {
     [
       tr({ kz: "ҚР тізілімдері", ru: "Реестры РК" }),
       company.rnuListed
-        ? tr({ kz: "⛔ РНУ-да тұр", ru: "⛔ В реестре РНУ" })
+        ? tr({ kz: "РНУ-да тұр", ru: "В реестре РНУ" })
         : company.registryVerified
-          ? `✓ ${tr({ kz: "Тізілімдер бойынша расталды", ru: "Верифицировано по реестрам РК" })}${company.registryCheckedAt ? ` · ${new Date(company.registryCheckedAt).toLocaleDateString()}` : ""}`
+          ? `${tr({ kz: "Тізілімдер бойынша расталды", ru: "Верифицировано по реестрам РК" })}${company.registryCheckedAt ? ` · ${new Date(company.registryCheckedAt).toLocaleDateString()}` : ""}`
           : tr({ kz: "тексерілмеген", ru: "не проверено" }),
     ],
   ];
@@ -241,7 +241,7 @@ export default function ProfilePage() {
         <GlassCard interactive={false} className="p-6 lg:col-span-2">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex items-center gap-3">
-              <span className="grid h-10 w-10 place-items-center rounded-xl border border-sky-400/40 bg-sky-500/15 text-lg">✈️</span>
+              <span className="grid h-10 w-10 place-items-center rounded-xl border border-sky-400/40 bg-sky-500/15 "><Send className="h-4 w-4 text-sky-400" /></span>
               <div>
                 <h2 className="text-sm font-semibold text-white">Telegram</h2>
                 <p className="flex items-center gap-2 text-xs text-slate-400">
@@ -287,7 +287,7 @@ export default function ProfilePage() {
                 </Button>
               )}
               <Button variant="outline" onClick={sendTest} disabled={!tg.connected || sending} className="disabled:opacity-50">
-                {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : "🔔"} {tr({ kz: "Тесттік ескерту жіберу", ru: "Отправить тестовое уведомление" })}
+                {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Bell className="h-4 w-4" />} {tr({ kz: "Тесттік ескерту жіберу", ru: "Отправить тестовое уведомление" })}
               </Button>
             </div>
           )}

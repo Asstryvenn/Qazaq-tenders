@@ -8,7 +8,7 @@ type Bi = { kz: string; ru: string };
 /** Display data for plans. Prices and limits come from lib/plans.ts (what the server enforces). */
 export const TIERS: Record<Tier, { icon: string; color: string; name: string; sub: Bi; model: string; features: Bi[] }> = {
   free: {
-    icon: "🟢",
+    icon: "",
     color: "#34d399",
     name: "FREE",
     sub: { kz: "Тегін", ru: "Бесплатно" },
@@ -20,7 +20,7 @@ export const TIERS: Record<Tier, { icon: string; color: string; name: string; su
     ],
   },
   pro: {
-    icon: "🔵",
+    icon: "",
     color: "#60a5fa",
     name: "PRO",
     sub: { kz: "Кәсіпкер", ru: "Предприниматель" },
@@ -33,7 +33,7 @@ export const TIERS: Record<Tier, { icon: string; color: string; name: string; su
     ],
   },
   max: {
-    icon: "🟣",
+    icon: "",
     color: "#c084fc",
     name: "MAX",
     sub: { kz: "Enterprise / All-Inclusive", ru: "Enterprise / All-Inclusive" },

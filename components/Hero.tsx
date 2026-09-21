@@ -42,14 +42,14 @@ export function Hero() {
           {lang === "kz" ? (
             <>
               Тендерге қатысу тиімді ме?{" "}
-              <span className="bg-gradient-to-r from-blue-400 via-sky-300 to-emerald-400 bg-clip-text text-transparent">
+              <span className="text-[#07575B] dark:text-[#66A5AD]">
                 5 секундта AI-мен тексеріңіз
               </span>
             </>
           ) : (
             <>
               Оцените выгоду и риски тендера{" "}
-              <span className="bg-gradient-to-r from-blue-400 via-sky-300 to-emerald-400 bg-clip-text text-transparent">
+              <span className="text-[#07575B] dark:text-[#66A5AD]">
                 за 5 секунд
               </span>{" "}
               до подачи заявки

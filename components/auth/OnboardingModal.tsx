@@ -234,7 +234,7 @@ export function OnboardingModal() {
                   </p>
                 )}
                 <p className="mt-1 opacity-80">
-                  {registry.sources.map((s) => `${s.status === "ok" ? "✓" : s.status === "no-key" ? "🔑" : s.status === "not-found" ? "–" : "!"} ${SOURCE_LABEL[s.id]}`).join(" · ")}
+                  {registry.sources.map((s) => `${SOURCE_LABEL[s.id]}: ${s.status === "ok" ? "OK" : s.status === "no-key" ? "no key" : s.status === "not-found" ? "—" : "error"}`).join(" · ")}
                 </p>
               </div>
             )}

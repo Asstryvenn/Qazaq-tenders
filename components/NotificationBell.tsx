@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Bell, CheckCheck } from "lucide-react";
+import { AlertTriangle, Bell, CheckCheck, Clock, TrendingUp, type LucideIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -9,10 +9,10 @@ import { AlertKind, useNotifications } from "@/lib/notifications";
 import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-export const KIND_META: Record<AlertKind, { icon: string; color: string; kz: string; ru: string }> = {
-  tos: { icon: "🚀", color: "#34d399", kz: "Жоғары TOS тендерлер", ru: "Тендеры с высоким TOS" },
-  deadline: { icon: "⏳", color: "#fbbf24", kz: "Мерзім ескертулері", ru: "Предупреждения о сроках" },
-  cashflow: { icon: "⚠️", color: "#fb7185", kz: "Ақша ағыны тәуекелдері", ru: "Риски денежного потока" },
+export const KIND_META: Record<AlertKind, { icon: LucideIcon; color: string; kz: string; ru: string }> = {
+  tos: { icon: TrendingUp, color: "#34d399", kz: "Жоғары TOS тендерлер", ru: "Тендеры с высоким TOS" },
+  deadline: { icon: Clock, color: "#fbbf24", kz: "Мерзім ескертулері", ru: "Предупреждения о сроках" },
+  cashflow: { icon: AlertTriangle, color: "#fb7185", kz: "Ақша ағыны тәуекелдері", ru: "Риски денежного потока" },
 };
 
 /**
@@ -93,7 +93,7 @@ export function NotificationBell() {
             {groups.map((g) => (
               <section key={g.kind} className="py-1">
                 <p className="px-4 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wider" style={{ color: KIND_META[g.kind].color }}>
-                  {KIND_META[g.kind].icon} {tr(KIND_META[g.kind])}
+                  {(() => { const I = KIND_META[g.kind].icon; return <I className="mr-1 inline h-3.5 w-3.5 align-[-2px]" />; })()}{tr(KIND_META[g.kind])}
                 </p>
                 {g.items.map((a) => (
                   <button

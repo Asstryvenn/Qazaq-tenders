@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { trackOnce } from "@/lib/track";
 import { motion } from "framer-motion";
-import { ArrowLeft, ExternalLink, Loader2, MapPin, Send, Sparkles, Truck } from "lucide-react";
+import { ArrowLeft, Bell, ExternalLink, Loader2, MapPin, Send, Terminal, Truck } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Badge } from "@/components/ui/Badge";
 import { TosGauge, ScoreBar } from "@/components/TosGauge";
@@ -252,13 +252,6 @@ export default function TenderPage({ params }: { params: { id: string } }) {
         </GlassCard>
       </PlanGate>
 
-      {/* The consultant lives in the full-screen AI Studio now */}
-      <Link
-        href={`/ai-studio?tender=${encodeURIComponent(tender.id)}`}
-        className="fixed bottom-6 right-6 z-[80] flex items-center gap-2.5 rounded-full bg-gradient-to-r from-sky-500 via-violet-500 to-pink-500 px-5 py-3.5 text-sm font-semibold text-white shadow-[0_0_40px_-8px_rgba(167,139,250,0.9)] transition-transform hover:scale-105"
-      >
-        <Sparkles className="h-4 w-4" /> AI Studio
-      </Link>
 
       <ScoreExplanationModal
         kind={scoreExplanation}
@@ -280,21 +273,21 @@ function TenderActions({ tenderId }: { tenderId: string }) {
     <div className="-mt-3 mb-6 flex flex-wrap items-center gap-2">
       <Link
         href={`/ai-studio?tender=${encodeURIComponent(tenderId)}`}
-        className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-sky-500 via-violet-500 to-pink-500 px-3.5 py-1.5 text-xs font-semibold text-white shadow-[0_0_24px_-8px_rgba(167,139,250,0.9)]"
+        className="inline-flex items-center gap-1.5 rounded-md bg-[#07575B] px-3.5 py-1.5 text-xs font-semibold text-white transition-all duration-300 hover:bg-[#0a6a6f] dark:bg-[#66A5AD] dark:text-[#0B1319] dark:hover:bg-[#C4DFE6]"
       >
-        <Sparkles className="h-3.5 w-3.5" /> AI Studio
+        <Terminal className="h-3.5 w-3.5" /> AI Studio
       </Link>
       {tg.connected ? (
         <>
           <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1.5 text-xs text-emerald-100">
-            ✈️ {tr({ kz: "Telegram қосулы", ru: "Telegram подключён" })}
+            <Send className="h-3.5 w-3.5" /> {tr({ kz: "Telegram қосулы", ru: "Telegram подключён" })}
           </span>
           <button
             onClick={() => tg.sendTest(tenderId)}
             disabled={tg.testing}
             className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-slate-100 transition-colors hover:bg-white/10 disabled:opacity-60"
           >
-            {tg.testing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "🔔"} {tr({ kz: "Тесттік ескерту жіберу", ru: "Тестовое уведомление" })}
+            {tg.testing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Bell className="h-3.5 w-3.5" />} {tr({ kz: "Тесттік ескерту жіберу", ru: "Тестовое уведомление" })}
           </button>
         </>
       ) : (

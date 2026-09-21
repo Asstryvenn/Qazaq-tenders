@@ -25,7 +25,7 @@ export function ThinkingBadge({ status }: { status: StatusKey }) {
     <div className="relative inline-flex overflow-hidden rounded-full p-[1.5px]">
       <motion.span
         aria-hidden
-        className="absolute inset-[-100%] bg-[conic-gradient(from_0deg,#60a5fa,#a78bfa,#f472b6,#34d399,#60a5fa)]"
+        className="absolute inset-[-100%] bg-[conic-gradient(from_0deg,rgb(var(--c-wave)),transparent,rgb(var(--c-wave)))]"
         animate={{ rotate: 360 }}
         transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
       />
@@ -37,7 +37,7 @@ export function ThinkingBadge({ status }: { status: StatusKey }) {
           key={status}
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-sky-200 via-violet-200 to-pink-200 bg-clip-text text-sm font-medium text-transparent"
+          className="text-sm font-medium text-slate-700 dark:text-[#C4DFE6]"
         >
           {tr(STATUS_TEXT[status])}
         </motion.span>
@@ -125,10 +125,10 @@ export function ScenarioCard({ data, tender }: { data: ScenarioCardData; tender?
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mt-4 overflow-hidden rounded-2xl border border-violet-400/25 bg-gradient-to-br from-violet-500/[0.08] via-ink-800/80 to-sky-500/[0.06]"
+      className="mt-4 overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/10 dark:bg-[#13222A]/80"
     >
       <div className="flex flex-wrap items-center gap-2 border-b border-white/10 px-4 py-3">
-        <span className="text-xs font-semibold uppercase tracking-wider text-violet-200">{tr({ kz: "Сценарий", ru: "Сценарий" })}</span>
+        <span className="text-xs font-semibold uppercase tracking-wider text-[#07575B] dark:text-[#C4DFE6]">{tr({ kz: "Сценарий", ru: "Сценарий" })}</span>
         {scenarioLabels(s as unknown as Record<string, number>, lang).map((l) => (
           <span key={l} className="rounded-full border border-white/15 bg-white/5 px-2 py-0.5 text-[11px] text-slate-200">
             {l}

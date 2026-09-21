@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import { Activity } from "lucide-react";
 import { Button } from "./ui/Button";
 import { Lang, useI18n } from "@/lib/i18n";
@@ -54,7 +55,7 @@ function ThemeToggle() {
       onClick={toggle}
       aria-label={label}
       title={label}
-      className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/5 text-slate-200 transition-colors hover:bg-white/10"
+      className="grid h-9 w-9 place-items-center rounded-lg border border-gray-200 bg-white text-slate-700 transition-all duration-300 hover:border-wave/60 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
     >
       {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
     </button>
@@ -109,6 +110,7 @@ export function Navbar() {
   const { t, tr } = useI18n();
   const { hasAccount } = useProfile();
   const isAdmin = useIsAdmin();
+  const pathname = usePathname();
   const adminLabel = tr({ kz: "Админ-панель", ru: "Админ-панель" });
   const ref = useRef<HTMLElement>(null);
 
@@ -129,10 +131,10 @@ export function Navbar() {
       initial={{ y: -24, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="sticky top-0 z-50 border-b border-white/5 bg-ink/70 backdrop-blur-xl"
+      className="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-xl dark:border-white/10 dark:bg-app-bg/80"
     >
       <nav className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4">
-        <Link href="/" className="flex items-center gap-2.5">
+        <Link href={hasAccount ? "/dashboard" : "/"} className="flex items-center gap-2.5">
           <span className="relative grid h-9 w-9 place-items-center rounded-xl border border-blue-400/30 bg-accent-blue/15">
             <Activity className="h-4 w-4 text-blue-300" />
             <span className="absolute inset-0 animate-pulse-ring rounded-xl border border-blue-400/40" />
@@ -144,24 +146,29 @@ export function Navbar() {
 
         <div className="hidden items-center gap-7 md:flex">
           {[
-            { href: "/#how", label: t.nav.how },
-            { href: "/#engine", label: t.nav.engine },
-            { href: "/dashboard", label: t.nav.dashboard },
-            { href: "/analyze", label: tr({ kz: "PDF талдау", ru: "Анализ PDF" }) },
-            { href: "/ai-studio", label: "AI Studio" },
+            { href: "/dashboard", label: t.nav.dashboard, show: hasAccount },
+            { href: "/analyze", label: tr({ kz: "PDF талдау", ru: "Анализ PDF" }), show: true },
+            { href: "/ai-studio", label: "AI Studio", show: hasAccount },
+            { href: "/admin", label: adminLabel, show: isAdmin },
           ]
-            // App screens appear only after registration.
-            .filter((l) => hasAccount || l.href.startsWith("/#") || l.href === "/analyze")
-            .map((l) => (
-            <Link key={l.href} href={l.href} className="text-sm text-slate-300 transition-colors hover:text-white">
-              {l.label}
-            </Link>
-          ))}
-          {isAdmin && (
-            <Link href="/admin" className="text-sm font-medium text-emerald-300 transition-colors hover:text-emerald-200">
-              {adminLabel}
-            </Link>
-          )}
+            .filter((l) => l.show)
+            .map((l) => {
+              const active = pathname === l.href || pathname.startsWith(`${l.href}/`) || (l.href === "/dashboard" && pathname.startsWith("/tender/"));
+              return (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  aria-current={active ? "page" : undefined}
+                  className={cn(
+                    "relative py-1 text-sm transition-colors duration-300",
+                    active ? "font-semibold text-slate-900 dark:text-white" : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                  )}
+                >
+                  {l.label}
+                  {active && <span className="absolute inset-x-0 -bottom-[17px] h-0.5 rounded-full bg-wave" />}
+                </Link>
+              );
+            })}
         </div>
 
         <div className="flex items-center gap-3">

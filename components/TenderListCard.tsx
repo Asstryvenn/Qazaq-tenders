@@ -33,11 +33,11 @@ export function TenderListCard({
   const src = SOURCES[tender.source];
   const href = `/tender/${encodeURIComponent(tender.id)}`;
   const daysLeft = Math.ceil((new Date(`${tender.deadline}T23:59:00+05:00`).getTime() - Date.now()) / 86_400_000);
-  const deadlineTone = daysLeft <= 2 ? "text-rose-300" : daysLeft <= 7 ? "text-amber-200" : "text-slate-100";
+  const deadlineTone = daysLeft <= 2 ? "text-rose-600 dark:text-rose-300" : daysLeft <= 7 ? "text-amber-600 dark:text-amber-200" : "text-slate-800 dark:text-slate-100";
 
   const metrics = [
-    { Icon: Wallet, label: t.feed.budget, value: kzt(tender.contractAmount), className: "text-white text-base font-semibold" },
-    { Icon: MapPin, label: t.feed.location, value: city(tender.cityId), className: "text-slate-100 font-sans" },
+    { Icon: Wallet, label: t.feed.budget, value: kzt(tender.contractAmount), className: "text-slate-900 dark:text-white text-base font-semibold" },
+    { Icon: MapPin, label: t.feed.location, value: city(tender.cityId), className: "text-slate-800 dark:text-slate-100 font-sans" },
     { Icon: CalendarClock, label: t.feed.expires, value: tender.deadline || "—", className: deadlineTone },
   ];
 
@@ -47,25 +47,25 @@ export function TenderListCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: Math.min(index, 12) * 0.03, duration: 0.3 }}
       onClick={() => router.push(href)}
-      className="group flex w-full cursor-pointer flex-col gap-4 rounded-xl border border-sea-foam/10 bg-deep-water/10 p-4 backdrop-blur-md transition-all duration-300 hover:border-wave/70 hover:bg-ocean/20 lg:flex-row lg:items-center lg:gap-6 lg:p-5"
+      className="group flex w-full cursor-pointer flex-col gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm backdrop-blur-md transition-all duration-300 hover:border-wave/50 hover:shadow-md dark:border-white/10 dark:bg-[#13222A]/80 dark:shadow-none dark:hover:border-[#66A5AD]/50 dark:hover:bg-[#172a33]/90 lg:flex-row lg:items-center lg:gap-6 lg:p-5"
     >
       {/* Identity — 40% */}
       <div className="min-w-0 lg:basis-[40%]">
         <div className="flex items-center gap-2">
-          <span className="rounded border border-sea-foam/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-sea-foam">{src.name}</span>
+          <span className="rounded border border-gray-200 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#07575B] dark:border-white/15 dark:text-[#C4DFE6]">{src.name}</span>
           <span className="truncate font-mono text-[11px] text-slate-500">{tender.externalId}</span>
           {tender.estimated && <span className="text-[10px] uppercase tracking-wider text-slate-500">· {t.feed.estimated}</span>}
         </div>
-        <Link href={href} onClick={(e) => e.stopPropagation()} className="mt-2 line-clamp-2 block text-[15px] font-semibold leading-snug text-white transition-colors duration-300 group-hover:text-sea-foam">
+        <Link href={href} onClick={(e) => e.stopPropagation()} className="mt-2 line-clamp-2 block text-[15px] font-semibold leading-snug text-slate-900 transition-colors duration-300 group-hover:text-[#07575B] dark:text-white dark:group-hover:text-[#C4DFE6]">
           {lotTitle(tender)}
         </Link>
-        <p className="mt-1 line-clamp-1 text-xs text-slate-400">{tender.customer}</p>
+        <p className="mt-1 line-clamp-1 text-xs text-slate-600 dark:text-slate-400">{tender.customer}</p>
       </div>
 
       {/* Financial metrics — 40% */}
       <dl className="grid grid-cols-3 gap-2 lg:basis-[40%]">
         {metrics.map(({ Icon, label, value, className }) => (
-          <div key={label} className="min-w-0 rounded-lg border border-sea-foam/10 bg-app-bg/40 px-3 py-2">
+          <div key={label} className="min-w-0 rounded-md bg-slate-100 px-3 py-1.5 dark:bg-white/5">
             <dt className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-slate-500">
               <Icon className="h-3 w-3 shrink-0" /> <span className="truncate">{label}</span>
             </dt>
@@ -77,7 +77,7 @@ export function TenderListCard({
       {/* TOS + actions — 20% */}
       <div className="flex items-center justify-between gap-3 lg:basis-[20%] lg:justify-end">
         <div className="text-right" aria-label={`TOS ${Math.round(result.tos)} · ${t.verdict[tone.key]}`}>
-          <p className="font-mono text-2xl font-semibold leading-none tabular-nums" style={{ color: tone.text }}>
+          <p className="font-mono text-2xl font-semibold leading-none tabular-nums" style={{ color: tone.color }}>
             {Math.round(result.tos)}
             <span className="ml-0.5 text-xs text-slate-500">/100</span>
           </p>
@@ -94,14 +94,14 @@ export function TenderListCard({
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="inline-flex items-center justify-center gap-1 rounded-md border border-sea-foam/20 px-3 py-1.5 text-xs font-medium text-slate-200 transition-all duration-300 hover:border-wave hover:bg-ocean/40 hover:text-white"
+            className="inline-flex items-center justify-center gap-1 rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-slate-700 transition-all duration-300 hover:border-wave hover:text-slate-900 dark:border-white/15 dark:text-slate-200 dark:hover:bg-[#07575B]/40 dark:hover:text-white"
           >
             {tr({ kz: "Қатысу", ru: "Участвовать" })} <ArrowUpRight className="h-3 w-3" />
           </a>
           <Link
             href={href}
             onClick={(e) => e.stopPropagation()}
-            className="inline-flex items-center justify-center rounded-md bg-wave px-3 py-1.5 text-xs font-semibold text-app-bg transition-all duration-300 hover:bg-sea-foam"
+            className="inline-flex items-center justify-center rounded-md bg-[#07575B] px-3 py-1.5 text-xs font-semibold text-white transition-all duration-300 hover:bg-[#0a6a6f] dark:bg-[#66A5AD] dark:text-[#0B1319] dark:hover:bg-[#C4DFE6]"
           >
             {tr({ kz: "Талдау", ru: "Анализ" })}
           </Link>

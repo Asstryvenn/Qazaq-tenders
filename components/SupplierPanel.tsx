@@ -95,7 +95,7 @@ export function SupplierPanel({ tender, selectedId, onSelect }: { tender: Tender
                 <p className="mt-2 text-[11px] text-slate-500">{offer.city || "—"} · {offer.source} · {new Date(offer.updatedAt).toLocaleString(lang === "kz" ? "kk-KZ" : "ru-RU")}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button onClick={() => onSelect(offer)} className="rounded-lg bg-sky-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-400">
-                    {selectedId === offer.id ? "✓ " : ""}{tr({ kz: "Есепке қолдану", ru: "Применить к расчёту" })}
+                    {tr({ kz: "Есепке қолдану", ru: "Применить к расчёту" })}
                   </button>
                   {!offer.isDemo && (
                     <a href={offer.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-slate-200 hover:bg-white/5">

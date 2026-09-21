@@ -78,7 +78,7 @@ export function Checklist({
 
       <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/10">
         <motion.div
-          className="h-full rounded-full bg-gradient-to-r from-sky-400 to-emerald-400"
+          className="h-full rounded-full bg-wave"
           animate={{ width: `${pct}%` }}
           transition={{ type: "spring", stiffness: 120, damping: 20 }}
         />

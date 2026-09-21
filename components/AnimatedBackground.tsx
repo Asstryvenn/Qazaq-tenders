@@ -1,14 +1,11 @@
 /**
- * Page background: a near-black teal ground with a soft, heavily blurred mesh of
- * #003B46 — present but never competing with the numbers. Static: no motion, no grid.
+ * Page background: lifted teal-slate ground with one very subtle, blurred radial mesh of
+ * #07575B from the top — no motion, no grid. Uses theme tokens, so light mode is slate-50.
  */
 export function AnimatedBackground() {
   return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-app-bg">
-      <div className="absolute -left-40 -top-40 h-[40rem] w-[40rem] rounded-full bg-deep-water opacity-10 blur-3xl" />
-      <div className="absolute right-[-10rem] top-1/4 h-[34rem] w-[34rem] rounded-full bg-ocean opacity-10 blur-3xl" />
-      <div className="absolute bottom-[-16rem] left-1/3 h-[42rem] w-[42rem] rounded-full bg-deep-water opacity-10 blur-3xl" />
-      <div className="bg-vignette absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_0%,transparent_45%,rgba(2,10,12,0.9)_100%)]" />
+    <div aria-hidden className="pointer-events-none fixed inset-0 -z-0 overflow-hidden bg-app-bg">
+      <div className="absolute inset-x-0 -top-40 h-[40rem] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-ocean/15 via-transparent to-transparent blur-3xl" />
     </div>
   );
 }

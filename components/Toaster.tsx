@@ -2,15 +2,15 @@
 
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { X } from "lucide-react";
+import { CheckCircle2, Info, X, XCircle } from "lucide-react";
 import { useNotifications } from "@/lib/notifications";
 import { KIND_META } from "./NotificationBell";
 import { useI18n } from "@/lib/i18n";
 
 const EXTRA = {
-  info: { icon: "ℹ️", color: "#60a5fa" },
-  success: { icon: "✅", color: "#34d399" },
-  error: { icon: "⛔", color: "#fb7185" },
+  info: { icon: Info, color: "#60a5fa" },
+  success: { icon: CheckCircle2, color: "#34d399" },
+  error: { icon: XCircle, color: "#fb7185" },
 } as const;
 
 /** Floating toasts, top-right under the navbar. */
@@ -24,7 +24,7 @@ export function Toaster() {
           const meta = t.kind in KIND_META ? KIND_META[t.kind as keyof typeof KIND_META] : EXTRA[t.kind as keyof typeof EXTRA];
           const inner = (
             <>
-              <span className="text-lg leading-none">{meta.icon}</span>
+              <meta.icon className="mt-0.5 h-4 w-4 shrink-0" style={{ color: meta.color }} />
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-semibold leading-snug text-white">{t.title}</span>
                 {t.body && <span className="mt-0.5 block text-xs leading-relaxed text-slate-300">{t.body}</span>}
