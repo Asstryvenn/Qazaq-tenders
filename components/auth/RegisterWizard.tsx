@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Check, CheckCircle2, Eye, EyeOff, Loader2, Rocket, XCircle } from "lucide-react";
+import { ArrowLeft, Briefcase, Check, CheckCircle2, ChevronRight, Eye, EyeOff, Loader2, Package, Rocket, XCircle } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useProfile } from "@/lib/profile";
 import { useNotifications } from "@/lib/notifications";
@@ -15,6 +15,8 @@ import type { CompanyProfile, TaxRegime } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/Button";
 import { Field, inputCls } from "./Modal";
+import { SupplierRegisterForm } from "./SupplierRegisterForm";
+import { postRegisterPath, type AccountKind } from "@/lib/account";
 
 type Form = {
   email: string;
@@ -52,8 +54,62 @@ const INITIAL: Form = {
 
 const num = (v: string) => Number(v.replace(/\s/g, ""));
 
-/** Account → Legal entity → Digital twin. Ends on the dashboard, never on "check your email". */
+/** Шаг 0 — тип аккаунта. Бизнес → прежний мастер цифрового двойника, поставщик → короткая форма. */
 export function RegisterWizard() {
+  const { tr, t } = useI18n();
+  const { openModal } = useProfile();
+  const [kind, setKind] = useState<AccountKind | null>(null);
+  if (kind === "buyer") return <BusinessRegisterWizard onBack={() => setKind(null)} />;
+  if (kind === "supplier") return <SupplierRegisterForm onBack={() => setKind(null)} />;
+  const cards: { kind: AccountKind; icon: typeof Briefcase; title: string; desc: string }[] = [
+    {
+      kind: "buyer",
+      icon: Briefcase,
+      title: tr({ kz: "Тендерлерге қатысамын", ru: "Участвую в тендерах" }),
+      desc: tr({ kz: "Тендерлерді іздеймін, пайданы бағалаймын және жеткізушілерді таңдаймын.", ru: "Ищу тендеры, оцениваю прибыль и подбираю поставщиков." }),
+    },
+    {
+      kind: "supplier",
+      icon: Package,
+      title: tr({ kz: "Тауар жеткіземін", ru: "Поставляю товары" }),
+      desc: tr({ kz: "Каталогты орналастырамын және тендер қатысушыларынан өтінімдер аламын.", ru: "Размещаю каталог и получаю обращения от участников тендеров." }),
+    },
+  ];
+  return (
+    <div className="space-y-3">
+      <div role="radiogroup" aria-label={tr({ kz: "Аккаунт түрі", ru: "Тип аккаунта" })} className="grid gap-3 sm:grid-cols-2">
+        {cards.map((c) => (
+          <button
+            key={c.kind}
+            type="button"
+            role="radio"
+            aria-checked={false}
+            onClick={() => setKind(c.kind)}
+            className="group flex h-full flex-col rounded-xl border border-white/15 bg-white/[0.03] p-4 text-left transition-colors hover:border-blue-400/60 hover:bg-white/[0.06] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+          >
+            <span className="grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/5">
+              <c.icon className="h-4 w-4 text-blue-300" />
+            </span>
+            <span className="mt-3 flex items-center justify-between gap-2 text-sm font-semibold text-white">
+              {c.title}
+              <ChevronRight className="h-4 w-4 text-slate-500 transition-transform group-hover:translate-x-0.5" />
+            </span>
+            <span className="mt-1 text-xs leading-relaxed text-slate-400">{c.desc}</span>
+          </button>
+        ))}
+      </div>
+      <p className="text-xs text-slate-500">
+        {tr({ kz: "Кейін баптауларда екінші профильді қосуға болады. Тариф өзгермейді.", ru: "Второй профиль можно добавить позже в настройках. Тариф при этом не меняется." })}
+      </p>
+      <button type="button" onClick={() => openModal("login")} className="text-sm text-blue-300 hover:text-blue-200">
+        {t.auth.toLogin}
+      </button>
+    </div>
+  );
+}
+
+/** Account → Legal entity → Digital twin. Ends on the dashboard, never on "check your email". */
+function BusinessRegisterWizard({ onBack }: { onBack: () => void }) {
   const { tr, t, lang } = useI18n();
   const { register, openModal } = useProfile();
   const { toast } = useNotifications();
@@ -126,7 +182,7 @@ export function RegisterWizard() {
       return;
     }
     openModal(null);
-    router.push("/dashboard");
+    router.push(postRegisterPath("buyer"));
     toast({
       kind: "success",
       title: tr({ kz: "Қозғалтқыш іске қосылды", ru: "Движок запущен" }),
@@ -292,8 +348,8 @@ export function RegisterWizard() {
 
       <div className="mt-7 flex items-center justify-between gap-3">
         {step === 0 ? (
-          <button type="button" onClick={() => openModal("login")} className="text-sm text-blue-300 hover:text-blue-200">
-            {t.auth.toLogin}
+          <button type="button" onClick={onBack} className="inline-flex items-center gap-1 text-sm text-blue-300 hover:text-blue-200">
+            <ArrowLeft className="h-3.5 w-3.5" /> {tr({ kz: "Аккаунт түрі", ru: "Тип аккаунта" })}
           </button>
         ) : (
           <Button variant="ghost" onClick={() => setStep(step - 1)} disabled={busy}>

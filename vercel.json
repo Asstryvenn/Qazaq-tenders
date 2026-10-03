@@ -1,3 +1,6 @@
 {
-  "crons": [{ "path": "/api/cron/daily-digest", "schedule": "0 3 * * *" }]
+  "crons": [
+    { "path": "/api/cron/daily-digest", "schedule": "0 3 * * *" },
+    { "path": "/api/cron/supplier-sync", "schedule": "30 2 * * *" }
+  ]
 }

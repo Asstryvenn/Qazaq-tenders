@@ -1,6 +1,7 @@
 import "server-only";
 import { createHash } from "crypto";
 import type { SupplierOffer } from "@/lib/suppliers";
+import { searchOwnedCatalog } from "./catalog-search";
 
 const text = (v: unknown, max = 240) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 const num = (v: unknown) => {
@@ -51,8 +52,8 @@ const DEMO_REGIONS = [
   { city: "Павлодар", name: "ДЕМО · ТОО Павлодар-ПромСнаб", factor: 1.04, stKz: true },
 ] as const;
 
-interface DemoContext { baselineKzt?: number; cargoTonnes?: number; quantity?: number }
-export interface SupplierResult { offers: SupplierOffer[]; live: boolean; mode: "live" | "demo"; fallbackReason?: string }
+interface DemoContext { baselineKzt?: number; cargoTonnes?: number; quantity?: number; singleItem?: boolean; unit?: string; tenderText?: string }
+export interface SupplierResult { offers: SupplierOffer[]; live: boolean; mode: "live" | "demo" | "catalog"; fallbackReason?: string }
 
 /** Deterministic, conspicuously labelled fallback; it is never represented as a live quotation. */
 export function demoSupplierOffers(query: string, limit = 20, context: DemoContext = {}): SupplierOffer[] {
@@ -88,6 +89,8 @@ export function demoSupplierOffers(query: string, limit = 20, context: DemoConte
 
 /** Contracted catalogue/ERP connector with a safe demo fallback. */
 export async function searchSuppliers(query: string, city: string, limit = 20, context: DemoContext = {}): Promise<SupplierResult> {
+  const catalog = await searchOwnedCatalog(query, { quantity: context.quantity || 1, singleItem: context.singleItem === true, unit: context.unit, cityId: city, tenderText: context.tenderText });
+  if (catalog.length) return { offers: catalog.slice(0, limit), live: false, mode: "catalog" };
   const endpoint = process.env.SUPPLIER_CATALOG_URL?.trim();
   const apiKey = process.env.SUPPLIER_CATALOG_API_KEY?.trim();
   if (!endpoint || !apiKey) return { offers: demoSupplierOffers(query, limit, context), live: false, mode: "demo", fallbackReason: "SUPPLIER_CATALOG_NOT_CONFIGURED" };

@@ -1,5 +1,7 @@
 /**
- * POST /api/auth/register { email, password, profile }
+ * POST /api/auth/register
+ *   { accountType?: "buyer", email, password, profile }      — участник тендеров (по умолчанию)
+ *   { accountType: "supplier", email, password, supplier }    — поставщик (короткая регистрация)
  *
  * Creates an already-confirmed Supabase user and their company row in one step, so
  * registration never waits for an email. Needs SUPABASE_SECRET_KEY (or the legacy
@@ -12,6 +14,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isMissingColumnError, toRow, withoutOptional } from "@/lib/profile-row";
+import { parseSupplierSignup, supplierCreateUserAttributes, supplierProfileRow } from "@/lib/account";
 import { isValidBin, isValidEmail, normalizePhone } from "@/lib/validation";
 import type { CompanyProfile } from "@/lib/types";
 
@@ -22,7 +25,11 @@ export async function POST(req: Request) {
   const secret = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !secret) return NextResponse.json({ error: "no-secret-key" }, { status: 501 });
 
-  const { email, password, profile } = (await req.json()) as { email: string; password: string; profile: CompanyProfile };
+  const body = (await req.json().catch(() => null)) as { accountType?: unknown; email: string; password: string; profile: CompanyProfile } | null;
+  if (!body) return NextResponse.json({ error: "invalid-body" }, { status: 400 });
+  if (body.accountType === "supplier") return registerSupplier(url, secret, body);
+  if (body.accountType !== undefined && body.accountType !== "buyer") return NextResponse.json({ error: "invalid-account-type" }, { status: 400 });
+  const { email, password, profile } = body;
 
   // Server-side validation — never trust the wizard alone.
   if (!isValidEmail(email || "")) return NextResponse.json({ error: "invalid-email" }, { status: 400 });
@@ -57,4 +64,23 @@ export async function POST(req: Request) {
   }
 
   return NextResponse.json({ ok: true });
+}
+
+/** Поставщик: аккаунт + профиль поставщика. Тип доступа выставляет триггер БД (account_access). */
+async function registerSupplier(url: string, secret: string, body: unknown) {
+  const parsed = parseSupplierSignup(body);
+  if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
+  const admin = createClient(url, secret, { auth: { persistSession: false, autoRefreshToken: false } });
+  const { data, error } = await admin.auth.admin.createUser(supplierCreateUserAttributes(parsed.value));
+  if (error || !data.user) {
+    const taken = /already|registered|exists/i.test(error?.message ?? "");
+    return NextResponse.json({ error: taken ? "email-taken" : "create-failed" }, { status: taken ? 409 : 400 });
+  }
+  const { error: rowError } = await admin.from("supplier_profiles").insert(supplierProfileRow(data.user.id, parsed.value));
+  if (rowError) {
+    await admin.auth.admin.deleteUser(data.user.id);
+    // Чаще всего не применены миграции 0008/0009.
+    return NextResponse.json({ error: "supplier-profile-unavailable" }, { status: 503 });
+  }
+  return NextResponse.json({ ok: true, accountType: "supplier" });
 }

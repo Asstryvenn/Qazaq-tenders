@@ -15,6 +15,9 @@ export async function GET(req: Request) {
     baselineKzt: Number.isFinite(baselineKzt) && baselineKzt > 0 ? baselineKzt : undefined,
     cargoTonnes: Number.isFinite(cargoTonnes) && cargoTonnes > 0 ? cargoTonnes : undefined,
     quantity: Number.isFinite(quantity) && quantity > 0 ? quantity : undefined,
+    singleItem: url.searchParams.get("singleItem") === "true" && Number.isFinite(quantity) && quantity > 0,
+    unit: (url.searchParams.get("unit") ?? "").slice(0, 40),
+    tenderText: (url.searchParams.get("text") ?? "").slice(0, 2000),
   });
   return NextResponse.json({ ...result, fetchedAt: new Date().toISOString() }, { headers: { "Cache-Control": "no-store" } });
 }

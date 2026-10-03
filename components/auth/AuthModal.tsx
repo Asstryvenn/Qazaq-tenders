@@ -62,7 +62,7 @@ export function AuthModal() {
         open={open}
         onClose={() => openModal(null)}
         title={t.auth.registerTitle}
-        subtitle={tr({ kz: "3 қадам — және TOS сіздің компанияңыз бойынша есептеледі", ru: "3 шага — и TOS считается под вашу компанию" })}
+        subtitle={tr({ kz: "Qazaq Tenders-ті қалай пайдаланатыныңызды таңдаңыз", ru: "Выберите, как вы будете пользоваться Qazaq Tenders" })}
         width="max-w-xl"
       >
         <RegisterWizard />

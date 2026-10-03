@@ -1,0 +1,28 @@
+[
+  {
+    "sku": "DEMO-PC-001",
+    "name": "ДЕМО Компьютер офисный",
+    "brand": "DemoTech",
+    "model": "Office-16",
+    "unit": "шт",
+    "priceKzt": 250000,
+    "currency": "KZT",
+    "vatIncluded": true,
+    "availability": "in_stock",
+    "stock": 40,
+    "specifications": { "ОЗУ, ГБ": "16", "SSD, ГБ": "512" }
+  },
+  {
+    "sku": "DEMO-SRV-001",
+    "name": "ДЕМО Сервер — наличие и НДС не подтверждены",
+    "brand": "DemoTech",
+    "model": "Server-64",
+    "unit": "шт",
+    "priceKzt": 1500000,
+    "currency": "KZT",
+    "vatIncluded": null,
+    "availability": "unknown",
+    "stock": null,
+    "specifications": { "ОЗУ, ГБ": "64" }
+  }
+]

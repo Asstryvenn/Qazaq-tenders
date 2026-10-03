@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Bell, Building2, CheckCircle2, ExternalLink, Loader2, LogOut, Mail, Pencil, RefreshCw, Send, Timer } from "lucide-react";
+import { Bell, Briefcase, Building2, CheckCircle2, ExternalLink, Loader2, LogOut, Mail, Package, Pencil, RefreshCw, Send, Timer } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Button } from "@/components/ui/Button";
 import { useI18n } from "@/lib/i18n";
@@ -35,7 +36,7 @@ function Toggle({ on, onChange, label }: { on: boolean; onChange: (v: boolean) =
 
 export default function ProfilePage() {
   const { t, tr, kzt, city, lang } = useI18n();
-  const { company, openModal, isDemo, session, signOut } = useProfile();
+  const { company, openModal, isDemo, session, signOut, accountKinds } = useProfile();
   const { feed, results, toast } = useNotifications();
   const tg = useTelegramLink();
   const billing = useBilling();
@@ -142,6 +143,40 @@ export default function ProfilePage() {
       </div>
 
       <div className="mt-7 grid gap-6 lg:grid-cols-2">
+        {session && (
+          <GlassCard interactive={false} className="p-6 lg:col-span-2">
+            <h2 className="text-sm font-semibold text-white">{tr({ kz: "Аккаунт түрлері", ru: "Типы аккаунта" })}</h2>
+            <p className="mt-1 text-xs text-slate-400">
+              {tr({ kz: "Бір аккаунт әрі тендерге қатысушы, әрі жеткізуші бола алады. Бұл әкімші құқығын бермейді және тарифті өзгертпейді.", ru: "Один аккаунт может быть и участником тендеров, и поставщиком. Это не даёт прав администратора и не меняет тариф." })}
+            </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div className="flex items-start justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                <div className="flex gap-3">
+                  <Briefcase className="mt-0.5 h-4 w-4 shrink-0 text-blue-300" />
+                  <div>
+                    <p className="text-sm font-medium text-white">{tr({ kz: "Тендерлерге қатысамын", ru: "Участвую в тендерах" })}</p>
+                    <p className="text-xs text-slate-400">{accountKinds?.includes("buyer") ? tr({ kz: "Қосылған", ru: "Подключено" }) : tr({ kz: "Цифрлық егіз толтырылмаған", ru: "Цифровой двойник не заполнен" })}</p>
+                  </div>
+                </div>
+                {!accountKinds?.includes("buyer") && (
+                  <Button variant="outline" className="shrink-0 px-3 py-1.5 text-xs" onClick={() => openModal("onboarding")}>{tr({ kz: "Толтыру", ru: "Заполнить" })}</Button>
+                )}
+              </div>
+              <div className="flex items-start justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                <div className="flex gap-3">
+                  <Package className="mt-0.5 h-4 w-4 shrink-0 text-blue-300" />
+                  <div>
+                    <p className="text-sm font-medium text-white">{tr({ kz: "Тауар жеткіземін", ru: "Поставляю товары" })}</p>
+                    <p className="text-xs text-slate-400">{accountKinds?.includes("supplier") ? tr({ kz: "Жеткізуші кабинеті қосылған", ru: "Кабинет поставщика подключён" }) : tr({ kz: "Каталог орналастырып, өтінімдер алыңыз", ru: "Разместите каталог и получайте заявки" })}</p>
+                  </div>
+                </div>
+                <Link href="/supplier" className="shrink-0 rounded-lg border border-sea-foam/20 px-3 py-1.5 text-xs text-slate-100 hover:bg-ocean/40">
+                  {accountKinds?.includes("supplier") ? tr({ kz: "Ашу", ru: "Открыть" }) : tr({ kz: "Жеткізуші профилін жасау", ru: "Создать профиль поставщика" })}
+                </Link>
+              </div>
+            </div>
+          </GlassCard>
+        )}
         <GlassCard interactive={false} className="p-6">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-2.5">

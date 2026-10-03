@@ -149,6 +149,7 @@ export function Navbar() {
             { href: "/dashboard", label: t.nav.dashboard, show: true },
             { href: "/analyze", label: tr({ kz: "PDF талдау", ru: "Анализ PDF" }), show: true },
             { href: "/ai-studio", label: "AI Studio", show: hasAccount },
+            { href: "/supplier", label: tr({ kz: "Жеткізуші", ru: "Поставщикам" }), show: true },
             { href: "/admin", label: adminLabel, show: isAdmin },
           ]
             .filter((l) => l.show)

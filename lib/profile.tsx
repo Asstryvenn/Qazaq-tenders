@@ -6,10 +6,13 @@ import { supabase } from "./supabase";
 import { DEMO_COMPANY } from "./mock-data";
 import { fromRow, isMissingColumnError, toRow, withoutOptional, type CompanyRow } from "./profile-row";
 import type { CompanyProfile } from "./types";
+import { isSupplierOnly, resolveAccountKinds, type AccountKind, type SupplierSignup } from "./account";
 
 const LOCAL_KEY = "qt-profile";
 /** Email of a sign-up whose local profile still has to be pushed to Supabase. */
 const PENDING_KEY = "qt-pending-sync";
+/** Профиль поставщика, ожидающий первого входа (регистрация без service-ключа и с подтверждением email). */
+const PENDING_SUPPLIER_KEY = "qt-pending-supplier";
 
 type ModalKind = "login" | "register" | "onboarding" | "gate" | null;
 
@@ -28,6 +31,11 @@ interface ProfileValue {
   pendingEmail: string | null;
   saveProfile: (p: CompanyProfile) => Promise<{ error?: string }>;
   register: (email: string, password: string, p: CompanyProfile) => Promise<{ error?: string; mode?: RegisterMode }>;
+  /** Короткая регистрация поставщика (без цифрового двойника). */
+  registerSupplier: (v: SupplierSignup) => Promise<{ error?: string; mode?: RegisterMode }>;
+  /** Типы доступа: участник тендеров и/или поставщик. null — ещё не загружены или нет входа. */
+  accountKinds: AccountKind[] | null;
+  refreshAccess: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
   /** Sends a password-reset link to the email (Supabase). */
   resetPassword: (email: string) => Promise<{ error?: string }>;
@@ -65,6 +73,44 @@ const setPendingStorage = (email: string | null) => {
   } catch {}
 };
 
+type PendingSupplier = Omit<SupplierSignup, "password">;
+const readPendingSupplier = (): PendingSupplier | null => {
+  try {
+    const raw = localStorage.getItem(PENDING_SUPPLIER_KEY);
+    return raw ? (JSON.parse(raw) as PendingSupplier) : null;
+  } catch {
+    return null;
+  }
+};
+const setPendingSupplier = (v: PendingSupplier | null) => {
+  try {
+    if (v) localStorage.setItem(PENDING_SUPPLIER_KEY, JSON.stringify(v));
+    else localStorage.removeItem(PENDING_SUPPLIER_KEY);
+  } catch {}
+};
+
+/** Профиль поставщика через серверный API (он же выдаёт тип доступа supplier). */
+async function saveSupplierProfile(token: string, v: PendingSupplier): Promise<string | null> {
+  const res = await fetch("/api/supplier/catalog", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ action: "profile", name: v.name, city: v.city, contact_email: v.contactEmail, contact_phone: v.contactPhone, bin: v.bin, published: v.publish }),
+  }).catch(() => null);
+  if (res?.ok) return null;
+  const d = await res?.json().catch(() => ({}));
+  return d?.error || "supplier-profile-unavailable";
+}
+
+/** Типы доступа из account_access; до миграции 0009 — по наличию профилей. */
+async function loadAccountKinds(userId: string, hasCompany: boolean): Promise<AccountKind[]> {
+  if (!supabase) return ["buyer"];
+  const [access, supplier] = await Promise.all([
+    supabase.from("account_access").select("kind").eq("user_id", userId),
+    supabase.from("supplier_profiles").select("user_id").eq("user_id", userId).maybeSingle(),
+  ]);
+  return resolveAccountKinds(access.error ? null : access.data, { hasCompany, hasSupplierProfile: !supplier.error && !!supplier.data });
+}
+
 /** Upsert the company row, tolerating a database that hasn't run the newest migration. */
 async function upsertRemote(userId: string, p: CompanyProfile): Promise<string | null> {
   if (!supabase) return "supabase-not-configured";
@@ -83,10 +129,21 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
   const [modal, setModal] = useState<ModalKind>(null);
+  const [accountKinds, setAccountKinds] = useState<AccountKind[] | null>(null);
 
   const loadRemote = useCallback(async (s: Session | null) => {
-    if (!supabase || !s) return;
+    if (!supabase || !s) {
+      setAccountKinds(null);
+      return;
+    }
+    // Поставщик, зарегистрированный без service-ключа: профиль создаётся при первом входе.
+    const pendingSupplier = readPendingSupplier();
+    if (pendingSupplier && pendingSupplier.email.toLowerCase() === (s.user.email ?? "").toLowerCase()) {
+      if (!(await saveSupplierProfile(s.access_token, pendingSupplier))) setPendingSupplier(null);
+    }
     const { data } = await supabase.from("companies").select("*").eq("user_id", s.user.id).maybeSingle();
+    const kinds = await loadAccountKinds(s.user.id, !!data);
+    setAccountKinds(kinds);
     if (data) {
       const p = fromRow(data as CompanyRow);
       setCompany(p);
@@ -94,6 +151,8 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
       setIsDemo(false);
       return;
     }
+    // Только поставщик: цифровой двойник не нужен, мастер не открываем.
+    if (isSupplierOnly(kinds)) return;
     // The account has no profile row yet but this browser has one (e.g. registered while cloud
     // accounts were unavailable) → push it instead of asking the user to fill everything again.
     const local = readLocal();
@@ -206,6 +265,53 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     return { mode: "pending" as const };
   }, []);
 
+  const registerSupplier = useCallback(async (v: SupplierSignup) => {
+    if (!supabase) return { error: "supabase-not-configured" };
+    const { password, ...pending } = v;
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        accountType: "supplier",
+        email: v.email,
+        password,
+        supplier: { name: v.name, city: v.city, contactEmail: v.contactEmail, contactPhone: v.contactPhone, bin: v.bin, publish: v.publish },
+      }),
+    });
+    if (res.ok) {
+      const { error } = await supabase.auth.signInWithPassword({ email: v.email, password });
+      if (error) return { error: error.message };
+      setAccountKinds(["supplier"]);
+      return { mode: "confirmed" as const };
+    }
+    if (res.status !== 501) {
+      const d = await res.json().catch(() => ({}));
+      return { error: d.error || `HTTP ${res.status}` };
+    }
+    // Нет service-ключа на сервере → обычная регистрация; профиль поставщика — после входа.
+    setPendingSupplier(pending);
+    const { data, error } = await supabase.auth.signUp({ email: v.email, password, options: { data: { company: v.name } } });
+    if (error) {
+      setPendingSupplier(null);
+      return { error: error.message };
+    }
+    if (data.session) {
+      const err = await saveSupplierProfile(data.session.access_token, pending);
+      if (err) return { error: err };
+      setPendingSupplier(null);
+      setAccountKinds(["supplier"]);
+      return { mode: "session" as const };
+    }
+    setPendingEmail(v.email);
+    return { mode: "pending" as const };
+  }, []);
+
+  const refreshAccess = useCallback(async () => {
+    if (!supabase || !session) return;
+    const { data } = await supabase.from("companies").select("user_id").eq("user_id", session.user.id).maybeSingle();
+    setAccountKinds(await loadAccountKinds(session.user.id, !!data));
+  }, [session]);
+
   const signIn = useCallback(async (email: string, password: string) => {
     if (!supabase) return { error: "supabase-not-configured" };
     let { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -234,6 +340,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     } catch {}
     setPendingStorage(null);
     setPendingEmail(null);
+    setAccountKinds(null);
     setSession(null);
     setCompany(DEMO_COMPANY);
     setIsDemo(true);
@@ -241,7 +348,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ProfileContext.Provider
-      value={{ company, isDemo, hasAccount: !!session || !isDemo, session, loading, pendingEmail, saveProfile, register, signIn, resetPassword, signOut, modal, openModal: setModal }}
+      value={{ company, isDemo, hasAccount: !!session || !isDemo, session, loading, pendingEmail, saveProfile, register, registerSupplier, accountKinds, refreshAccess, signIn, resetPassword, signOut, modal, openModal: setModal }}
     >
       {children}
     </ProfileContext.Provider>
