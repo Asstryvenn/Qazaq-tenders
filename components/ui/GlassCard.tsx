@@ -5,33 +5,21 @@ import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
 
 type GlassCardProps = HTMLMotionProps<"div"> & {
-  /** Disable the hover-scale interaction (e.g. for static panels). */
+  /** Интерактивная карточка подсвечивает границу при наведении (без масштабирования). */
   interactive?: boolean;
+  /** Оставлено для совместимости: свечения в монохромной системе нет. */
   glow?: "none" | "blue" | "emerald" | "crimson";
 };
 
-const glowMap = {
-  none: "",
-  blue: "hover:shadow-glow",
-  emerald: "hover:shadow-glow-emerald",
-  crimson: "hover:shadow-glow-crimson",
-} as const;
-
-/** Glassmorphism surface with a lit top hairline and hover-scale. */
+/** Плоская поверхность с резкой 1px-границей — блок bento-сетки. */
 export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(function GlassCard(
-  { className, interactive = true, glow = "none", children, ...props },
+  { className, interactive = true, glow: _glow, children, ...props },
   ref
 ) {
   return (
     <motion.div
       ref={ref}
-      whileHover={interactive ? { scale: 1.02, y: -2 } : undefined}
-      transition={{ type: "spring", stiffness: 320, damping: 26 }}
-      className={cn(
-        "hairline glass relative overflow-hidden p-6 shadow-card transition-shadow duration-300",
-        glowMap[glow],
-        className
-      )}
+      className={cn("glass relative overflow-hidden p-6", interactive && "hover:border-fg/40", className)}
       {...props}
     >
       {children}

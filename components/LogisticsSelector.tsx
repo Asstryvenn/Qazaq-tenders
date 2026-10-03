@@ -132,12 +132,12 @@ export function LogisticsSelector({
               }}
               className={cn(
                 "rounded-xl border p-3 text-left transition-colors",
-                active ? "border-wave bg-deep-water/40 dark:bg-[#07575B]/30" : "border-gray-200 bg-white hover:border-wave/50 dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.06]"
+                active ? "border-wave bg-deep-water/40 dark:bg-fg/30" : "border-gray-200 bg-white hover:border-wave/50 dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.06]"
               )}
             >
               <div className="flex items-start justify-between gap-2">
                 <span className="flex items-center gap-1.5 text-sm font-semibold text-slate-900 dark:text-slate-100">{(() => { const I = MODE_COPY[quote.mode].Icon; return <I className="h-4 w-4 text-wave" />; })()} {lang === "kz" ? MODE_COPY[quote.mode].kz : MODE_COPY[quote.mode].ru}</span>
-                {recommended && <span className="rounded border border-[#66A5AD]/30 bg-[#07575B] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#C4DFE6]">{tr({ kz: "ұсынылады", ru: "рекомендуем" })}</span>}
+                {recommended && <span className="rounded-sm border border-fg bg-fg px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-app-bg">{tr({ kz: "ұсынылады", ru: "рекомендуем" })}</span>}
               </div>
               <p className="mt-2 font-mono text-sm text-white">{kzt(quote.cost)}</p>
               <p className="mt-1 text-[11px] text-slate-400">{quote.distanceKm} {tr({ kz: "км", ru: "км" })} · {quote.transitDays} {tr({ kz: "күн", ru: "дн." })}</p>

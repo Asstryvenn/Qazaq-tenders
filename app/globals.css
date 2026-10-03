@@ -3,49 +3,73 @@
 @tailwind utilities;
 
 :root {
-  /* Dark (default): Deep Sea + Emerald */
-  --c-app-bg: 11 19 25; /* #0B1319 */
-  --c-surface: 19 34 42; /* #13222A */
-  --c-surface-2: 26 45 55;
-  --c-deep-water: 0 59 70;
-  --c-ocean: 7 87 91;
-  --c-wave: 102 165 173;
-  --c-sea-foam: 196 223 230;
-  --card-bg: rgba(19, 34, 42, 0.8);
-  --card-border: rgba(255, 255, 255, 0.1);
-  --card-border-hover: rgba(16, 185, 129, 0.5);
+  /* Тёмная (по умолчанию): монохромный терминал */
+  --c-app-bg: 9 9 11; /* #09090b */
+  --c-surface: 12 12 14; /* карточки */
+  --c-surface-2: 24 24 27; /* #18181b */
+  --c-line: 39 39 42; /* #27272a */
+  --c-fg: 250 250 250;
+  --c-muted: 113 113 122; /* #71717a */
+  --c-deep-water: 24 24 27;
+  --c-ocean: 39 39 42;
+  --c-sea-foam: 228 228 231;
+  --card-bg: rgb(12 12 14);
+  --card-border: rgb(39 39 42);
+  --card-border-hover: rgb(113 113 122);
   --card-shadow: none;
-  /* Semantic text colours used in inline styles — never hard-code hex in components */
-  --fg: #ffffff;
-  --fg-2: #e2e8f0;
-  --fg-muted: #94a3b8;
-  --pos: #34d399; /* emerald-400 */
-  --neg: #f87171; /* red-400 */
-  --warn: #fcd34d;
+  /* Семантические цвета для inline-стилей и графиков — не хардкодить hex в компонентах */
+  --fg: #fafafa;
+  --fg-2: #d4d4d8;
+  --fg-muted: #a1a1aa;
+  --pos: #34d399;
+  --neg: #f87171;
+  --warn: #fbbf24;
   --tone-go: #6ee7b7;
   --tone-caution: #fcd34d;
   --tone-nogo: #fda4af;
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --chart-1: #fafafa;
+  --chart-2: #a1a1aa;
+  --chart-3: #71717a;
+  --chart-4: #52525b;
+  --chart-grid: rgba(255, 255, 255, 0.08);
 }
 
 @layer base {
   html {
     color-scheme: dark;
+    -webkit-text-size-adjust: 100%;
   }
   body {
-    @apply bg-ink text-slate-200 antialiased;
-    background-image: none;
-    background-attachment: fixed;
+    @apply bg-ink text-zinc-300 antialiased;
+    font-feature-settings: "ss01", "cv11";
+  }
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.02em;
+  }
+  /* Цифры, бюджеты, БИН/ИИН — моноширинные и табличные */
+  .font-mono,
+  code,
+  kbd,
+  samp {
+    font-variant-numeric: tabular-nums slashed-zero;
+    letter-spacing: 0;
   }
   ::selection {
-    @apply bg-accent-blue/30 text-white;
+    background: rgb(var(--c-fg));
+    color: rgb(var(--c-app-bg));
+  }
+  :focus-visible {
+    outline: 1px solid rgb(var(--c-fg));
+    outline-offset: 2px;
   }
   ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
   }
   ::-webkit-scrollbar-thumb {
-    @apply rounded-full bg-white/10;
+    background: rgb(var(--c-line));
   }
   ::-webkit-scrollbar-track {
     background: transparent;
@@ -53,25 +77,35 @@
 }
 
 @layer components {
-  /* Cards: distinct surface + visible hairline border in both themes */
+  /* Карточки: плоская поверхность, резкая 1px граница, без размытия и теней */
   .glass,
   .glass-strong {
-    @apply rounded-xl border backdrop-blur-md transition-all duration-300;
+    @apply rounded-md border transition-colors duration-150;
     background-color: var(--card-bg);
     border-color: var(--card-border);
-    box-shadow: var(--card-shadow);
+    box-shadow: none;
+  }
+  .glass-strong {
+    background-color: rgb(var(--c-app-bg));
   }
   .glass:hover:is(a *, [role='button'], .cursor-pointer) {
     border-color: var(--card-border-hover);
   }
-  /* Gradient hairline that lights up the top edge of a card */
   .hairline::before {
-    content: "";
-    @apply pointer-events-none absolute inset-x-6 -top-px h-px;
-    background: linear-gradient(90deg, transparent, rgba(196, 223, 230, 0.25), transparent);
+    content: none;
   }
   .text-gradient {
-    @apply bg-gradient-to-br from-white via-white to-sea-foam bg-clip-text text-transparent;
+    color: rgb(var(--c-fg));
+  }
+  /* Подпись секции в стиле терминала: «01 — ЭКОНОМИКА» */
+  .label-mono {
+    @apply font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-muted;
+  }
+  /* Сетка-«чертёж» для фонов */
+  .bg-grid {
+    background-image: linear-gradient(rgb(var(--c-line) / 0.55) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(var(--c-line) / 0.55) 1px, transparent 1px);
+    background-size: 48px 48px;
   }
 }
 
@@ -84,16 +118,16 @@ input[type="range"] {
 input[type="range"]::-webkit-slider-runnable-track {
   height: 4px;
   border-radius: 999px;
-  background: linear-gradient(90deg, #66A5AD var(--fill, 0%), rgba(255, 255, 255, 0.14) var(--fill, 0%));
+  background: linear-gradient(90deg, rgb(var(--c-fg)) var(--fill, 0%), rgb(var(--c-line)) var(--fill, 0%));
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   height: 16px;
   width: 16px;
   margin-top: -6px;
-  border-radius: 999px;
-  background: #66A5AD;
-  box-shadow: 0 0 0 4px rgba(102, 165, 173, 0.2), 0 0 18px rgba(102, 165, 173, 0.6);
+  border-radius: 0;
+  background: rgb(var(--c-fg));
+  box-shadow: 0 0 0 3px rgb(var(--c-app-bg));
   cursor: pointer;
   transition: transform 0.15s ease;
 }
@@ -103,15 +137,14 @@ input[type="range"]::-webkit-slider-thumb:hover {
 input[type="range"]::-moz-range-track {
   height: 4px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgb(var(--c-line));
 }
 input[type="range"]::-moz-range-thumb {
   height: 16px;
   width: 16px;
   border: none;
-  border-radius: 999px;
-  background: #66A5AD;
-  box-shadow: 0 0 18px rgba(102, 165, 173, 0.6);
+  border-radius: 0;
+  background: rgb(var(--c-fg));
   cursor: pointer;
 }
 
@@ -131,56 +164,40 @@ input[type="range"]::-moz-range-thumb {
 html.light {
   color-scheme: light;
 }
-/* Light: Premium Beige (old-money banking) — sand ground, white cards, espresso text */
+/* Светлая: белый лист, чёрный текст, серые границы */
 html.light {
-  --c-app-bg: 244 241 234; /* #F4F1EA */
+  --c-app-bg: 255 255 255;
   --c-surface: 255 255 255;
-  --c-surface-2: 250 248 244;
-  --c-deep-water: 236 231 221;
-  --c-ocean: 229 224 216;
-  --c-wave: 7 87 91; /* #07575B — AA on white and beige */
-  --c-sea-foam: 7 87 91;
+  --c-surface-2: 250 250 250;
+  --c-line: 228 228 231; /* #e4e4e7 */
+  --c-fg: 9 9 11;
+  --c-muted: 113 113 122;
+  --c-deep-water: 244 244 245;
+  --c-ocean: 244 244 245;
+  --c-sea-foam: 39 39 42;
   --card-bg: #ffffff;
-  --card-border: #e5e0d8;
-  --card-border-hover: #059669;
-  --card-shadow: 0 1px 2px rgba(41, 37, 36, 0.06);
-  --fg: #292524; /* espresso */
-  --fg-2: #44403c;
-  --fg-muted: #78716c; /* taupe */
-  --pos: #059669; /* emerald-600 */
-  --neg: #dc2626; /* red-600 */
+  --card-border: #e4e4e7;
+  --card-border-hover: #71717a;
+  --card-shadow: none;
+  --fg: #09090b;
+  --fg-2: #27272a;
+  --fg-muted: #71717a;
+  --pos: #047857;
+  --neg: #dc2626;
   --warn: #b45309;
   --tone-go: #047857;
   --tone-caution: #b45309;
   --tone-nogo: #be123c;
+  --chart-1: #09090b;
+  --chart-2: #52525b;
+  --chart-3: #a1a1aa;
+  --chart-4: #d4d4d8;
+  --chart-grid: rgba(9, 9, 11, 0.08);
 }
 html.light body {
-  color: #292524;
-}
-html.light .hairline::before {
-  background: linear-gradient(90deg, transparent, rgba(15, 23, 42, 0.16), transparent);
-}
-html.light .text-gradient {
-  background-image: linear-gradient(to bottom right, #0f172a, #1e293b, #475569);
-}
-html.light .shadow-card {
-  box-shadow: 0 20px 50px -24px rgba(15, 23, 42, 0.25);
-}
-html.light ::-webkit-scrollbar-thumb {
-  background: rgba(41, 37, 36, 0.18);
-}
-html.light input[type="range"]::-webkit-slider-runnable-track {
-  background: linear-gradient(90deg, #07575B var(--fill, 0%), #e5e0d8 var(--fill, 0%));
-}
-/* Animated background: drop the dark vignette, turn the white grid lines dark */
-html.light .bg-vignette {
-  display: none;
-}
-html.light .bg-grid-lines {
-  filter: invert(1);
-  opacity: 0.35;
+  color: #27272a;
 }
 html.light option {
   background: #ffffff;
-  color: #0f172a;
+  color: #09090b;
 }

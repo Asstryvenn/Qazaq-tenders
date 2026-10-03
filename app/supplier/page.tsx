@@ -140,7 +140,7 @@ function SupplierCabinet() {
                   type="button"
                   aria-selected={tab === id}
                   onClick={() => setTab(id)}
-                  className={cn("flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-medium transition-colors sm:text-sm", tab === id ? "bg-accent-blue keep-white text-white" : "text-slate-300 hover:bg-white/5")}
+                  className={cn("flex items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-medium transition-colors sm:text-sm", tab === id ? "bg-accent-blue text-app-bg" : "text-slate-300 hover:bg-white/5")}
                 >
                   <Icon className="hidden h-4 w-4 sm:block" /> {label}
                 </button>

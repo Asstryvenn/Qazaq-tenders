@@ -52,35 +52,34 @@ export function TosGauge({
             </feMerge>
           </filter>
         </defs>
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgb(var(--c-line))" strokeWidth={stroke} />
         <motion.circle
           cx={size / 2}
           cy={size / 2}
           r={r}
           fill="none"
-          stroke={`url(#tos-grad-${tone.key})`}
+          stroke={tone.color}
           strokeWidth={stroke}
-          strokeLinecap="round"
+          strokeLinecap="butt"
           strokeDasharray={c}
           style={{ strokeDashoffset: dashoffset }}
-          filter="url(#tos-glow)"
         />
       </svg>
 
       {/* Dark inner disc keeps the number readable on top of the glow */}
-      <div className="absolute inset-[22px] rounded-full bg-ink/80 ring-1 ring-inset ring-white/5" />
+
 
       <div className="absolute flex flex-col items-center">
         <motion.span
           className="font-mono text-[2.6rem] font-bold leading-none tabular-nums"
-          style={{ color: tone.text, textShadow: `0 0 18px ${tone.color}88` }}
+          style={{ color: tone.text }}
         >
           {display}
         </motion.span>
-        <span className="mt-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-400">{tr({ kz: "TOS индексі", ru: "Индекс TOS" })}</span>
+        <span className="mt-1.5 font-mono text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-500">{tr({ kz: "TOS индексі", ru: "Индекс TOS" })}</span>
         <span
-          className="mt-2.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold"
-          style={{ color: tone.text, borderColor: `${tone.color}80`, background: `${tone.color}26` }}
+          className="mt-2.5 border px-2 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-wider"
+          style={{ color: tone.text, borderColor: `${tone.color}80` }}
         >
           {t.verdict[tone.key]}
         </span>
@@ -96,10 +95,10 @@ export function TosGauge({
       onClick={onExplain}
       aria-label={explainLabel}
       aria-haspopup="dialog"
-      className="group relative rounded-full outline-none transition-transform hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-sky-400/70 focus-visible:ring-offset-4 focus-visible:ring-offset-ink"
+      className="group relative rounded-full outline-none focus-visible:ring-1 focus-visible:ring-fg focus-visible:ring-offset-4 focus-visible:ring-offset-ink"
     >
       {gauge}
-      <span className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full border border-sky-300/30 bg-ink-800/90 text-sky-200 shadow-lg transition-colors group-hover:bg-sky-400/20">
+      <span className="absolute right-2 top-2 grid h-7 w-7 place-items-center border border-line bg-app-bg text-zinc-400 transition-colors group-hover:border-fg group-hover:text-fg">
         <CircleHelp className="h-4 w-4" />
       </span>
     </button>
@@ -134,10 +133,10 @@ export function ScoreBar({
           {onExplain && <CircleHelp className="h-3.5 w-3.5 text-sky-300 opacity-70 transition-opacity group-hover:opacity-100" />}
         </span>
       </div>
-      <div className="h-2 overflow-hidden rounded-full bg-white/[0.07]">
+      <div className="h-1 overflow-hidden bg-line">
         <motion.div
-          className="h-full rounded-full"
-          style={{ background: color, boxShadow: `0 0 12px ${color}99` }}
+          className="h-full"
+          style={{ background: color }}
           initial={{ width: 0 }}
           animate={{ width: `${Math.min(100, Math.max(0, value))}%` }}
           transition={{ type: "spring", stiffness: 120, damping: 22 }}
@@ -154,7 +153,7 @@ export function ScoreBar({
       onClick={onExplain}
       aria-label={explainLabel}
       aria-haspopup="dialog"
-      className="group -m-2 block w-[calc(100%+1rem)] rounded-xl text-left outline-none transition-colors hover:bg-white/[0.04] focus-visible:ring-2 focus-visible:ring-sky-400/60"
+      className="group -m-2 block w-[calc(100%+1rem)] text-left outline-none transition-colors hover:bg-fg/[0.03] focus-visible:ring-1 focus-visible:ring-fg"
     >
       {content}
     </button>

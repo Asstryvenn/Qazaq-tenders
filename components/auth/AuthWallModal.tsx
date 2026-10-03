@@ -28,8 +28,8 @@ export function AuthWallModal() {
     >
       <ul className="space-y-2.5">
         {benefits.map(({ Icon, text }) => (
-          <li key={text} className="flex items-center gap-3 rounded-lg border border-[#E5E0D8] bg-[#F4F1EA] px-3 py-2.5 text-sm text-[#292524] dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
-            <Icon className="h-4 w-4 shrink-0 text-[#07575B] dark:text-[#10B981]" />
+          <li key={text} className="flex items-center gap-3 rounded-lg border border-line bg-surface-2 px-3 py-2.5 text-sm text-fg dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
+            <Icon className="h-4 w-4 shrink-0 text-fg dark:text-emerald-500" />
             <span className="min-w-0 flex-1">{text}</span>
             <Check className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
           </li>
@@ -43,7 +43,7 @@ export function AuthWallModal() {
           <LogIn className="h-4 w-4" /> {tr({ kz: "Кіру", ru: "Войти" })}
         </Button>
       </div>
-      <p className="mt-4 text-center text-xs text-[#78716C] dark:text-slate-400">
+      <p className="mt-4 text-center text-xs text-zinc-500 dark:text-slate-400">
         {tr({ kz: "Лоттар тізімі тіркелусіз ашық. Тіркелу 1 минут алады.", ru: "Список лотов открыт без регистрации. Регистрация занимает 1 минуту." })}
       </p>
     </Modal>

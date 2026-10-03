@@ -1,18 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { Activity } from "lucide-react";
+import { LogIn, LogOut, Menu, Moon, ShieldCheck, Sun, UserRound, X } from "lucide-react";
 import { Button } from "./ui/Button";
 import { Lang, useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { useProfile } from "@/lib/profile";
-import { LogIn, LogOut, Moon, ShieldCheck, Sun, UserRound } from "lucide-react";
 import { useIsAdmin } from "@/lib/use-is-admin";
 import { useTheme } from "@/lib/theme";
 import { NotificationBell } from "./NotificationBell";
+
+/** Знак: квадрат с «столбиком» — график/лот, без иконок-клипартов. */
+export function LogoMark({ className }: { className?: string }) {
+  return (
+    <span className={cn("relative grid h-6 w-6 place-items-center border border-fg bg-fg", className)} aria-hidden>
+      <span className="absolute bottom-1 left-1 h-2 w-1 bg-app-bg" />
+      <span className="absolute bottom-1 left-[9px] h-3 w-1 bg-app-bg" />
+      <span className="absolute bottom-1 left-[15px] h-[14px] w-1 bg-app-bg" />
+    </span>
+  );
+}
 
 function LangToggle() {
   const { lang, setLang } = useI18n();
@@ -21,24 +30,14 @@ function LangToggle() {
     { v: "ru", label: "RU" },
   ];
   return (
-    <div role="group" aria-label={lang === "kz" ? "Тіл" : "Язык"} className="relative flex rounded-lg border border-white/10 bg-white/5 p-0.5">
+    <div role="group" aria-label={lang === "kz" ? "Тіл" : "Язык"} className="flex h-8 border border-line">
       {opts.map((o) => (
         <button
           key={o.v}
           onClick={() => setLang(o.v)}
           aria-pressed={lang === o.v}
-          className={cn(
-            "relative z-10 rounded-md px-2.5 py-1 text-xs font-semibold transition-colors",
-            lang === o.v ? "keep-white text-white" : "text-slate-400 hover:text-slate-200"
-          )}
+          className={cn("px-2.5 font-mono text-[11px] font-semibold transition-colors", lang === o.v ? "bg-fg text-app-bg" : "text-zinc-500 hover:text-fg")}
         >
-          {lang === o.v && (
-            <motion.span
-              layoutId="lang-pill"
-              className="absolute inset-0 -z-10 rounded-md bg-accent-blue shadow-glow"
-              transition={{ type: "spring", stiffness: 420, damping: 32 }}
-            />
-          )}
           {o.label}
         </button>
       ))}
@@ -51,56 +50,63 @@ function ThemeToggle() {
   const { tr } = useI18n();
   const label = theme === "dark" ? tr({ kz: "Жарық режим", ru: "Светлая тема" }) : tr({ kz: "Қараңғы режим", ru: "Тёмная тема" });
   return (
-    <button
-      onClick={toggle}
-      aria-label={label}
-      title={label}
-      className="grid h-9 w-9 place-items-center rounded-lg border border-gray-200 bg-white text-slate-700 transition-all duration-300 hover:border-wave/60 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
-    >
-      {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+    <button onClick={toggle} aria-label={label} title={label} className="grid h-8 w-8 place-items-center border border-line text-zinc-400 transition-colors hover:border-fg/60 hover:text-fg">
+      {theme === "dark" ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
     </button>
   );
 }
 
 /**
- * Signed in → company chip + Шығу. A profile saved only in this browser is NOT a session
- * (paying needs one), so it shows the chip plus Кіру — no more "looks logged in but isn't".
+ * Вошёл → чип компании + выход. Профиль только в этом браузере — НЕ сессия (оплата требует входа),
+ * поэтому показываем чип и «Кіру».
  */
-function AuthButtons() {
+function AuthButtons({ stacked = false, onAction }: { stacked?: boolean; onAction?: () => void }) {
   const { t, tr } = useI18n();
   const { session, isDemo, company, openModal, signOut } = useProfile();
   const logoutLabel = tr({ kz: "Аккаунттан шығу", ru: "Выйти из аккаунта" });
-
+  const open = (m: "login" | "register") => {
+    onAction?.();
+    openModal(m);
+  };
   const signInButtons = (
     <>
-      <Button variant="outline" className="px-3.5 py-2 text-sm" onClick={() => openModal("login")}>
+      <Button variant="outline" className={cn("h-8 px-3 py-0 text-[13px]", stacked && "h-11 w-full text-sm")} onClick={() => open("login")}>
         <LogIn className="h-3.5 w-3.5" /> {t.nav.login}
       </Button>
-      <Button className="px-4 py-2 text-sm" onClick={() => openModal("register")}>
+      <Button className={cn("h-8 px-3.5 py-0 text-[13px]", stacked && "h-11 w-full text-sm")} onClick={() => open("register")}>
         {t.nav.register}
       </Button>
     </>
   );
 
-  // Not signed in (also when Supabase runs in local fallback): both actions side by side.
-  if (isDemo && !session) return <div className="flex items-center gap-2">{signInButtons}</div>;
+  if (isDemo && !session) return <div className={cn("flex items-center gap-2", stacked && "flex-col")}>{signInButtons}</div>;
 
   return (
-    <div className="flex items-center gap-1.5">
+    <div className={cn("flex items-center gap-1.5", stacked && "flex-col items-stretch gap-2")}>
       <Link
         href="/profile"
+        onClick={onAction}
         className={cn(
-          "items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-200 transition-colors hover:bg-white/10",
-          session ? "flex max-w-[170px]" : "hidden max-w-[140px] xl:flex"
+          "h-8 items-center gap-2 border border-line px-3 text-xs text-zinc-300 transition-colors hover:border-fg/60 hover:text-fg",
+          stacked ? "flex h-11" : session ? "flex max-w-[180px]" : "hidden max-w-[140px] xl:flex"
         )}
         title={session ? session.user.email ?? t.nav.profile : tr({ kz: "Жергілікті профиль — аккаунтқа кірмегенсіз", ru: "Локальный профиль — вы не вошли в аккаунт" })}
       >
-        <UserRound className="h-3.5 w-3.5 shrink-0 text-blue-300" />
+        <UserRound className="h-3.5 w-3.5 shrink-0" />
         <span className="truncate">{company.name}</span>
       </Link>
       {!session && signInButtons}
-      <button onClick={signOut} title={logoutLabel} aria-label={logoutLabel} className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-white/10 hover:text-white">
+      <button
+        onClick={() => {
+          onAction?.();
+          signOut();
+        }}
+        title={logoutLabel}
+        aria-label={logoutLabel}
+        className={cn("grid h-8 w-8 place-items-center text-zinc-500 transition-colors hover:text-fg", stacked && "flex h-11 w-full items-center justify-center gap-2 border border-line text-sm")}
+      >
         <LogOut className="h-4 w-4" />
+        {stacked && logoutLabel}
       </button>
     </div>
   );
@@ -113,8 +119,9 @@ export function Navbar() {
   const pathname = usePathname();
   const adminLabel = tr({ kz: "Админ-панель", ru: "Админ-панель" });
   const ref = useRef<HTMLElement>(null);
+  const [menu, setMenu] = useState(false);
 
-  // Full-height views (AI Studio) size themselves with calc(100dvh - var(--nav-h)).
+  // Экраны на всю высоту (AI Studio) считают calc(100dvh - var(--nav-h)).
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -125,71 +132,104 @@ export function Navbar() {
     return () => ro.disconnect();
   }, []);
 
+  useEffect(() => setMenu(false), [pathname]);
+  useEffect(() => {
+    document.body.style.overflow = menu ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [menu]);
+
+  const links = [
+    { href: "/home", label: tr({ kz: "Басты бет", ru: "Главная" }), show: true },
+    { href: "/dashboard", label: t.nav.dashboard, show: true },
+    { href: "/analyze", label: tr({ kz: "PDF талдау", ru: "Анализ PDF" }), show: true },
+    { href: "/ai-studio", label: "AI Studio", show: hasAccount },
+    { href: "/supplier", label: tr({ kz: "Жеткізушілерге", ru: "Поставщикам" }), show: true },
+    { href: "/admin", label: adminLabel, show: isAdmin },
+  ].filter((l) => l.show);
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`) || (href === "/dashboard" && pathname.startsWith("/tender/"));
+
   return (
-    <motion.header
-      ref={ref}
-      initial={{ y: -24, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-xl dark:border-white/10 dark:bg-app-bg/80"
-    >
-      <nav className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4">
-        <Link href="/dashboard" className="flex items-center gap-2.5">
-          <span className="relative grid h-9 w-9 place-items-center rounded-xl border border-blue-400/30 bg-accent-blue/15">
-            <Activity className="h-4 w-4 text-blue-300" />
-            <span className="absolute inset-0 animate-pulse-ring rounded-xl border border-blue-400/40" />
-          </span>
-          <span className="text-sm font-semibold tracking-tight text-white">
-            Qazaq<span className="text-wave">Tenders</span>
+    <>
+    <header ref={ref} className="sticky top-0 z-50 border-b border-line bg-app-bg/95 backdrop-blur supports-[backdrop-filter]:bg-app-bg/80">
+      <nav className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
+        <Link href="/home" className="flex shrink-0 items-center gap-2.5" aria-label="Qazaq Tenders">
+          <LogoMark />
+          <span className="font-mono text-[13px] font-semibold uppercase tracking-[0.14em] text-fg">
+            Qazaq<span className="text-zinc-500">Tenders</span>
           </span>
         </Link>
 
-        <div className="hidden items-center gap-7 md:flex">
-          {[
-            { href: "/dashboard", label: t.nav.dashboard, show: true },
-            { href: "/analyze", label: tr({ kz: "PDF талдау", ru: "Анализ PDF" }), show: true },
-            { href: "/ai-studio", label: "AI Studio", show: hasAccount },
-            { href: "/supplier", label: tr({ kz: "Жеткізуші", ru: "Поставщикам" }), show: true },
-            { href: "/admin", label: adminLabel, show: isAdmin },
-          ]
-            .filter((l) => l.show)
-            .map((l) => {
-              const active = pathname === l.href || pathname.startsWith(`${l.href}/`) || (l.href === "/dashboard" && pathname.startsWith("/tender/"));
-              return (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  aria-current={active ? "page" : undefined}
-                  className={cn(
-                    "relative py-1 text-sm transition-colors duration-300",
-                    active ? "font-semibold text-slate-900 dark:text-white" : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
-                  )}
-                >
-                  {l.label}
-                  {active && <span className="absolute inset-x-0 -bottom-[17px] h-0.5 rounded-full bg-wave" />}
-                </Link>
-              );
-            })}
+        <div className="hidden h-full items-center gap-6 lg:flex">
+          {links.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              aria-current={isActive(l.href) ? "page" : undefined}
+              className={cn(
+                "relative flex h-full items-center text-[13px] transition-colors",
+                isActive(l.href) ? "text-fg" : "text-zinc-500 hover:text-fg"
+              )}
+            >
+              {l.label}
+              {isActive(l.href) && <span className="absolute inset-x-0 bottom-0 h-px bg-fg" />}
+            </Link>
+          ))}
         </div>
 
-        <div className="flex items-center gap-3">
-          <LangToggle />
-          <ThemeToggle />
+        <div className="flex items-center gap-2">
+          <div className="hidden items-center gap-2 sm:flex">
+            <LangToggle />
+            <ThemeToggle />
+          </div>
           {hasAccount && <NotificationBell />}
           {isAdmin && (
-            <Link
-              href="/admin"
-              title={adminLabel}
-              aria-label={adminLabel}
-              className="flex items-center gap-1.5 rounded-lg border border-emerald-400/40 bg-emerald-500/10 px-2.5 py-2 text-xs font-semibold text-emerald-200 transition-colors hover:bg-emerald-500/20"
-            >
-              <ShieldCheck className="h-4 w-4" />
-              <span className="hidden lg:inline">{adminLabel}</span>
+            <Link href="/admin" title={adminLabel} aria-label={adminLabel} className="hidden h-8 items-center gap-1.5 border border-line px-2.5 text-xs text-zinc-300 hover:text-fg xl:flex">
+              <ShieldCheck className="h-3.5 w-3.5" />
             </Link>
           )}
-          <AuthButtons />
+          <div className="hidden lg:block">
+            <AuthButtons />
+          </div>
+          <button
+            type="button"
+            onClick={() => setMenu((v) => !v)}
+            aria-expanded={menu}
+            aria-controls="mobile-menu"
+            aria-label={menu ? tr({ kz: "Мәзірді жабу", ru: "Закрыть меню" }) : tr({ kz: "Мәзір", ru: "Меню" })}
+            className="grid h-9 w-9 place-items-center border border-line text-fg lg:hidden"
+          >
+            {menu ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+          </button>
         </div>
       </nav>
-    </motion.header>
+    </header>
+
+      {/* Вне <header>: backdrop-filter шапки иначе станет контейнером для position: fixed. */}
+      {menu && (
+        <div id="mobile-menu" className="fixed inset-x-0 bottom-0 top-14 z-50 overflow-y-auto border-t border-line bg-app-bg lg:hidden">
+          <div className="flex min-h-full flex-col px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-2">
+            <ul className="divide-y divide-line border-b border-line">
+              {links.map((l, i) => (
+                <li key={l.href}>
+                  <Link href={l.href} onClick={() => setMenu(false)} className={cn("flex items-center justify-between py-4 text-lg", isActive(l.href) ? "text-fg" : "text-zinc-400")}>
+                    <span>{l.label}</span>
+                    <span className="font-mono text-xs text-zinc-600">{String(i + 1).padStart(2, "0")}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-5 flex items-center gap-2">
+              <LangToggle />
+              <ThemeToggle />
+            </div>
+            <div className="mt-auto pt-8">
+              <AuthButtons stacked onAction={() => setMenu(false)} />
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

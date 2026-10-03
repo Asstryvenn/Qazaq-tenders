@@ -99,7 +99,7 @@ function PreviewBlock({ preview }: { preview: Preview }) {
       {preview.sample.length > 0 && (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[520px] text-left text-xs">
-            <thead className="text-slate-400">
+            <thead className="font-mono text-[10px] uppercase tracking-[0.12em] text-zinc-500">
               <tr>
                 <th className="py-1.5 pr-3 font-medium">{tr({ kz: "Код", ru: "Код" })}</th>
                 <th className="py-1.5 pr-3 font-medium">{tr({ kz: "Атауы", ru: "Название" })}</th>

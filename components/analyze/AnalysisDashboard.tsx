@@ -27,7 +27,7 @@ import { LogisticsSelector } from "@/components/LogisticsSelector";
 const SEV = {
   high: { tone: "crimson" as const, color: "#f43f5e", kz: "Жоғары қауіп", ru: "Высокий риск" },
   medium: { tone: "amber" as const, color: "#f59e0b", kz: "Орташа", ru: "Средний" },
-  low: { tone: "blue" as const, color: "#3b82f6", kz: "Төмен", ru: "Низкий" },
+  low: { tone: "blue" as const, color: "#a1a1aa", kz: "Төмен", ru: "Низкий" },
 };
 
 /** Everything the engine and the extraction produced for one uploaded PDF. */
@@ -122,13 +122,13 @@ export function AnalysisDashboard({ upload, onUpdate, onDelete }: { upload: Uplo
 
   const finance = result
     ? [
-        { name: tr({ kz: "Бюджет", ru: "Бюджет" }), value: S, color: "#3b82f6" },
-        { name: tr({ kz: "Өзіндік құн", ru: "Себестоимость" }), value: Math.round(result.costs.purchase), color: "#6366f1" },
+        { name: tr({ kz: "Бюджет", ru: "Бюджет" }), value: S, color: "#a1a1aa" },
+        { name: tr({ kz: "Өзіндік құн", ru: "Себестоимость" }), value: Math.round(result.costs.purchase), color: "#71717a" },
         { name: tr({ kz: "Салықтар", ru: "Налоги" }), value: Math.round(result.costs.tax), color: "#f59e0b" },
         {
           name: tr({ kz: "Логистика + басқа", ru: "Логистика + прочее" }),
           value: Math.round(result.costs.logistics + result.costs.operating + result.costs.bank + result.costs.guarantee + result.costs.penalty),
-          color: "#a78bfa",
+          color: "#52525b",
         },
         { name: tr({ kz: "Таза пайда", ru: "Чистая прибыль" }), value: Math.round(result.netProfit), color: result.netProfit >= 0 ? "#10b981" : "#f43f5e" },
       ]
@@ -146,7 +146,7 @@ export function AnalysisDashboard({ upload, onUpdate, onDelete }: { upload: Uplo
           <p className="flex items-center gap-1.5 font-mono text-xs text-sky-300">
             <FileText className="h-3.5 w-3.5" /> {upload.fileName} · {upload.numPages} {tr({ kz: "бет", ru: "стр." })}
           </p>
-          <h1 className="mt-1.5 text-2xl font-semibold leading-tight tracking-tight text-[#292524] dark:text-white">{spec.title}</h1>
+          <h1 className="mt-1.5 text-2xl font-semibold leading-tight tracking-tight text-fg dark:text-white">{spec.title}</h1>
           <p className="mt-1 text-sm text-slate-400">{spec.customer}</p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -160,7 +160,7 @@ export function AnalysisDashboard({ upload, onUpdate, onDelete }: { upload: Uplo
           )}
           <Link
             href={`/ai-studio?tender=${encodeURIComponent(spec.id)}`}
-            className={cn("inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-opacity", ready ? "bg-accent-blue keep-white text-white" : "pointer-events-none bg-white/10 text-slate-500")}
+            className={cn("inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-opacity", ready ? "bg-accent-blue text-app-bg" : "pointer-events-none bg-white/10 text-slate-500")}
           >
             <Sparkles className="h-4 w-4" /> {tr({ kz: "AI Studio-да сұрау", ru: "Спросить в AI Studio" })}
           </Link>
@@ -237,7 +237,7 @@ export function AnalysisDashboard({ upload, onUpdate, onDelete }: { upload: Uplo
 
       {/* Assumptions the user can correct */}
       <GlassCard interactive={false} className="p-6">
-        <h3 className="text-sm font-semibold text-[#292524] dark:text-white">{tr({ kz: "Болжамдарды түзету", ru: "Уточните допущения" })}</h3>
+        <h3 className="text-sm font-semibold text-fg dark:text-white">{tr({ kz: "Болжамдарды түзету", ru: "Уточните допущения" })}</h3>
         <p className="mt-1 text-xs text-slate-400">
           {tr({
             kz: "Құжатта жоқ мәндер болжанды. Өзгертсеңіз, TOS пен графиктер бірден қайта есептеледі.",
@@ -246,7 +246,7 @@ export function AnalysisDashboard({ upload, onUpdate, onDelete }: { upload: Uplo
         </p>
         <div className="mt-5 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
           <label className="block space-y-2">
-            <span className="text-sm text-[#44403C] dark:text-slate-200">{tr({ kz: "Лот сомасы, ₸", ru: "Сумма лота, ₸" })}</span>
+            <span className="text-sm text-zinc-700 dark:text-slate-200">{tr({ kz: "Лот сомасы, ₸", ru: "Сумма лота, ₸" })}</span>
             <input
               inputMode="numeric"
               defaultValue={S || ""}
@@ -254,7 +254,7 @@ export function AnalysisDashboard({ upload, onUpdate, onDelete }: { upload: Uplo
                 const v = Number(e.target.value.replace(/\s/g, ""));
                 if (v > 0 && v !== S) edit({ contractAmount: v });
               }}
-              className="w-full rounded-lg border border-[#D6CFC4] bg-white px-3.5 py-2.5 font-mono text-sm text-[#292524] outline-none transition-all duration-300 focus:border-[#07575B] dark:border-slate-700 dark:bg-transparent dark:text-white dark:focus:border-[#10B981]"
+              className="w-full rounded-lg border border-line bg-white px-3.5 py-2.5 font-mono text-sm text-fg outline-none transition-all duration-300 focus:border-fg dark:border-slate-700 dark:bg-transparent dark:text-white dark:focus:border-emerald-500"
             />
           </label>
           <Slider label={tr({ kz: "Өзіндік құн, бюджеттің %", ru: "Себестоимость, % бюджета" })} value={Math.round(upload.costShare * 100)} min={40} max={100} suffix="%" onChange={(v) => edit({}, v / 100)} />
@@ -267,14 +267,14 @@ export function AnalysisDashboard({ upload, onUpdate, onDelete }: { upload: Uplo
         <div className="grid gap-6 lg:grid-cols-2">
           {/* Finance breakdown */}
           <GlassCard interactive={false} className="p-6">
-            <h3 className="text-sm font-semibold text-[#292524] dark:text-white">{tr({ kz: "Қаржы құрылымы", ru: "Финансовая структура" })}</h3>
+            <h3 className="text-sm font-semibold text-fg dark:text-white">{tr({ kz: "Қаржы құрылымы", ru: "Финансовая структура" })}</h3>
             <p className="mt-1 text-xs text-slate-400">{tr({ kz: "Бюджет → өзіндік құн → салықтар → пайда", ru: "Бюджет → себестоимость → налоги → прибыль" })}</p>
             <div className="mt-4 h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={finance} margin={{ top: 8, right: 8, left: 4, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.12)" vertical={false} />
-                  <XAxis dataKey="name" tick={{ fill: "#94a3b8", fontSize: 11 }} tickLine={false} axisLine={false} interval={0} />
-                  <YAxis tick={{ fill: "#94a3b8", fontSize: 11 }} tickLine={false} axisLine={false} width={64} tickFormatter={(v) => kzt(v).replace(" ₸", "")} />
+                  <XAxis dataKey="name" tick={{ fill: "#a1a1aa", fontSize: 11 }} tickLine={false} axisLine={false} interval={0} />
+                  <YAxis tick={{ fill: "#a1a1aa", fontSize: 11 }} tickLine={false} axisLine={false} width={64} tickFormatter={(v) => kzt(v).replace(" ₸", "")} />
                   <Tooltip cursor={{ fill: "rgba(148,163,184,0.08)" }} content={<MoneyTip kzt={kzt} />} />
                   <Bar dataKey="value" radius={[8, 8, 0, 0]} isAnimationActive animationDuration={500}>
                     {finance.map((d) => (
@@ -288,7 +288,7 @@ export function AnalysisDashboard({ upload, onUpdate, onDelete }: { upload: Uplo
 
           {/* Penalty timeline */}
           <GlassCard interactive={false} className="p-6">
-            <h3 className="text-sm font-semibold text-[#292524] dark:text-white">{tr({ kz: "Кешігу → өсімпұл → пайда", ru: "Просрочка → пеня → прибыль" })}</h3>
+            <h3 className="text-sm font-semibold text-fg dark:text-white">{tr({ kz: "Кешігу → өсімпұл → пайда", ru: "Просрочка → пеня → прибыль" })}</h3>
             <p className="mt-1 text-xs text-slate-400">
               {breakEvenDay !== null
                 ? tr({ kz: `${breakEvenDay} күн кешіксеңіз, пайда нөлге түседі`, ru: `При просрочке ${breakEvenDay} дн. прибыль уходит в ноль` })
@@ -298,8 +298,8 @@ export function AnalysisDashboard({ upload, onUpdate, onDelete }: { upload: Uplo
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={timeline} margin={{ top: 8, right: 8, left: 4, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.12)" vertical={false} />
-                  <XAxis dataKey="day" tick={{ fill: "#94a3b8", fontSize: 11 }} tickLine={false} axisLine={false} />
-                  <YAxis tick={{ fill: "#94a3b8", fontSize: 11 }} tickLine={false} axisLine={false} width={64} tickFormatter={(v) => kzt(v).replace(" ₸", "")} />
+                  <XAxis dataKey="day" tick={{ fill: "#a1a1aa", fontSize: 11 }} tickLine={false} axisLine={false} />
+                  <YAxis tick={{ fill: "#a1a1aa", fontSize: 11 }} tickLine={false} axisLine={false} width={64} tickFormatter={(v) => kzt(v).replace(" ₸", "")} />
                   <Tooltip content={<PenaltyTip kzt={kzt} tr={tr} />} />
                   <ReferenceLine y={0} stroke="rgba(244,63,94,0.6)" strokeDasharray="4 4" />
                   {breakEvenDay !== null && <ReferenceLine x={breakEvenDay} stroke="#f43f5e" strokeDasharray="3 3" />}
@@ -325,7 +325,7 @@ export function AnalysisDashboard({ upload, onUpdate, onDelete }: { upload: Uplo
         <GlassCard interactive={false} glow="blue" className="p-6 lg:col-span-5">
           <div className="flex items-center gap-2.5">
             <Sparkles className="h-4 w-4 text-sky-300" />
-            <h3 className="text-sm font-semibold text-[#292524] dark:text-white">{tr({ kz: "Қысқаша қорытынды", ru: "Краткий итог" })}</h3>
+            <h3 className="text-sm font-semibold text-fg dark:text-white">{tr({ kz: "Қысқаша қорытынды", ru: "Краткий итог" })}</h3>
           </div>
           <ul className="mt-4 space-y-3">
             {bullets.map((b, i) => (
@@ -345,7 +345,7 @@ export function AnalysisDashboard({ upload, onUpdate, onDelete }: { upload: Uplo
         <GlassCard interactive={false} glow="crimson" className="p-6 lg:col-span-7">
           <div className="flex items-center gap-2.5">
             <AlertTriangle className="h-4 w-4 text-rose-300" />
-            <h3 className="text-sm font-semibold text-[#292524] dark:text-white">{tr({ kz: "Басты тұзақтар мен қауіптер", ru: "Главные ловушки и риски" })}</h3>
+            <h3 className="text-sm font-semibold text-fg dark:text-white">{tr({ kz: "Басты тұзақтар мен қауіптер", ru: "Главные ловушки и риски" })}</h3>
             <Badge tone="neutral">{upload.risks.length}</Badge>
           </div>
           <div className="mt-4 space-y-2.5">
@@ -360,7 +360,7 @@ export function AnalysisDashboard({ upload, onUpdate, onDelete }: { upload: Uplo
       <div className="grid gap-6 lg:grid-cols-12">
         {/* Compliance */}
         <GlassCard interactive={false} className="p-6 lg:col-span-5">
-          <h3 className="text-sm font-semibold text-[#292524] dark:text-white">{tr({ kz: "Біліктілік талаптары", ru: "Квалификационные требования" })}</h3>
+          <h3 className="text-sm font-semibold text-fg dark:text-white">{tr({ kz: "Біліктілік талаптары", ru: "Квалификационные требования" })}</h3>
           <ul className="mt-4 space-y-2">
             {upload.facts.requiredExperienceYears != null && (
               <Req
@@ -386,7 +386,7 @@ export function AnalysisDashboard({ upload, onUpdate, onDelete }: { upload: Uplo
         {result && (
           <GlassCard interactive={false} glow={result.cashFlowGap ? "crimson" : "blue"} className="p-6 lg:col-span-7">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-              <h3 className="text-sm font-semibold text-[#292524] dark:text-white">{tr({ kz: "Кассалық алшақтық", ru: "Кассовый разрыв" })}</h3>
+              <h3 className="text-sm font-semibold text-fg dark:text-white">{tr({ kz: "Кассалық алшақтық", ru: "Кассовый разрыв" })}</h3>
               {result.cashFlowGap ? (
                 <Badge tone="crimson" pulse>
                   {tr({ kz: `${result.gapDay}-күні ${kzt(result.maxDeficit)}`, ru: `${kzt(result.maxDeficit)} на ${result.gapDay}-й день` })}
@@ -421,19 +421,19 @@ export function AnalysisDashboard({ upload, onUpdate, onDelete }: { upload: Uplo
 function Tile({ label, value, sub, note, page, tone }: { label: string; value: string; sub?: string; note?: string; page?: number | null; tone?: "pos" | "neg" }) {
   const { tr } = useI18n();
   const valueColor =
-    tone === "neg" ? "text-red-600 dark:text-red-400" : tone === "pos" ? "text-emerald-600 dark:text-emerald-400" : "text-[#292524] dark:text-white";
+    tone === "neg" ? "text-red-600 dark:text-red-400" : tone === "pos" ? "text-emerald-600 dark:text-emerald-400" : "text-fg dark:text-white";
   return (
-    <div className="rounded-xl border border-[#E5E0D8] bg-white p-4 shadow-sm transition-all duration-300 dark:border-white/10 dark:bg-[#13222A]/80 dark:shadow-none dark:backdrop-blur-md">
-      <p className="flex items-center justify-between gap-2 text-[11px] font-medium uppercase tracking-wider text-[#78716C] dark:text-slate-400">
+    <div className="rounded-xl border border-line bg-white p-4 shadow-sm transition-all duration-300 dark:border-white/10 dark:bg-surface/80 dark:shadow-none dark:backdrop-blur-md">
+      <p className="flex items-center justify-between gap-2 text-[11px] font-medium uppercase tracking-wider text-zinc-500 dark:text-slate-400">
         <span className="truncate">{label}</span>
         {page != null && (
-          <span className="shrink-0 rounded bg-[#F4F1EA] px-1.5 font-mono normal-case tracking-normal text-[#07575B] dark:bg-white/10 dark:text-[#C4DFE6]">
+          <span className="shrink-0 rounded bg-surface-2 px-1.5 font-mono normal-case tracking-normal text-fg dark:bg-white/10 dark:text-zinc-200">
             {tr({ kz: `бет ${page}`, ru: `стр. ${page}` })}
           </span>
         )}
       </p>
       <p className={cn("mt-2 font-mono text-lg font-semibold tabular-nums", valueColor)}>{value}</p>
-      {sub && <p className="mt-0.5 truncate text-[11px] text-[#78716C] dark:text-slate-400">{sub}</p>}
+      {sub && <p className="mt-0.5 truncate text-[11px] text-zinc-500 dark:text-slate-400">{sub}</p>}
       {note && (
         <p className="mt-1 inline-flex rounded-full border border-amber-300 bg-amber-50 px-2 text-[10px] text-amber-800 dark:border-amber-400/40 dark:bg-amber-500/10 dark:text-amber-200">{note}</p>
       )}
@@ -451,7 +451,7 @@ function RiskCard({ risk, defaultOpen }: { risk: UploadAnalysis["risks"][number]
   return (
     <div className="overflow-hidden rounded-xl border" style={{ borderColor: `${m.color}55`, background: `${m.color}0f` }}>
       <button onClick={() => setOpen((o) => !o)} aria-expanded={open} className="flex w-full items-center gap-3 px-4 py-3 text-left">
-        <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: m.color, boxShadow: `0 0 10px ${m.color}` }} />
+        <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: m.color }} />
         <span className="min-w-0 flex-1 text-sm font-medium text-slate-100">{title}</span>
         {risk.page != null && <span className="shrink-0 rounded bg-white/10 px-1.5 py-0.5 font-mono text-[11px] text-sky-200">{tr({ kz: `бет ${risk.page}`, ru: `стр. ${risk.page}` })}</span>}
         <Badge tone={m.tone} className="shrink-0">

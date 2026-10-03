@@ -5,10 +5,10 @@ import { AnalysisResult } from "@/lib/types";
 import { useI18n } from "@/lib/i18n";
 
 const ROWS = [
-  { key: "purchase", color: "#3b82f6" },
-  { key: "logistics", color: "#818cf8" },
-  { key: "operating", color: "#a78bfa" },
-  { key: "guarantee", color: "#38bdf8" },
+  { key: "purchase", color: "#a1a1aa" },
+  { key: "logistics", color: "#71717a" },
+  { key: "operating", color: "#52525b" },
+  { key: "guarantee", color: "#d4d4d8" },
   { key: "bank", color: "#f43f5e" },
   { key: "penalty", color: "#fb7185" },
   { key: "tax", color: "#f59e0b" },
@@ -39,7 +39,7 @@ export function ProfitBreakdown({ result, contractAmount }: { result: AnalysisRe
           className="h-full rounded-full"
           animate={{ width: `${profitPct}%` }}
           transition={{ type: "spring", stiffness: 140, damping: 24 }}
-          style={{ background: "#10b981", boxShadow: "0 0 14px #10b981aa" }}
+          style={{ background: "#10b981" }}
           title={t.dash.netProfit}
         />
       </div>

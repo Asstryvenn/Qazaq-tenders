@@ -8,7 +8,7 @@ import { KIND_META } from "./NotificationBell";
 import { useI18n } from "@/lib/i18n";
 
 const EXTRA = {
-  info: { icon: Info, color: "#60a5fa" },
+  info: { icon: Info, color: "#a1a1aa" },
   success: { icon: CheckCircle2, color: "#34d399" },
   error: { icon: XCircle, color: "#fb7185" },
 } as const;
@@ -40,7 +40,7 @@ export function Toaster() {
               exit={{ opacity: 0, x: 60, scale: 0.95 }}
               transition={{ type: "spring", stiffness: 380, damping: 30 }}
               className="pointer-events-auto relative flex gap-3 overflow-hidden rounded-2xl border bg-ink-800/[0.97] p-4 pr-9 shadow-card backdrop-blur-xl"
-              style={{ borderColor: `${meta.color}66`, boxShadow: `0 0 30px -10px ${meta.color}` }}
+              style={{ borderColor: `${meta.color}66` }}
             >
               <span className="absolute inset-y-0 left-0 w-1" style={{ background: meta.color }} />
               {t.href ? (

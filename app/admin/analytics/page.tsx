@@ -32,14 +32,14 @@ export default function AdminAnalytics() {
           <RegionsBar data={s?.regions ?? []} />
         </Panel>
         <Panel title="БИН-поиски по дням" className="xl:col-span-2">
-          <DailyChart data={s?.daily ?? []} keys={[{ key: "binLookups", name: "БИН-поиски", color: "#a78bfa" }]} />
+          <DailyChart data={s?.daily ?? []} keys={[{ key: "binLookups", name: "БИН-поиски", color: "#52525b" }]} />
         </Panel>
         <Panel title="Расчёты тендеров и AI-запросы по дням" className="xl:col-span-2">
           <DailyChart
             data={s?.daily ?? []}
             keys={[
               { key: "tenders", name: "Расчёты тендеров", color: "#10b981" },
-              { key: "aiQueries", name: "AI-запросы", color: "#3b82f6" },
+              { key: "aiQueries", name: "AI-запросы", color: "#a1a1aa" },
               { key: "signups", name: "Регистрации", color: "#f59e0b" },
             ]}
           />

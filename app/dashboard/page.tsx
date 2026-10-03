@@ -122,15 +122,16 @@ export default function DashboardPage() {
   const countBy = (s: TenderSource) => feed?.sources.find((x) => x.id === s)?.count ?? 0;
 
   return (
-    <div className="mx-auto max-w-7xl px-5 pb-16 pt-8 sm:px-6">
-      <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} className="mb-6 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-white">{t.dash.title}</h1>
-          <p className="mt-1.5 text-sm text-slate-400">
-            {t.dash.twin}: <span className="text-slate-200">{company.name}</span>
+    <div className="mx-auto max-w-7xl px-4 pb-16 pt-6 sm:px-6 sm:pt-8">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }} className="mb-6">
+        <p className="label-mono">{tr({ kz: "01 / Нарық", ru: "01 / Рынок" })}</p>
+        <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
+          <h1 className="text-3xl font-semibold tracking-tight text-fg sm:text-4xl">{t.dash.title}</h1>
+          <p className="text-sm text-zinc-500">
+            {t.dash.twin}: <span className="text-fg">{company.name}</span>
           </p>
         </div>
-        <div className="flex flex-wrap gap-2.5">
+        <div className="mt-5 grid grid-cols-2 gap-px border border-line bg-line lg:grid-cols-4">
           <Stat icon={Wallet} label={t.dash.capital} value={kzt(company.workingCapital)} />
           <Stat icon={Building2} label={t.dash.base} value={`${city(company.baseCityId)} · ${company.maxDistanceKm} ${t.units.km}`} />
           <Stat icon={Users} label={t.dash.staff} value={`${company.staffSize} ${t.units.people}`} />
@@ -139,7 +140,7 @@ export default function DashboardPage() {
       </motion.div>
 
       {isDemo && (
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-amber-400/25 bg-amber-400/[0.07] px-5 py-3.5">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border border-amber-500/30 bg-amber-500/[0.06] px-4 py-3">
           <p className="text-sm text-amber-100">{t.feed.demoProfile}</p>
           <Button className="px-4 py-2 text-xs" onClick={() => openModal("onboarding")}>
             {t.feed.setup}
@@ -148,7 +149,7 @@ export default function DashboardPage() {
       )}
 
       {pendingEmail && !session && (
-        <p className="mb-6 rounded-2xl border border-sky-400/25 bg-sky-400/[0.06] px-5 py-3 text-sm text-sky-100">
+        <p className="mb-6 border border-line px-4 py-3 text-sm text-zinc-300">
           {tr({
             kz: `Профиль осы құрылғыда жұмыс істеп тұр. ${pendingEmail} растағаннан кейін кіріңіз — профиль бұлтқа өзі сақталады.`,
             ru: `Профиль уже работает на этом устройстве. Подтвердите ${pendingEmail} и войдите — профиль сам сохранится в облаке.`,
@@ -157,8 +158,8 @@ export default function DashboardPage() {
       )}
 
       {/* Platform filter */}
-      <div className="mb-5 flex flex-wrap items-center gap-2">
-        <Chip active={filter === "all"} onClick={() => setFilter("all")} label={tr({ kz: "Барлық алаңдар", ru: "Все площадки" })} count={feed?.tenders.length ?? 0} color="#e2e8f0" />
+      <div className="-mx-4 mb-5 flex items-center gap-2 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
+        <Chip active={filter === "all"} onClick={() => setFilter("all")} label={tr({ kz: "Барлық алаңдар", ru: "Все площадки" })} count={feed?.tenders.length ?? 0} color="#e4e4e7" />
         {(Object.keys(SOURCES) as TenderSource[]).filter((s) => s !== "upload").map((s) => {
           const status = feed?.sources.find((x) => x.id === s);
           return (
@@ -174,22 +175,22 @@ export default function DashboardPage() {
             />
           );
         })}
-        <Button variant="outline" onClick={simulate} className="ml-auto px-3.5 py-2 text-xs">
+        <Button variant="outline" onClick={simulate} className="ml-auto shrink-0 px-3.5 py-2 text-xs">
           <BellRing className="h-3.5 w-3.5" /> {tr({ kz: "Тест хабарлама", ru: "Тест уведомления" })}
         </Button>
       </div>
 
       <div className="mb-4 flex items-center gap-2.5">
-        <h2 className="text-sm font-semibold text-white">{t.dash.monitoring}</h2>
+        <h2 className="label-mono text-fg">{t.dash.monitoring}</h2>
         <Badge tone="blue">{rows.length}</Badge>
         <span className="text-xs text-slate-500">· {t.feed.sortedBy}</span>
         {feed && !feed.live && <span className="text-xs text-slate-500">· {t.feed.demo}</span>}
       </div>
 
-      <section ref={listRef} aria-label={tr({ kz: "Тендерді сүзу", ru: "Фильтры тендеров" })} className="mb-5 rounded-2xl border border-[#E5E0D8] bg-white p-4 shadow-sm dark:border-white/10 dark:bg-[#13222A]/80">
-        <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-[#292524] dark:text-white"><SlidersHorizontal className="h-4 w-4 text-wave" /> {tr({ kz: "Тендерді сүзу", ru: "Фильтры тендеров" })}</div>
+      <section ref={listRef} aria-label={tr({ kz: "Тендерді сүзу", ru: "Фильтры тендеров" })} className="mb-5 scroll-mt-20 border border-line bg-surface p-3 sm:p-4">
+        <div className="mb-3 flex items-center gap-2 label-mono"><SlidersHorizontal className="h-3.5 w-3.5" /> {tr({ kz: "Тендерді сүзу", ru: "Фильтры тендеров" })}</div>
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(220px,1.4fr)_1fr_1fr_auto]">
-          <label className="relative block"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={tr({ kz: "Тендер немесе тапсырыс беруші", ru: "Тендер или заказчик" })} className="h-10 w-full rounded-lg border border-[#D6CFC4] bg-[#F8F6F1] pl-9 pr-9 text-sm text-[#292524] outline-none transition focus:border-wave dark:border-white/10 dark:bg-white/5 dark:text-white" />{query && <button onClick={() => setQuery("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500"><X className="h-4 w-4" /></button>}</label>
+          <label className="relative block"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={tr({ kz: "Тендер немесе тапсырыс беруші", ru: "Тендер или заказчик" })} className="h-10 w-full border border-line bg-app-bg pl-9 pr-9 text-sm text-fg outline-none transition focus:border-fg" />{query && <button onClick={() => setQuery("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500"><X className="h-4 w-4" /></button>}</label>
           <Select
             label={tr({ kz: "Сұрыптау", ru: "Сортировка" })}
             value={sort}
@@ -213,10 +214,8 @@ export default function DashboardPage() {
             aria-pressed={profitableOnly}
             onClick={() => setProfitableOnly((v) => !v)}
             className={cn(
-              "inline-flex h-10 items-center justify-center gap-2 whitespace-nowrap rounded-lg border px-3 text-sm font-medium transition-all duration-300",
-              profitableOnly
-                ? "border-emerald-600 bg-emerald-50 text-emerald-700 dark:border-[#10B981]/60 dark:bg-[#10B981]/15 dark:text-emerald-300"
-                : "border-[#D6CFC4] bg-[#F8F6F1] text-[#44403C] hover:border-emerald-600/50 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:border-[#10B981]/50"
+              "inline-flex h-10 items-center justify-center gap-2 whitespace-nowrap border px-3 text-sm font-medium transition-colors",
+              profitableOnly ? "border-fg bg-fg text-app-bg" : "border-line bg-app-bg text-zinc-300 hover:border-fg/60"
             )}
           >
             <TrendingUp className="h-4 w-4" /> {tr({ kz: "Тек тиімді (TOS > 70)", ru: "Только рентабельные (TOS > 70)" })}
@@ -235,8 +234,8 @@ export default function DashboardPage() {
           <AnimatePresence initial={false}>{visibleRows.map((row, i) => (
             <TenderListCard key={row.tender.id} tender={row.tender} result={row.result} index={i} onTelegram={() => sendTelegram(row.tender)} />
           ))}</AnimatePresence>
-          {rows.length > 10 && <button onClick={() => setShowAll((v) => !v)} className="group mt-2 flex items-center justify-center gap-2 rounded-xl border border-dashed border-[#D6CFC4] px-4 py-3 text-sm font-medium text-[#07575B] transition hover:border-wave hover:bg-[#07575B]/5 dark:border-white/15 dark:text-sea-foam dark:hover:bg-white/5"><span className="grid h-5 w-5 place-items-center rounded border border-current">{showAll ? "−" : "+"}</span>{showAll ? tr({ kz: "Тізімді қысқарту", ru: "Свернуть список" }) : tr({ kz: "Барлық тендерлерді көрсету", ru: "Все тендеры" })}<span className="text-xs text-slate-500">({rows.length})</span></button>}
-          {!rows.length && <div className="rounded-xl border border-dashed border-[#D6CFC4] px-5 py-10 text-center text-sm text-slate-500 dark:border-white/10">{tr({ kz: "Сұраныс бойынша тендер табылмады", ru: "Тендеры по запросу не найдены" })}</div>}
+          {rows.length > 10 && <button onClick={() => setShowAll((v) => !v)} className="group mt-2 flex items-center justify-center gap-2 rounded-xl border border-dashed border-line px-4 py-3 text-sm font-medium text-fg transition hover:border-wave hover:bg-fg/5 dark:border-white/15 dark:text-sea-foam dark:hover:bg-white/5"><span className="grid h-5 w-5 place-items-center rounded border border-current">{showAll ? "−" : "+"}</span>{showAll ? tr({ kz: "Тізімді қысқарту", ru: "Свернуть список" }) : tr({ kz: "Барлық тендерлерді көрсету", ru: "Все тендеры" })}<span className="text-xs text-slate-500">({rows.length})</span></button>}
+          {!rows.length && <div className="rounded-xl border border-dashed border-line px-5 py-10 text-center text-sm text-slate-500 dark:border-white/10">{tr({ kz: "Сұраныс бойынша тендер табылмады", ru: "Тендеры по запросу не найдены" })}</div>}
         </div>
       )}
 
@@ -246,7 +245,7 @@ export default function DashboardPage() {
 }
 
 function Select({ label, value, onChange, options }: { label: string; value: string; onChange: (value: string) => void; options: [string, string][] }) {
-  return <label className="relative block"><span className="sr-only">{label}</span><select value={value} onChange={(e) => onChange(e.target.value)} className="h-10 w-full appearance-none rounded-lg border border-[#D6CFC4] bg-[#F8F6F1] px-3 pr-9 text-sm text-[#292524] outline-none transition focus:border-wave dark:border-white/10 dark:bg-white/5 dark:text-white">{options.map(([id, text]) => <option key={id} value={id}>{text}</option>)}</select><ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" /></label>;
+  return <label className="relative block"><span className="sr-only">{label}</span><select value={value} onChange={(e) => onChange(e.target.value)} className="h-10 w-full appearance-none border border-line bg-app-bg px-3 pr-9 text-sm text-fg outline-none transition focus:border-fg">{options.map(([id, text]) => <option key={id} value={id}>{text}</option>)}</select><ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" /></label>;
 }
 
 
@@ -255,7 +254,6 @@ function Chip({
   onClick,
   label,
   count,
-  color,
   live,
   title,
 }: {
@@ -263,7 +261,7 @@ function Chip({
   onClick: () => void;
   label: string;
   count: number;
-  color: string;
+  color?: string;
   live?: boolean;
   title?: string;
 }) {
@@ -273,26 +271,24 @@ function Chip({
       title={title}
       aria-pressed={active}
       className={cn(
-        "flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors",
-        active ? "text-white" : "border-white/10 bg-white/[0.03] text-slate-300 hover:border-white/20"
+        "flex h-8 shrink-0 items-center gap-2 border px-3 text-xs font-medium transition-colors",
+        active ? "border-fg bg-fg text-app-bg" : "border-line text-zinc-400 hover:border-fg/50 hover:text-fg"
       )}
-      style={active ? { borderColor: `${color}99`, background: `${color}22` } : undefined}
     >
-      <span className="h-2 w-2 rounded-full" style={{ background: color, boxShadow: live ? `0 0 8px ${color}` : undefined }} />
+      {live !== undefined && <span className={cn("h-1.5 w-1.5", live ? "bg-emerald-500" : "bg-zinc-600")} title={live ? "live" : "demo"} />}
       {label}
-      <span className="font-mono text-slate-400">{count}</span>
+      <span className={cn("font-mono", active ? "text-app-bg/60" : "text-zinc-600")}>{count}</span>
     </button>
   );
 }
 
 function Stat({ icon: Icon, label, value }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string }) {
   return (
-    <div className="glass flex items-center gap-3 px-3.5 py-2.5">
-      <Icon className="h-4 w-4 text-blue-300" />
-      <div>
-        <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">{label}</p>
-        <p className="mt-0.5 font-mono text-sm text-slate-100">{value}</p>
-      </div>
+    <div className="min-w-0 bg-app-bg px-4 py-3">
+      <p className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-zinc-500">
+        <Icon className="h-3 w-3" /> {label}
+      </p>
+      <p className="mt-1.5 truncate font-mono text-sm text-fg sm:text-base">{value}</p>
     </div>
   );
 }

@@ -163,7 +163,7 @@ export function SourcesPanel({ sources, runs, scheduler, onChanged }: { sources:
           <summary className="cursor-pointer text-xs text-blue-300 hover:text-blue-200">{tr({ kz: "Іске қосулар журналы", ru: "Журнал запусков" })}</summary>
           <div className="mt-2 overflow-x-auto">
             <table className="w-full min-w-[560px] text-left text-xs">
-              <thead className="text-slate-400">
+              <thead className="font-mono text-[10px] uppercase tracking-[0.12em] text-zinc-500">
                 <tr>
                   <th className="py-1.5 pr-3 font-medium">{tr({ kz: "Басталды", ru: "Начало" })}</th>
                   <th className="py-1.5 pr-3 font-medium">{tr({ kz: "Түрі", ru: "Тип" })}</th>

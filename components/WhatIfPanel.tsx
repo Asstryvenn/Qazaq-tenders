@@ -61,7 +61,7 @@ export function WhatIfPanel({
           <p className="mt-1 font-mono text-2xl font-bold tabular-nums" style={{ color: tone.text }}>
             <AnimatedNumber value={result.tos} format={(v) => v.toFixed(1)} />
           </p>
-          <p className="mt-0.5 font-mono text-xs tabular-nums" style={{ color: delta < -0.05 ? "var(--neg)" : delta > 0.05 ? "var(--pos)" : "#64748b" }}>
+          <p className="mt-0.5 font-mono text-xs tabular-nums" style={{ color: delta < -0.05 ? "var(--neg)" : delta > 0.05 ? "var(--pos)" : "#71717a" }}>
             {delta > 0 ? "+" : ""}
             {delta.toFixed(1)}
           </p>

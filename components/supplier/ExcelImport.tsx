@@ -541,7 +541,7 @@ function ResultSummary({ result, issueGroups }: { result: TableImportResult; iss
       {result.products.length > 0 && (
         <div className="overflow-x-auto rounded-xl border border-white/10">
           <table className="w-full min-w-[560px] text-left text-xs">
-            <thead className="bg-white/[0.03] text-slate-400">
+            <thead className="bg-surface-2 font-mono text-[10px] uppercase tracking-[0.12em] text-zinc-500">
               <tr>
                 <th className="px-3 py-2 font-medium">{tr({ kz: "Код", ru: "Код" })}</th>
                 <th className="px-3 py-2 font-medium">{tr({ kz: "Атауы", ru: "Название" })}</th>

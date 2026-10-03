@@ -1,15 +1,16 @@
 import { cn } from "@/lib/utils";
 
 const tones = {
-  blue: "border-blue-400/40 bg-blue-500/15 text-blue-200",
-  emerald: "border-emerald-400/40 bg-emerald-500/15 text-emerald-200",
-  crimson: "border-rose-400/45 bg-rose-500/15 text-rose-200",
-  amber: "border-amber-400/40 bg-amber-500/15 text-amber-200",
-  neutral: "border-white/15 bg-white/[0.06] text-slate-200",
+  blue: "border-line bg-fg/[0.04] text-fg",
+  emerald: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300",
+  crimson: "border-rose-500/45 bg-rose-500/10 text-rose-300",
+  amber: "border-amber-500/40 bg-amber-500/10 text-amber-200",
+  neutral: "border-line bg-transparent text-zinc-300",
 } as const;
 
 export type BadgeTone = keyof typeof tones;
 
+/** Метка в стиле терминала: моноширинный шрифт, резкие углы. */
 export function Badge({
   tone = "neutral",
   pulse = false,
@@ -22,19 +23,8 @@ export function Badge({
   children: React.ReactNode;
 }) {
   return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium",
-        tones[tone],
-        className
-      )}
-    >
-      {pulse && (
-        <span className="relative flex h-1.5 w-1.5">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-current opacity-75" />
-          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-current" />
-        </span>
-      )}
+    <span className={cn("inline-flex items-center gap-1.5 rounded-sm border px-2 py-0.5 font-mono text-[11px] font-medium tabular-nums", tones[tone], className)}>
+      {pulse && <span className="inline-flex h-1.5 w-1.5 animate-blink bg-current" />}
       {children}
     </span>
   );

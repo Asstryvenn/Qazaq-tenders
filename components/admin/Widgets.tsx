@@ -6,8 +6,8 @@ import type { DailyPoint, Integration, IntegrationState } from "@/lib/admin-type
 import { cn } from "@/lib/utils";
 
 export const MODE_LABEL: Record<string, string> = { truck: "Фура 20 т", gazelle: "Газель 3 т", rail: "Ж/Д", air: "Авиа", city: "По городу" };
-const MODE_COLOR: Record<string, string> = { truck: "#3b82f6", gazelle: "#22d3ee", rail: "#a78bfa", air: "#f59e0b", city: "#10b981" };
-const TOOLTIP = { contentStyle: { background: "#0b1220", border: "1px solid rgba(255,255,255,.1)", borderRadius: 12, fontSize: 12 }, labelStyle: { color: "#cbd5e1" } };
+const MODE_COLOR: Record<string, string> = { truck: "#a1a1aa", gazelle: "#71717a", rail: "#52525b", air: "#f59e0b", city: "#10b981" };
+const TOOLTIP = { contentStyle: { background: "#09090b", border: "1px solid rgba(255,255,255,.1)", borderRadius: 12, fontSize: 12 }, labelStyle: { color: "#d4d4d8" } };
 
 export function PageHead({ title, subtitle, onReload, loading }: { title: string; subtitle?: string; onReload?: () => void; loading?: boolean }) {
   return (
@@ -72,8 +72,8 @@ export function DailyChart({ data, keys }: { data: DailyPoint[]; keys: { key: ke
       <ResponsiveContainer>
         <LineChart data={data} margin={{ left: -20, right: 8, top: 8 }}>
           <CartesianGrid stroke="rgba(255,255,255,.06)" vertical={false} />
-          <XAxis dataKey="day" tickFormatter={(d: string) => d.slice(5)} tick={{ fill: "#64748b", fontSize: 11 }} />
-          <YAxis allowDecimals={false} tick={{ fill: "#64748b", fontSize: 11 }} />
+          <XAxis dataKey="day" tickFormatter={(d: string) => d.slice(5)} tick={{ fill: "#71717a", fontSize: 11 }} />
+          <YAxis allowDecimals={false} tick={{ fill: "#71717a", fontSize: 11 }} />
           <Tooltip {...TOOLTIP} />
           <Legend wrapperStyle={{ fontSize: 12 }} />
           {keys.map((k) => (
@@ -93,16 +93,16 @@ export function ActivityArea({ data }: { data: DailyPoint[] }) {
         <AreaChart data={data} margin={{ left: -20, right: 8, top: 8 }}>
           <defs>
             <linearGradient id="ai" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.5} />
-              <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
+              <stop offset="0%" stopColor="#a1a1aa" stopOpacity={0.5} />
+              <stop offset="100%" stopColor="#a1a1aa" stopOpacity={0} />
             </linearGradient>
           </defs>
           <CartesianGrid stroke="rgba(255,255,255,.06)" vertical={false} />
-          <XAxis dataKey="day" tickFormatter={(d: string) => d.slice(5)} tick={{ fill: "#64748b", fontSize: 11 }} />
-          <YAxis allowDecimals={false} tick={{ fill: "#64748b", fontSize: 11 }} />
+          <XAxis dataKey="day" tickFormatter={(d: string) => d.slice(5)} tick={{ fill: "#71717a", fontSize: 11 }} />
+          <YAxis allowDecimals={false} tick={{ fill: "#71717a", fontSize: 11 }} />
           <Tooltip {...TOOLTIP} />
           <Legend wrapperStyle={{ fontSize: 12 }} />
-          <Area type="monotone" dataKey="aiQueries" name="AI-запросы" stroke="#3b82f6" fill="url(#ai)" />
+          <Area type="monotone" dataKey="aiQueries" name="AI-запросы" stroke="#a1a1aa" fill="url(#ai)" />
           <Area type="monotone" dataKey="signups" name="Регистрации" stroke="#10b981" fill="transparent" />
         </AreaChart>
       </ResponsiveContainer>
@@ -118,7 +118,7 @@ export function LogisticsPie({ data }: { data: { mode: string; count: number }[]
         <PieChart>
           <Pie data={data.map((d) => ({ ...d, name: MODE_LABEL[d.mode] ?? d.mode }))} dataKey="count" nameKey="name" innerRadius={55} outerRadius={90} paddingAngle={3}>
             {data.map((d) => (
-              <Cell key={d.mode} fill={MODE_COLOR[d.mode] ?? "#64748b"} stroke="transparent" />
+              <Cell key={d.mode} fill={MODE_COLOR[d.mode] ?? "#71717a"} stroke="transparent" />
             ))}
           </Pie>
           <Tooltip {...TOOLTIP} />
@@ -136,10 +136,10 @@ export function RegionsBar({ data }: { data: { name: string; users: number }[] }
       <ResponsiveContainer>
         <BarChart data={data} layout="vertical" margin={{ left: 10, right: 16 }}>
           <CartesianGrid stroke="rgba(255,255,255,.06)" horizontal={false} />
-          <XAxis type="number" allowDecimals={false} tick={{ fill: "#64748b", fontSize: 11 }} />
-          <YAxis type="category" dataKey="name" width={110} tick={{ fill: "#cbd5e1", fontSize: 12 }} />
+          <XAxis type="number" allowDecimals={false} tick={{ fill: "#71717a", fontSize: 11 }} />
+          <YAxis type="category" dataKey="name" width={110} tick={{ fill: "#d4d4d8", fontSize: 12 }} />
           <Tooltip {...TOOLTIP} />
-          <Bar dataKey="users" name="Компаний" fill="#3b82f6" radius={[0, 6, 6, 0]} />
+          <Bar dataKey="users" name="Компаний" fill="#a1a1aa" radius={[0, 6, 6, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

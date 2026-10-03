@@ -68,7 +68,7 @@ export default function AdminUsers() {
           <option value="pro" className="bg-ink-800">Pro</option>
           <option value="max" className="bg-ink-800">Max</option>
         </select>
-        <button className="rounded-xl bg-accent-blue px-4 text-sm font-semibold text-white">Найти</button>
+        <button className="rounded-xl bg-accent-blue px-4 text-sm font-semibold text-app-bg">Найти</button>
       </form>
 
       <div className="glass overflow-x-auto">

@@ -40,7 +40,7 @@ export function RiskAlerts({ result, tender }: { result: AnalysisResult; tender:
             transition={{ delay: i * 0.05 }}
             className="flex gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3.5 text-sm leading-relaxed text-slate-200"
           >
-            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: dot, boxShadow: `0 0 10px ${dot}` }} />
+            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: dot }} />
             {reason(r)}
           </motion.li>
         ))}

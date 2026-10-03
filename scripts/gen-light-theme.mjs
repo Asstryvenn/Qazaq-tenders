@@ -7,20 +7,18 @@ import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const ROOTS = ["app", "components", "lib"];
+// Монохром: синие/фиолетовые/сине-серые семейства в tailwind.config.ts указывают на zinc,
+// поэтому и в светлой теме они становятся тёмно-серыми, а не синими.
+const ZINC = { 100: "#f4f4f5", 200: "#e4e4e7", 300: "#d4d4d8", 400: "#a1a1aa", 500: "#71717a", 600: "#52525b", 700: "#3f3f46", 800: "#27272a", 900: "#18181b" };
 const PAL = {
-  // Warm stone (espresso/taupe) for the Premium Beige light theme
-  slate: { 100: "#f5f5f4", 200: "#e7e5e4", 300: "#d6d3d1", 400: "#a8a29e", 500: "#78716c", 600: "#57534e", 700: "#44403c", 800: "#292524", 900: "#1c1917" },
+  slate: ZINC, gray: ZINC, zinc: ZINC, blue: ZINC, sky: ZINC, indigo: ZINC, violet: ZINC, purple: ZINC, cyan: ZINC, teal: ZINC, pink: ZINC,
   emerald: { 100: "#d1fae5", 200: "#a7f3d0", 300: "#6ee7b7", 400: "#34d399", 500: "#10b981", 600: "#059669", 700: "#047857", 800: "#065f46" },
   rose: { 100: "#ffe4e6", 200: "#fecdd3", 300: "#fda4af", 400: "#fb7185", 500: "#f43f5e", 600: "#e11d48", 700: "#be123c", 800: "#9f1239" },
   amber: { 100: "#fef3c7", 200: "#fde68a", 300: "#fcd34d", 400: "#fbbf24", 500: "#f59e0b", 600: "#d97706", 700: "#b45309", 800: "#92400e" },
-  sky: { 100: "#e0f2fe", 200: "#bae6fd", 300: "#7dd3fc", 400: "#38bdf8", 500: "#0ea5e9", 600: "#0284c7", 700: "#0369a1", 800: "#075985" },
-  blue: { 100: "#dbeafe", 200: "#bfdbfe", 300: "#93c5fd", 400: "#60a5fa", 500: "#3b82f6", 600: "#2563eb", 700: "#1d4ed8", 800: "#1e40af" },
-  violet: { 100: "#ede9fe", 200: "#ddd6fe", 300: "#c4b5fd", 400: "#a78bfa", 500: "#8b5cf6", 600: "#7c3aed", 700: "#6d28d9", 800: "#5b21b6" },
-  pink: { 100: "#fce7f3", 200: "#fbcfe8", 300: "#f9a8d4", 400: "#f472b6", 500: "#ec4899", 600: "#db2777", 700: "#be185d", 800: "#9d174d" },
-  indigo: { 300: "#a5b4fc", 400: "#818cf8", 500: "#6366f1", 600: "#4f46e5", 700: "#4338ca" },
+  red: { 100: "#fee2e2", 200: "#fecaca", 300: "#fca5a5", 400: "#f87171", 500: "#ef4444", 600: "#dc2626", 700: "#b91c1c", 800: "#991b1b" },
 };
-const INK = { "": "#F4F1EA", 900: "#FAF8F4", 800: "#ffffff", 700: "#FAF8F4" };
-const DARK = [41, 37, 36]; // #292524 espresso
+const INK = { "": "#ffffff", 900: "#ffffff", 800: "#ffffff", 700: "#fafafa" };
+const DARK = [9, 9, 11]; // #09090b
 
 const files = [];
 const walk = (d) => {
@@ -47,7 +45,7 @@ const darker = (fam, shade) => {
 };
 
 // White text stays white on filled/gradient controls.
-const KEEP_WHITE = ':not([class*="bg-accent"], [class*="bg-gradient"], [class*="bg-rose-5"], [class*="bg-blue-5"], .keep-white, [class*="bg-accent"] *, [class*="bg-gradient"] *, .keep-white *)';
+const KEEP_WHITE = ':not([class*="bg-accent"], [class*="bg-fg"], [class*="bg-emerald-6"], [class*="bg-gradient"], [class*="bg-rose-5"], [class*="bg-blue-5"], .keep-white, [class*="bg-accent"] *, [class*="bg-gradient"] *, .keep-white *)';
 
 const rules = [];
 for (const [token, m] of found) {
@@ -59,7 +57,7 @@ for (const [token, m] of found) {
 
   if (prop === "text") {
     if (color === "white") (decl = `color: ${rgba(DARK, a)}`), (extra = KEEP_WHITE);
-    else if (fam === "slate") decl = `color: ${PAL.slate[{ 100: 900, 200: 800, 300: 700, 400: 600, 500: 500, 600: 500 }[shade] ?? 700]}`;
+    else if (["slate", "gray", "zinc"].includes(fam)) decl = `color: ${PAL.slate[{ 100: 900, 200: 800, 300: 700, 400: 600, 500: 500, 600: 500 }[shade] ?? 700]}`;
     else if (PAL[fam] && Number(shade) <= 400) decl = `color: ${darker(fam, shade)}`;
   } else if (prop === "bg") {
     if (color === "white" && alphaRaw) decl = `background-color: ${rgba(DARK, Math.min(0.12, a * 0.7))}`;

@@ -32,7 +32,7 @@ export default function AdminDashboard() {
           <DailyChart
             data={s?.daily ?? []}
             keys={[
-              { key: "binLookups", name: "БИН-поиски", color: "#a78bfa" },
+              { key: "binLookups", name: "БИН-поиски", color: "#52525b" },
               { key: "tenders", name: "Расчёты", color: "#10b981" },
             ]}
           />

@@ -107,7 +107,7 @@ export function NotificationBell() {
                   >
                     <span
                       className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", isRead(a.id) && "opacity-0")}
-                      style={{ background: KIND_META[a.kind].color, boxShadow: `0 0 8px ${KIND_META[a.kind].color}` }}
+                      style={{ background: KIND_META[a.kind].color }}
                     />
                     <span className="min-w-0">
                       <span className="block text-sm leading-snug text-slate-100">{a.title}</span>

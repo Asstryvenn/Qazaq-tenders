@@ -61,7 +61,7 @@ export function TenderCard({
         </div>
         <div
           className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border-2 bg-ink/90"
-          style={{ borderColor: `${tone.color}b3`, boxShadow: `0 0 24px -6px ${tone.color}, inset 0 0 14px -5px ${tone.color}` }}
+          style={{ borderColor: `${tone.color}b3` }}
           aria-label={`TOS ${Math.round(result.tos)} · ${t.verdict[tone.key]}`}
         >
           <span className="font-mono text-lg font-bold leading-none tabular-nums" style={{ color: tone.text }}>

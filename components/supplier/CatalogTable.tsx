@@ -87,34 +87,34 @@ export function CatalogTable({ initial, total, counts, published, reloadKey }: {
         </div>
       </div>
       <div className="mt-3 overflow-x-auto">
-        <table className="w-full min-w-[720px] text-left text-sm">
-          <thead className="text-xs text-slate-400">
+        <table className="w-full min-w-[720px] border-collapse border border-line text-left text-sm">
+          <thead className="bg-surface-2 font-mono text-[10px] uppercase tracking-[0.12em] text-zinc-500">
             <tr>
-              <th className="py-2 pr-3 font-medium">{tr({ kz: "Код", ru: "Код" })}</th>
-              <th className="py-2 pr-3 font-medium">{tr({ kz: "Тауар", ru: "Товар" })}</th>
-              <th className="py-2 pr-3 font-medium">{tr({ kz: "Баға", ru: "Цена" })}</th>
-              <th className="py-2 pr-3 font-medium">{tr({ kz: "Бар болуы", ru: "Наличие" })}</th>
-              <th className="py-2 pr-3 font-medium">{tr({ kz: "ҚҚС", ru: "НДС" })}</th>
-              <th className="py-2 font-medium">{tr({ kz: "Деректер күні", ru: "Дата данных" })}</th>
+              <th className="border-b border-line px-3 py-2.5 font-medium">{tr({ kz: "Код", ru: "Код" })}</th>
+              <th className="border-b border-line px-3 py-2.5 font-medium">{tr({ kz: "Тауар", ru: "Товар" })}</th>
+              <th className="border-b border-line px-3 py-2.5 text-right font-medium">{tr({ kz: "Баға", ru: "Цена" })}</th>
+              <th className="border-b border-line px-3 py-2.5 font-medium">{tr({ kz: "Бар болуы", ru: "Наличие" })}</th>
+              <th className="border-b border-line px-3 py-2.5 font-medium">{tr({ kz: "ҚҚС", ru: "НДС" })}</th>
+              <th className="border-b border-line px-3 py-2.5 font-medium">{tr({ kz: "Деректер күні", ru: "Дата данных" })}</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((p) => (
-              <tr key={p.id} className={cn("border-t border-white/10 align-top text-slate-200", !p.active && "opacity-50")}>
-                <td className="py-2 pr-3 font-mono text-xs">{p.sku_generated ? <Chip tone="warn">{tr({ kz: "ішкі код", ru: "внутр. код" })}</Chip> : p.sku}</td>
-                <td className="max-w-[320px] py-2 pr-3">
+              <tr key={p.id} className={cn("border-t border-line align-top text-zinc-200 transition-colors hover:bg-fg/[0.03]", !p.active && "opacity-50")}>
+                <td className="px-3 py-2 font-mono text-xs">{p.sku_generated ? <Chip tone="warn">{tr({ kz: "ішкі код", ru: "внутр. код" })}</Chip> : p.sku}</td>
+                <td className="max-w-[320px] px-3 py-2">
                   <span className="line-clamp-2">{p.name}</span>
                   {(p.brand || p.model) && <span className="block text-xs text-slate-500">{[p.brand, p.model].filter(Boolean).join(" · ")}</span>}
                   {!p.active && <Chip className="mt-1">{p.deactivated_reason === "missing_from_snapshot" ? tr({ kz: "дереккөзде жоқ", ru: "нет в источнике" }) : tr({ kz: "жасырылған", ru: "скрыт" })}</Chip>}
                 </td>
-                <td className="whitespace-nowrap py-2 pr-3 font-mono">{formatKzt(p.price_kzt)}<span className="text-xs text-slate-500"> / {p.unit}</span></td>
-                <td className="py-2 pr-3 text-xs">
+                <td className="whitespace-nowrap px-3 py-2 text-right font-mono text-fg">{formatKzt(p.price_kzt)}<span className="text-xs text-slate-500"> / {p.unit}</span></td>
+                <td className="px-3 py-2 text-xs">
                   {AVAILABILITY_TEXT[p.availability]?.[lang] ?? p.availability}
                   {p.stock != null && <span className="text-slate-400"> · {p.stock}</span>}
                   {p.locations?.length > 1 && <span className="block text-slate-500">{tr({ kz: `${p.locations.length} қойма`, ru: `складов: ${p.locations.length}` })}</span>}
                 </td>
-                <td className="py-2 pr-3 text-xs">{p.vat_included === null ? <span className="text-slate-500">{tr({ kz: "белгісіз", ru: "не указан" })}</span> : p.vat_included ? tr({ kz: "бар", ru: "включён" }) : tr({ kz: "жоқ", ru: "не включён" })}</td>
-                <td className="whitespace-nowrap py-2 text-xs text-slate-400">{p.source_updated_at ? formatDateTime(p.source_updated_at, lang) : tr({ kz: "белгісіз", ru: "неизвестна" })}</td>
+                <td className="px-3 py-2 text-xs">{p.vat_included === null ? <span className="text-slate-500">{tr({ kz: "белгісіз", ru: "не указан" })}</span> : p.vat_included ? tr({ kz: "бар", ru: "включён" }) : tr({ kz: "жоқ", ru: "не включён" })}</td>
+                <td className="whitespace-nowrap px-3 py-2 font-mono text-xs text-zinc-500">{p.source_updated_at ? formatDateTime(p.source_updated_at, lang) : tr({ kz: "белгісіз", ru: "неизвестна" })}</td>
               </tr>
             ))}
           </tbody>

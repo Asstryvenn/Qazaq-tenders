@@ -21,7 +21,7 @@ export const TIERS: Record<Tier, { icon: string; color: string; name: string; su
   },
   pro: {
     icon: "",
-    color: "#60a5fa",
+    color: "#a1a1aa",
     name: "PRO",
     sub: { kz: "Кәсіпкер", ru: "Предприниматель" },
     model: "gpt-4o",
@@ -34,7 +34,7 @@ export const TIERS: Record<Tier, { icon: string; color: string; name: string; su
   },
   max: {
     icon: "",
-    color: "#c084fc",
+    color: "#a1a1aa",
     name: "MAX",
     sub: { kz: "Enterprise / All-Inclusive", ru: "Enterprise / All-Inclusive" },
     model: "gpt-4o + o3-mini",

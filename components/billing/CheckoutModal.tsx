@@ -188,7 +188,7 @@ export function CheckoutModal() {
                   disabled={!selectable}
                   onClick={() => setSelected(t)}
                   className={cn("flex flex-col rounded-2xl border p-4 text-left transition-colors", sel && selectable ? "bg-white/[0.07]" : "border-white/10 bg-white/[0.02]", !selectable && "cursor-default opacity-80")}
-                  style={sel && selectable ? { borderColor: `${m.color}aa`, boxShadow: `0 0 30px -12px ${m.color}` } : undefined}
+                  style={sel && selectable ? { borderColor: `${m.color}aa` } : undefined}
                 >
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-semibold text-white">

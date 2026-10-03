@@ -1,4 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 import "./theme-light.css";
 import { ThemeProvider } from "@/lib/theme";
@@ -20,9 +22,20 @@ export const metadata: Metadata = {
   description: "Тендердің табыстылығын, ақша ағынын және өтімділік тәуекелдерін өтінім бермес бұрын бағалау.",
 };
 
+/** Телефон: ширина устройства, без автоувеличения; цвет панели браузера — как фон сайта. */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#09090b" },
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+  ],
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="kk" className="dark" suppressHydrationWarning>
+    <html lang="kk" className={`dark ${GeistSans.variable} ${GeistMono.variable}`} suppressHydrationWarning>
       <head>
         {/* Apply the saved theme before first paint — no dark→light flash. */}
         <script
@@ -31,7 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body className="flex min-h-screen flex-col">
+      <body className="flex min-h-screen flex-col overflow-x-hidden font-sans">
         <ThemeProvider>
         <I18nProvider>
           <ProfileProvider>

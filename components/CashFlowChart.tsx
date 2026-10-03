@@ -54,8 +54,8 @@ export function CashFlowChart({ result, height = 300 }: { result: AnalysisResult
         <ComposedChart data={data} margin={{ top: 16, right: 12, left: 4, bottom: 0 }}>
           <defs>
             <linearGradient id="cfPositive" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.45} />
-              <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
+              <stop offset="0%" stopColor="#a1a1aa" stopOpacity={0.45} />
+              <stop offset="100%" stopColor="#a1a1aa" stopOpacity={0} />
             </linearGradient>
             <linearGradient id="cfNegative" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#f43f5e" stopOpacity={0.05} />
@@ -72,13 +72,13 @@ export function CashFlowChart({ result, height = 300 }: { result: AnalysisResult
 
           <XAxis
             dataKey="day"
-            tick={{ fill: "#94a3b8", fontSize: 11 }}
+            tick={{ fill: "#a1a1aa", fontSize: 11 }}
             tickLine={false}
             axisLine={{ stroke: "rgba(255,255,255,0.1)" }}
             minTickGap={28}
           />
           <YAxis
-            tick={{ fill: "#94a3b8", fontSize: 11 }}
+            tick={{ fill: "#a1a1aa", fontSize: 11 }}
             tickLine={false}
             axisLine={false}
             width={66}
@@ -101,11 +101,11 @@ export function CashFlowChart({ result, height = 300 }: { result: AnalysisResult
           <Line
             type="monotone"
             dataKey="balance"
-            stroke="#60a5fa"
+            stroke="#a1a1aa"
             strokeWidth={2.5}
             dot={false}
             filter="url(#lineGlow)"
-            activeDot={{ r: 4, fill: "#bfdbfe", stroke: "#1e3a8a" }}
+            activeDot={{ r: 4, fill: "#e4e4e7", stroke: "#27272a" }}
             {...ANIM}
           />
         </ComposedChart>

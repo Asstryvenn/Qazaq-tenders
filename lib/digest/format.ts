@@ -176,20 +176,20 @@ export function renderEmail(models: CardModel[], lang: DigestLang): { subject: s
   const cards = models
     .map(
       (m) => `
-<div style="border:1px solid #1e293b;border-radius:14px;padding:18px;margin:0 0 16px;background:#0b1220;color:#e2e8f0">
+<div style="border:1px solid #1e293b;border-radius:14px;padding:18px;margin:0 0 16px;background:#09090b;color:#e4e4e7">
   <p style="margin:0 0 4px;font-size:15px;font-weight:600">📌 ${escHtml(m.title)}</p>
-  <p style="margin:0 0 12px;color:#94a3b8;font-size:13px">${t.budget}: ${escHtml(m.budget)} · 📍 ${escHtml(m.route)}</p>
-  <p style="margin:0 0 6px;font-size:12px;font-weight:700;color:#60a5fa">${t.ai}</p>
+  <p style="margin:0 0 12px;color:#a1a1aa;font-size:13px">${t.budget}: ${escHtml(m.budget)} · 📍 ${escHtml(m.route)}</p>
+  <p style="margin:0 0 6px;font-size:12px;font-weight:700;color:#a1a1aa">${t.ai}</p>
   <p style="margin:0;font-size:14px">📊 ${t.tosLabel}: <b>${m.tos}</b> — ${m.verdictEmoji} <b>${m.verdict}</b></p>
   <p style="margin:4px 0 0;font-size:14px">💰 ${t.profit}: <b>${escHtml(m.profit)}</b> (${t.margin} ${m.margin})</p>
   <p style="margin:4px 0 0;font-size:14px">🕳 ${t.gap}: ${escHtml(m.gap)}</p>
   <p style="margin:4px 0 12px;font-size:14px">🚚 ${t.logistics}: ${escHtml(m.logistics)}</p>
-  <p style="margin:0 0 6px;font-size:12px;font-weight:700;color:#94a3b8">${t.tech}</p>
-  <table style="font-size:13px;color:#cbd5e1;border-collapse:collapse">${m.tech
-    .map(([k, v]) => `<tr><td style="padding:2px 12px 2px 0;color:#64748b">${k}</td><td>${escHtml(v)}</td></tr>`)
+  <p style="margin:0 0 6px;font-size:12px;font-weight:700;color:#a1a1aa">${t.tech}</p>
+  <table style="font-size:13px;color:#d4d4d8;border-collapse:collapse">${m.tech
+    .map(([k, v]) => `<tr><td style="padding:2px 12px 2px 0;color:#71717a">${k}</td><td>${escHtml(v)}</td></tr>`)
     .join("")}</table>
-  ${m.documents.length ? `<p style="margin:10px 0 0;font-size:13px">${t.docs}: ${m.documents.map((d) => `<a style="color:#60a5fa" href="${escHtml(d.url)}">${escHtml(d.name)}</a>`).join(", ")}</p>` : ""}
-  <p style="margin:14px 0 0"><a href="${escHtml(m.url)}" style="display:inline-block;background:#3b82f6;color:#fff;text-decoration:none;padding:9px 14px;border-radius:10px;font-size:13px;font-weight:600">${t.open}</a></p>
+  ${m.documents.length ? `<p style="margin:10px 0 0;font-size:13px">${t.docs}: ${m.documents.map((d) => `<a style="color:#a1a1aa" href="${escHtml(d.url)}">${escHtml(d.name)}</a>`).join(", ")}</p>` : ""}
+  <p style="margin:14px 0 0"><a href="${escHtml(m.url)}" style="display:inline-block;background:#a1a1aa;color:#fff;text-decoration:none;padding:9px 14px;border-radius:10px;font-size:13px;font-weight:600">${t.open}</a></p>
 </div>`
     )
     .join("");

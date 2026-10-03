@@ -37,7 +37,7 @@ export function ThinkingBadge({ status }: { status: StatusKey }) {
           key={status}
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-sm font-medium text-slate-700 dark:text-[#C4DFE6]"
+          className="text-sm font-medium text-slate-700 dark:text-zinc-200"
         >
           {tr(STATUS_TEXT[status])}
         </motion.span>
@@ -125,10 +125,10 @@ export function ScenarioCard({ data, tender }: { data: ScenarioCardData; tender?
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mt-4 overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/10 dark:bg-[#13222A]/80"
+      className="mt-4 overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/10 dark:bg-surface/80"
     >
       <div className="flex flex-wrap items-center gap-2 border-b border-white/10 px-4 py-3">
-        <span className="text-xs font-semibold uppercase tracking-wider text-[#07575B] dark:text-[#C4DFE6]">{tr({ kz: "Сценарий", ru: "Сценарий" })}</span>
+        <span className="text-xs font-semibold uppercase tracking-wider text-fg dark:text-zinc-200">{tr({ kz: "Сценарий", ru: "Сценарий" })}</span>
         {scenarioLabels(s as unknown as Record<string, number>, lang).map((l) => (
           <span key={l} className="rounded-full border border-white/15 bg-white/5 px-2 py-0.5 text-[11px] text-slate-200">
             {l}
@@ -173,7 +173,7 @@ export function ScenarioCard({ data, tender }: { data: ScenarioCardData; tender?
       <div className="flex justify-end border-t border-white/10 px-4 py-3">
         <Link
           href={`/tender/${encodeURIComponent(data.tenderId)}?s=${encodeScenario(s)}`}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-accent-blue px-3.5 py-2 text-xs font-semibold keep-white text-white shadow-glow hover:bg-[#33c1fe]"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-accent-blue px-3.5 py-2 text-xs font-semibold text-app-bg hover:bg-fg/85"
         >
           {tr({ kz: "Сценарийді толық талдауда ашу", ru: "Открыть сценарий в полном анализе" })} <ArrowUpRight className="h-3.5 w-3.5" />
         </Link>
@@ -186,7 +186,7 @@ function Metric({ label, value, delta, good, color }: { label: string; value: st
   return (
     <div className="rounded-xl border border-white/10 bg-black/20 px-3 py-2.5">
       <p className="truncate text-[11px] uppercase tracking-wider text-slate-400">{label}</p>
-      <p className="mt-1 font-mono text-base font-bold tabular-nums" style={{ color: color ?? "#f1f5f9" }}>
+      <p className="mt-1 font-mono text-base font-bold tabular-nums" style={{ color: color ?? "#f4f4f5" }}>
         {value}
       </p>
       {delta && (
